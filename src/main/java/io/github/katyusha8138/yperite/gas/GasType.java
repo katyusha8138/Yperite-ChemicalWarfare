@@ -15,8 +15,28 @@ public final class GasType {
     private final int color;
     private final float opacity;
     private final GasPhysics physics;
+    private final Toxicity toxicity;
+
+    /**
+     * How strongly the gas acts on a body, in exposure units per second (see the exposure model). These are game
+     * tuning values, not real toxicity.
+     *
+     * @param inhalation exposure per second from breathing air at concentration 1
+     * @param skin       exposure per second on the skin from air at concentration 1
+     * @param residue    exposure per second on the skin from standing on residue of amount 1
+     */
+    public record Toxicity(float inhalation, float skin, float residue) {
+        public static final Toxicity NONE = new Toxicity(0f, 0f, 0f);
+
+        public Toxicity {
+            if (inhalation < 0f || skin < 0f || residue < 0f) {
+                throw new IllegalArgumentException("toxicity must not be negative");
+            }
+        }
+    }
 
     private GasType(Builder builder) {
+        this.toxicity = new Toxicity(builder.inhalation, builder.skin, builder.residue);
         this.category = builder.category;
         this.color = builder.color;
         this.opacity = builder.opacity;
@@ -53,6 +73,10 @@ public final class GasType {
         return physics;
     }
 
+    public Toxicity toxicity() {
+        return toxicity;
+    }
+
     @Nullable
     public ResourceLocation id() {
         return GasTypes.REGISTRY.get().getKey(this);
@@ -76,6 +100,9 @@ public final class GasType {
         private float evaporationPerSecond;
         private float rainWashoutPerSecond;
         private float waterAbsorbPerSecond;
+        private float inhalation;
+        private float skin;
+        private float residue;
 
         private Builder(GasCategory category) {
             this.category = category;
@@ -131,6 +158,14 @@ public final class GasType {
 
         public Builder waterAbsorbPerSecond(float rate) {
             this.waterAbsorbPerSecond = rate;
+            return this;
+        }
+
+        /** Exposure per second at concentration 1 by breathing, by skin contact with the air, and per unit of residue. */
+        public Builder toxicity(float inhalation, float skin, float residue) {
+            this.inhalation = inhalation;
+            this.skin = skin;
+            this.residue = residue;
             return this;
         }
 

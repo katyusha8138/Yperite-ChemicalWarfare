@@ -13,6 +13,17 @@ public final class YperiteConfig {
     public static final ForgeConfigSpec.DoubleValue WIND_MAX_SPEED;
     public static final ForgeConfigSpec.DoubleValue WIND_SHELTER_EXPONENT;
     public static final ForgeConfigSpec.DoubleValue OPEN_AIR_DILUTION;
+    public static final ForgeConfigSpec.BooleanValue EXPOSURE_ENABLED;
+    public static final ForgeConfigSpec.IntValue EXPOSURE_INTERVAL;
+    public static final ForgeConfigSpec.DoubleValue EXPOSURE_POTENCY;
+    public static final ForgeConfigSpec.DoubleValue EXPOSURE_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue EXPOSURE_RECOVERY;
+    public static final ForgeConfigSpec.BooleanValue EXPOSURE_MESSAGES;
+    public static final ForgeConfigSpec.BooleanValue MOBS_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue MOBS_UNDEAD_IMMUNE;
+    public static final ForgeConfigSpec.BooleanValue AFTEREFFECTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue AFTEREFFECTS_STRENGTH;
+    public static final ForgeConfigSpec.DoubleValue AFTEREFFECTS_MAX_HEALTH_LOSS;
     public static final ForgeConfigSpec.BooleanValue PARTICLES_ENABLED;
     public static final ForgeConfigSpec.IntValue PARTICLE_INTERVAL;
     public static final ForgeConfigSpec.IntValue PARTICLE_RANGE;
@@ -50,6 +61,48 @@ public final class YperiteConfig {
                 .defineInRange("shelterExponent", 2.0, 0.25, 8.0);
         b.pop(); // wind
         b.pop(); // gas
+
+        b.comment("Exposure: how gas affects living things").push("exposure");
+        EXPOSURE_ENABLED = b
+                .comment("Whether gas affects living things at all. Turn it off to keep only the gas itself.")
+                .define("enabled", true);
+        EXPOSURE_INTERVAL = b
+                .comment("Ticks between exposure checks for players.")
+                .defineInRange("intervalTicks", 5, 1, 20);
+        EXPOSURE_POTENCY = b
+                .comment("Scales how fast dose builds up. 2 means every gas is twice as potent.")
+                .defineInRange("potencyScale", 1.0, 0.0, 10.0);
+        EXPOSURE_DAMAGE = b
+                .comment("Scales the damage that symptoms deal. 0 makes gas harmless to health (status effects stay).")
+                .defineInRange("damageScale", 1.0, 0.0, 10.0);
+        EXPOSURE_RECOVERY = b
+                .comment("Scales how fast symptoms fade. 2 means twice as fast, 0.5 means twice as slow.")
+                .defineInRange("recoverySpeed", 1.0, 0.1, 10.0);
+        EXPOSURE_MESSAGES = b
+                .comment("Whether players get short messages about their condition.")
+                .define("messages", true);
+        b.comment("Animals, villagers and monsters use a simple model: symptoms follow the gas around them right now.")
+                .push("mobs");
+        MOBS_ENABLED = b
+                .comment("Whether gas affects creatures other than players.")
+                .define("enabled", true);
+        MOBS_UNDEAD_IMMUNE = b
+                .comment("Whether undead are immune. (Golems and armour stands always are; see the yperite:gas_immune entity tag.)")
+                .define("undeadImmune", true);
+        b.pop();
+        b.pop();
+
+        b.comment("Lasting damage after severe exposure. Dying removes it.").push("aftereffects");
+        AFTEREFFECTS_ENABLED = b
+                .comment("Whether severe exposure leaves lasting damage. The record is kept when this is off.")
+                .define("enabled", true);
+        AFTEREFFECTS_STRENGTH = b
+                .comment("Scales every lasting penalty. 0.5 halves them.")
+                .defineInRange("strength", 1.0, 0.0, 3.0);
+        AFTEREFFECTS_MAX_HEALTH_LOSS = b
+                .comment("Health points a blister agent can take off the maximum health (2 is one heart).")
+                .defineInRange("maxHealthLoss", 6.0, 0.0, 18.0);
+        b.pop();
 
         b.comment("Gas particles (sent from the server to nearby players)").push("particles");
         PARTICLES_ENABLED = b

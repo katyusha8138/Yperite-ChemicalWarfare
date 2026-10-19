@@ -1,6 +1,14 @@
 package io.github.katyusha8138.yperite.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.commands.arguments.EntityArgument;
+import io.github.katyusha8138.yperite.gas.GasCategory;
+import io.github.katyusha8138.yperite.exposure.model.ExposureState;
+import io.github.katyusha8138.yperite.exposure.model.ExposureModel;
+import io.github.katyusha8138.yperite.exposure.ExposureManager;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -22,6 +30,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,6 +46,9 @@ import java.util.Map;
  * /yperite wind
  * /yperite wind set &lt;fromDegrees&gt; &lt;strength&gt;
  * /yperite wind auto
+ * /yperite exposure [player]
+ * /yperite exposure add &lt;category&gt; &lt;amount&gt; [player]
+ * /yperite exposure clear [player]
  * </pre>
  */
 public final class YperiteCommand {
@@ -72,7 +85,8 @@ public final class YperiteCommand {
                                 .then(Commands.argument("fromDegrees", FloatArgumentType.floatArg(0f, 360f))
                                         .then(Commands.argument("strength", FloatArgumentType.floatArg(0f, 1f))
                                                 .executes(YperiteCommand::windSet))))
-                        .then(Commands.literal("auto").executes(YperiteCommand::windAuto))));
+                        .then(Commands.literal("auto").executes(YperiteCommand::windAuto)))
+                .then(exposureNode()));
     }
 
     private static final String[] COMPASS = {"north", "north_east", "east", "south_east", "south", "south_west", "west", "north_west"};
@@ -108,6 +122,69 @@ public final class YperiteCommand {
     private static int windAuto(CommandContext<CommandSourceStack> ctx) {
         GasManager.data(ctx.getSource().getLevel()).setWindOverride(null);
         ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.wind.auto"), true);
+        return 1;
+    }
+
+    private static final List<String> CATEGORY_IDS = Arrays.stream(GasCategory.values()).map(GasCategory::id).toList();
+
+    private static LiteralArgumentBuilder<CommandSourceStack> exposureNode() {
+        return Commands.literal("exposure")
+                .executes(ctx -> exposureInfo(ctx, ctx.getSource().getPlayerOrException()))
+                .then(Commands.literal("add")
+                        .then(Commands.argument("category", StringArgumentType.word())
+                                .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(CATEGORY_IDS, builder))
+                                .then(Commands.argument("amount", FloatArgumentType.floatArg(0f, 1000f))
+                                        .executes(ctx -> exposureAdd(ctx, ctx.getSource().getPlayerOrException()))
+                                        .then(Commands.argument("player", EntityArgument.player())
+                                                .executes(ctx -> exposureAdd(ctx, EntityArgument.getPlayer(ctx, "player")))))))
+                .then(Commands.literal("clear")
+                        .executes(ctx -> exposureClear(ctx, ctx.getSource().getPlayerOrException()))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(ctx -> exposureClear(ctx, EntityArgument.getPlayer(ctx, "player")))))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .executes(ctx -> exposureInfo(ctx, EntityArgument.getPlayer(ctx, "player"))));
+    }
+
+    private static int exposureInfo(CommandContext<CommandSourceStack> ctx, ServerPlayer target) {
+        ExposureState state = ExposureManager.stateOf(target);
+        Component name = target.getDisplayName();
+        int lines = 0;
+        if (state != null) {
+            for (int k = 0; k < state.categories(); k++) {
+                if (state.skin[k] == 0f && state.latent[k] == 0f && state.active[k] == 0f && state.aftermath[k] == 0f) {
+                    continue;
+                }
+                if (lines == 0) {
+                    ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.exposure.header", name), false);
+                }
+                lines++;
+                GasCategory category = GasCategory.values()[k];
+                int index = k;
+                ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.exposure.line",
+                        category.displayName(), fmt2(state.skin[index]), fmt2(state.latent[index]), fmt2(state.active[index]),
+                        ExposureModel.stage(state.active[index]), fmt2(state.aftermath[index])), false);
+            }
+        }
+        if (lines == 0) {
+            ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.exposure.none", name), false);
+        }
+        return lines;
+    }
+
+    private static int exposureAdd(CommandContext<CommandSourceStack> ctx, ServerPlayer target) throws CommandSyntaxException {
+        String id = StringArgumentType.getString(ctx, "category");
+        GasCategory category = Arrays.stream(GasCategory.values()).filter(c -> c.id().equals(id)).findFirst()
+                .orElseThrow(() -> new SimpleCommandExceptionType(Component.translatable("commands.yperite.exposure.unknown_category")).create());
+        float amount = FloatArgumentType.getFloat(ctx, "amount");
+        ExposureManager.addLatent(target, category, amount);
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.exposure.add",
+                target.getDisplayName(), category.displayName(), fmt2(amount)), true);
+        return 1;
+    }
+
+    private static int exposureClear(CommandContext<CommandSourceStack> ctx, ServerPlayer target) {
+        ExposureManager.clear(target);
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.exposure.clear", target.getDisplayName()), true);
         return 1;
     }
 

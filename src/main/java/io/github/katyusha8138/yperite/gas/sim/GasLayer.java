@@ -87,6 +87,12 @@ public final class GasLayer {
         return sum(residue);
     }
 
+    /** Adds the key of every chunk that holds gas or residue to {@code out}. */
+    public void collectChunkKeys(it.unimi.dsi.fastutil.longs.LongSet out) {
+        out.addAll(gas.keySet());
+        out.addAll(residue.keySet());
+    }
+
     /** Visits every gas cell stored for the chunk. Do not modify the layer from the visitor. */
     public void forEachGasCellInChunk(long chunkKey, CellVisitor visitor) {
         visit(gas.get(chunkKey), visitor);

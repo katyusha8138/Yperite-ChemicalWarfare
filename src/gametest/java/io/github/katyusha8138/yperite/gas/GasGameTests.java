@@ -3,6 +3,7 @@ package io.github.katyusha8138.yperite.gas;
 import io.github.katyusha8138.yperite.YperiteMod;
 import io.github.katyusha8138.yperite.gas.sim.GasLayer;
 import io.github.katyusha8138.yperite.gas.sim.GasTerrain;
+import io.github.katyusha8138.yperite.gametest.TestRooms;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -59,26 +60,12 @@ public final class GasGameTests {
 
     // ------------------------------------------------------------------ helpers
 
-    /**
-     * Template-local coordinates (floor at y = 0) to GameTest-relative ones. GameTest places the template one
-     * block above its own origin, so the layer at relative y = 0 is below the template.
-     */
     private static BlockPos pos(int x, int y, int z) {
-        return new BlockPos(x, y + 1, z);
+        return TestRooms.pos(x, y, z);
     }
 
     private static void sealRoom(GameTestHelper helper) {
-        BlockState stone = Blocks.STONE.defaultBlockState();
-        for (int x = 0; x < 20; x++) {
-            for (int z = 0; z < 20; z++) {
-                helper.setBlock(pos(x, 9, z), stone);
-                for (int y = 1; y < 9; y++) {
-                    if (x == 0 || x == 19 || z == 0 || z == 19) {
-                        helper.setBlock(pos(x, y, z), stone);
-                    }
-                }
-            }
-        }
+        TestRooms.sealRoom(helper);
     }
 
     /** Fills the divider at x = 10 with the given block, then lets the caller carve openings. */

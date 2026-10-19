@@ -9,8 +9,9 @@ Minecraft に毒ガスを中心とした化学兵器を追加する mod です�
 
 ## 現在の状態
 
-開発初期です。ガス濃度場(拡散・風・屋外の判定・比重・遮蔽・地面残留)とデバッグコマンドまでが動きます。
-曝露・症状、防護具、散布手段、Superb Warfare 連携はこれからです(計画は設計書を参照)。
+開発初期です。ガス濃度場(拡散・風・屋外の判定・比重・遮蔽・地面残留)に加えて、
+曝露と症状(吸入と皮膚、遅れて発症、段階的な悪化、系統ごとの後遺症)が動きます。
+防護具、散布手段、Superb Warfare 連携はこれからです(計画は設計書を参照)。
 
 組み込みガス(系統):
 `tear_gas`(催涙剤)、`chlorine`(窒息剤)、`blood_gas`(血液剤)、`yperite`(びらん剤)、
@@ -38,7 +39,18 @@ Java 17 が必要です。
 /yperite wind                                      風向と強さを表示
 /yperite wind set <方角> <強さ>                    風を固定(方角は吹いてくる向き 0〜360、強さは 0〜1)
 /yperite wind auto                                 風を自動に戻す
+/yperite exposure [player]                         曝露の状態を表示
+/yperite exposure add <系統> <量> [player]         曝露量を加える(潜伏として入る)
+/yperite exposure clear [player]                   曝露と後遺症を消す
 ```
+
+実際に試すには、自分の近くでガスを出します(例: 窒息剤。数秒でむせ始めます)。
+
+```
+/yperite gas burst yperite:chlorine 300 3
+```
+
+離れて待てば回復します。`/yperite gas clear` でガスを消せます。
 
 ## 素材について
 

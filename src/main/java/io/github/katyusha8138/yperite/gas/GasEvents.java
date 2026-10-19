@@ -2,6 +2,7 @@ package io.github.katyusha8138.yperite.gas;
 
 import io.github.katyusha8138.yperite.YperiteMod;
 import io.github.katyusha8138.yperite.command.YperiteCommand;
+import io.github.katyusha8138.yperite.exposure.ExposureManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -18,6 +19,7 @@ public final class GasEvents {
     public static void onLevelTick(TickEvent.LevelTickEvent event) {
         if (event.phase == TickEvent.Phase.END && event.level instanceof ServerLevel level) {
             GasManager.tick(level);
+            ExposureManager.tick(level);
         }
     }
 
