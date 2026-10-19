@@ -24,6 +24,8 @@ public final class YperiteConfig {
     public static final ForgeConfigSpec.BooleanValue AFTEREFFECTS_ENABLED;
     public static final ForgeConfigSpec.DoubleValue AFTEREFFECTS_STRENGTH;
     public static final ForgeConfigSpec.DoubleValue AFTEREFFECTS_MAX_HEALTH_LOSS;
+    public static final ForgeConfigSpec.DoubleValue FILTER_WEAR;
+    public static final ForgeConfigSpec.DoubleValue SUIT_WEAR;
     public static final ForgeConfigSpec.BooleanValue PARTICLES_ENABLED;
     public static final ForgeConfigSpec.IntValue PARTICLE_INTERVAL;
     public static final ForgeConfigSpec.IntValue PARTICLE_RANGE;
@@ -102,6 +104,15 @@ public final class YperiteConfig {
         AFTEREFFECTS_MAX_HEALTH_LOSS = b
                 .comment("Health points a blister agent can take off the maximum health (2 is one heart).")
                 .defineInRange("maxHealthLoss", 6.0, 0.0, 18.0);
+        b.pop();
+
+        b.comment("Protective equipment").push("protection");
+        FILTER_WEAR = b
+                .comment("How fast mask filters are used up. 2 means they last half as long, 0 means they never wear out.")
+                .defineInRange("filterWear", 1.0, 0.0, 10.0);
+        SUIT_WEAR = b
+                .comment("How fast protective clothing loses durability when gas reaches it. 0 means it never wears out.")
+                .defineInRange("suitWear", 1.0, 0.0, 10.0);
         b.pop();
 
         b.comment("Gas particles (sent from the server to nearby players)").push("particles");

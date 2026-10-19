@@ -90,11 +90,12 @@ public final class ExposureManager {
     }
 
     /**
-     * Adds the dose that the gas around a living thing delivers during {@code seconds}, per category.
+     * Adds the dose that the gas around a living thing delivers during {@code seconds}, per category, after protection.
+     * Also tells the protective equipment how much reached it, so that it wears.
      * Breathing uses the air at the eyes (nothing under water); contact uses the air around the body and the
      * residue on the ground it stands on.
      */
-    static void sample(LivingEntity entity, GasSavedData data, float[] inhaled, float[] contact, float seconds) {
+    public static void sample(LivingEntity entity, GasSavedData data, float[] inhaled, float[] contact, float seconds) {
         BlockPos eye = BlockPos.containing(entity.getEyePosition());
         BlockPos feet = entity.blockPosition();
         BlockPos mid = BlockPos.containing(entity.getX(), entity.getY() + entity.getBbHeight() * 0.5, entity.getZ());
@@ -111,24 +112,32 @@ public final class ExposureManager {
             GasType.Toxicity toxicity = type.toxicity();
             GasCategory category = type.category();
             int k = category.ordinal();
-            ProtectionRegistry.Protection protection = ProtectionRegistry.of(entity, category);
 
             float atEyes = Math.min(layer.get(eye.getX(), eye.getY(), eye.getZ()), CONCENTRATION_CAP);
+            float rawInhaled = 0f;
             if (breathing && toxicity.inhalation() > 0f && atEyes > 0f) {
-                inhaled[k] += toxicity.inhalation() * atEyes * scale * protection.inhale();
+                rawInhaled = toxicity.inhalation() * atEyes * scale;
             }
 
             float atBody = Math.max(atEyes, Math.min(Math.max(
                     layer.get(feet.getX(), feet.getY(), feet.getZ()),
                     layer.get(mid.getX(), mid.getY(), mid.getZ())), CONCENTRATION_CAP));
+            float rawContact = 0f;
             if (toxicity.skin() > 0f && atBody > 0f) {
-                contact[k] += toxicity.skin() * atBody * scale * protection.skin();
+                rawContact += toxicity.skin() * atBody * scale;
             }
             if (grounded && toxicity.residue() > 0f) {
                 float onGround = Math.min(layer.getResidue(feet.getX(), feet.getY(), feet.getZ()), RESIDUE_CAP);
                 if (onGround > 0f) {
-                    contact[k] += toxicity.residue() * onGround * scale * protection.skin();
+                    rawContact += toxicity.residue() * onGround * scale;
                 }
+            }
+
+            if (rawInhaled > 0f || rawContact > 0f) {
+                ProtectionRegistry.Protection protection = ProtectionRegistry.of(entity, category);
+                inhaled[k] += rawInhaled * protection.inhale();
+                contact[k] += rawContact * protection.skin();
+                ProtectionRegistry.notifyDose(entity, category, rawInhaled, rawContact);
             }
         }
     }
@@ -218,6 +227,32 @@ public final class ExposureManager {
         PlayerExposure exposure = PlayerExposure.get(player);
         if (exposure != null && amount > 0f) {
             exposure.state().latent[category.ordinal()] += amount;
+        }
+    }
+
+    /**
+     * Treats a category: the dose in the body (latent and active) is multiplied by the given factors, and the
+     * contamination on the skin can be cleared. Lasting damage is not affected.
+     */
+    public static void treat(Player player, GasCategory category, float latentFactor, float activeFactor, boolean clearSkin) {
+        PlayerExposure exposure = PlayerExposure.get(player);
+        if (exposure == null) {
+            return;
+        }
+        int k = category.ordinal();
+        ExposureState state = exposure.state();
+        state.latent[k] *= Math.max(0f, latentFactor);
+        state.active[k] *= Math.max(0f, activeFactor);
+        if (clearSkin) {
+            state.skin[k] = 0f;
+        }
+    }
+
+    /** Washes off the contamination on the skin, for every category. */
+    public static void decontaminate(Player player) {
+        PlayerExposure exposure = PlayerExposure.get(player);
+        if (exposure != null) {
+            Arrays.fill(exposure.state().skin, 0f);
         }
     }
 

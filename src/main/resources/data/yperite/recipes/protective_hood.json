@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "FFF",
+    "F F"
+  ],
+  "key": {
+    "F": {
+      "item": "yperite:sealed_fabric"
+    }
+  },
+  "result": {
+    "item": "yperite:protective_hood"
+  }
+}

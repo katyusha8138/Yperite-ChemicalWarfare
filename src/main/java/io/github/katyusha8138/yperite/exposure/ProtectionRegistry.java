@@ -29,6 +29,16 @@ public final class ProtectionRegistry {
     @FunctionalInterface
     public interface Provider {
         Protection protection(LivingEntity entity, GasCategory category);
+
+        /**
+         * Called whenever gas of the category reached the entity, with the dose that was on its way
+         * <em>before</em> protection. Equipment that wears out does so here.
+         *
+         * @param rawInhaled dose that was breathed in, before protection
+         * @param rawContact dose that reached the skin, before protection
+         */
+        default void onDose(LivingEntity entity, GasCategory category, float rawInhaled, float rawContact) {
+        }
     }
 
     private static final List<Provider> PROVIDERS = new CopyOnWriteArrayList<>();
@@ -42,6 +52,13 @@ public final class ProtectionRegistry {
 
     public static void unregister(Provider provider) {
         PROVIDERS.remove(provider);
+    }
+
+    /** Tells every provider how much dose reached the entity, so that equipment can wear. */
+    public static void notifyDose(LivingEntity entity, GasCategory category, float rawInhaled, float rawContact) {
+        for (Provider provider : PROVIDERS) {
+            provider.onDose(entity, category, rawInhaled, rawContact);
+        }
     }
 
     public static Protection of(LivingEntity entity, GasCategory category) {

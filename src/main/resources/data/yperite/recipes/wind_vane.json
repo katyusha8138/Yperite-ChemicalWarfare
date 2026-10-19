@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "FF ",
+    " S ",
+    " I "
+  ],
+  "key": {
+    "F": {
+      "tag": "forge:feathers"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "result": {
+    "item": "yperite:wind_vane"
+  }
+}

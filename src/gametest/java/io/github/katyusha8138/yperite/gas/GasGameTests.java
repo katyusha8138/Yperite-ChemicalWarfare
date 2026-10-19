@@ -363,10 +363,31 @@ public final class GasGameTests {
         // From the west at half strength: 2 blocks per second towards +x with the default maximum speed.
         data.setWindOverride(new WindModel.Override(270f, 0.5f));
 
-        BlockPos start = helper.absolutePos(pos(16, 3, 16)).above(150);
-        GasManager.release(level, gas, start, 1f, 3000f);
+        // Find a height where the sky light is 15 at the release point and along the way the cloud will travel.
+        BlockPos start = null;
+        for (int up = 60; up <= 260 && start == null; up += 8) {
+            BlockPos candidate = helper.absolutePos(pos(16, 3, 16)).above(up);
+            if (level.isOutsideBuildHeight(candidate.above(12))) {
+                break;
+            }
+            boolean lit = true;
+            for (int dx = -4; dx <= 24 && lit; dx += 4) {
+                lit = level.getBrightness(net.minecraft.world.level.LightLayer.SKY, candidate.offset(dx, 0, 0)) == 15
+                        && level.getBrightness(net.minecraft.world.level.LightLayer.SKY, candidate.offset(dx, 6, 0)) == 15;
+            }
+            if (lit) {
+                start = candidate.above(4);
+            }
+        }
+        if (start == null) {
+            data.setWindOverride(null);
+            helper.fail("could not find open sky above the arena in this world");
+            return;
+        }
+        final BlockPos release = start;
+        GasManager.release(level, gas, release, 1f, 3000f);
         LevelTerrain terrain = new LevelTerrain(level, true, false);
-        int light = GasTerrain.skyLight(terrain.flags(start.getX(), start.getY(), start.getZ()));
+        int light = GasTerrain.skyLight(terrain.flags(release.getX(), release.getY(), release.getZ()));
         if (light != 15) {
             data.setWindOverride(null);
             GasManager.clear(level, gas);
@@ -380,7 +401,7 @@ public final class GasGameTests {
             for (int x = -16; x < 48; x++) {
                 for (int y = -12; y <= 12; y++) {
                     for (int z = 0; z < 32; z++) {
-                        BlockPos at = start.offset(x, y, z - 16);
+                        BlockPos at = release.offset(x, y, z - 16);
                         double c = GasManager.concentration(level, gas, at);
                         weighted += c * at.getX();
                         total += c;
@@ -390,7 +411,7 @@ public final class GasGameTests {
             data.setWindOverride(null);
             GasManager.clear(level, gas);
             helper.assertTrue(total > 100.0, "most of the gas should still be in the sampled box, total=" + total);
-            double shift = weighted / total - start.getX();
+            double shift = weighted / total - release.getX();
             helper.assertTrue(shift > 5.0, "5 seconds of a 2 blocks per second wind should move the cloud east by about 10 blocks, shift=" + shift);
             helper.succeed();
         });

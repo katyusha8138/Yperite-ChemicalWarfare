@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "forge:leather"
+    },
+    {
+      "tag": "forge:slimeballs"
+    },
+    {
+      "tag": "forge:string"
+    }
+  ],
+  "result": {
+    "item": "yperite:sealed_fabric",
+    "count": 2
+  }
+}

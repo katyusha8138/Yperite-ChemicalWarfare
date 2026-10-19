@@ -16,11 +16,17 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
+// ./gradlew -PnoCurios runGameTestServer  runs everything without Curios, to check that it really is optional.
+def withCurios = !project.hasProperty('noCurios')
+
 sourceSets {
     // In-world tests. They are part of the mod only in dev runs and never end up in the released jar.
     gametest {
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
         runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+        if (!withCurios) {
+            java.exclude '**/CuriosGameTests.java'
+        }
     }
 }
 
@@ -34,6 +40,9 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            // Mods built against obfuscated names (Curios) bring Mixins that need their names translated in dev runs.
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -78,10 +87,24 @@ sourceSets.main.resources {
 
 repositories {
     mavenCentral()
+    maven {
+        name = 'Illusive Soulworks (Curios)'
+        url = 'https://maven.theillusivec4.top/'
+        content {
+            includeGroup 'top.theillusivec4.curios'
+        }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // Curios is optional: with it the gas mask can also be worn in a "face" slot next to a helmet.
+    // Only the API is needed to compile; the full mod is loaded in development runs so that it gets tested.
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+    if (withCurios) {
+        runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
+    }
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

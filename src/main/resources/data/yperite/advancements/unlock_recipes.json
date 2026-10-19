@@ -1,0 +1,28 @@
+{
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "yperite:antidote_nerve",
+      "yperite:decon_powder",
+      "yperite:decon_solution",
+      "yperite:gas_alarm",
+      "yperite:gas_detector",
+      "yperite:gas_filter_general",
+      "yperite:gas_filter_special",
+      "yperite:gas_mask",
+      "yperite:gas_mask_filter",
+      "yperite:medicine_general",
+      "yperite:ointment_blister",
+      "yperite:protective_boots",
+      "yperite:protective_hood",
+      "yperite:protective_jacket",
+      "yperite:protective_trousers",
+      "yperite:sealed_fabric",
+      "yperite:wind_vane"
+    ]
+  }
+}

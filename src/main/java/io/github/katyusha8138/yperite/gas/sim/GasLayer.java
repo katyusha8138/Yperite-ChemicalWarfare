@@ -168,6 +168,35 @@ public final class GasLayer {
         return mass;
     }
 
+    /**
+     * Removes the residue in a sphere of cells around the centre.
+     *
+     * @return the amount of residue that was removed
+     */
+    public float clearResidue(int centerX, int centerY, int centerZ, int radius) {
+        float removed = 0f;
+        int r2 = radius * radius + 1;
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (dx * dx + dy * dy + dz * dz > r2) {
+                        continue;
+                    }
+                    long key = Cells.pack(centerX + dx, centerY + dy, centerZ + dz);
+                    Long2FloatOpenHashMap cells = residue.get(Cells.chunkKeyOfCell(key));
+                    if (cells != null && cells.containsKey(key)) {
+                        removed += cells.remove(key);
+                    }
+                }
+            }
+        }
+        if (removed > 0f) {
+            residue = pruneEmpty(residue);
+            residueCells = countCells(residue);
+        }
+        return removed;
+    }
+
     public void clear() {
         gas.clear();
         residue.clear();
