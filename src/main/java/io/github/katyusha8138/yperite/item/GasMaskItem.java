@@ -148,6 +148,15 @@ public class GasMaskItem extends ArmorItem implements WornGeoItem {
 
     // ------------------------------------------------------------------ GeckoLib
 
+    /**
+     * The texture the vanilla armour layer asks for. GeckoLib draws with its own; answering with the same file keeps
+     * the game from looking for a flat armour texture that does not exist.
+     */
+    @Override
+    public String getArmorTexture(ItemStack stack, net.minecraft.world.entity.Entity entity, EquipmentSlot slot, String type) {
+        return io.github.katyusha8138.yperite.YperiteMod.MODID + ":textures/armor/" + model() + ".png";
+    }
+
     @Override
     public String model() {
         return type.model();

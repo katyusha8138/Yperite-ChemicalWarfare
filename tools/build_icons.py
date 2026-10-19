@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Writes every item icon (textures/item/<name>.png) from the pixel art in tools/icons.
+"""Writes every item icon (textures/item/<name>.png) from the pixel art in tools/icons, and the icon of the
+empty Curios face slot (textures/slot/face.png).
 
 Usage:
   python3 tools/build_icons.py                  # write the icons into the mod's assets
@@ -16,7 +17,8 @@ import gear  # noqa: E402
 import pixel  # noqa: E402
 import wear  # noqa: E402
 
-ITEMS = os.path.join(HERE, "..", "src", "main", "resources", "assets", "yperite", "textures", "item")
+TEXTURES = os.path.join(HERE, "..", "src", "main", "resources", "assets", "yperite", "textures")
+ITEMS = os.path.join(TEXTURES, "item")
 GASES = ("tear_gas", "chlorine", "blood_gas", "yperite", "nerve_gas", "blue_cross")
 
 
@@ -46,6 +48,36 @@ def icons():
     return out
 
 
+def face_slot():
+    """The empty Curios face slot, in the manner of vanilla's empty armour slots: a gas mask in light grey."""
+    from PIL import Image
+    rows = [
+        "................",
+        "................",
+        ".....aaaaaa.....",
+        "....aaaaaaaa....",
+        "...aaaaaaaaaa...",
+        "..aaabbaabbaaa..",
+        "..aabccaabccaa..",
+        "..aabccaabccaa..",
+        "..aaabbaabbaaa..",
+        "...aaaaddaaaa...",
+        "....adddddda....",
+        "....dddddddd....",
+        ".....dddddd.....",
+        "......dddd......",
+        "................",
+        "................",
+    ]
+    colours = {"a": (198, 198, 198, 255), "b": (139, 139, 139, 255), "c": (110, 110, 110, 255), "d": (160, 160, 160, 255)}
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    for y, row in enumerate(rows):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                img.putpixel((x, y), colours[ch])
+    return img
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview")
@@ -53,6 +85,7 @@ def main():
     drawn = {name: make() for name, make in icons().items()}
     for name, image in drawn.items():
         image.save(os.path.join(ITEMS, name + ".png"))
+    face_slot().save(os.path.join(TEXTURES, "slot", "face.png"))
     missing = sorted(f[:-4] for f in os.listdir(ITEMS) if f.endswith(".png") and f[:-4] not in drawn)
     print(f"{len(drawn)} icons written" + (f"; not drawn here: {', '.join(missing)}" if missing else ""))
     if args.preview:
