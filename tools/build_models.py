@@ -5,6 +5,9 @@ Usage:
   python3 tools/build_models.py                 # build everything into the mod's assets
   python3 tools/build_models.py --preview DIR   # also write a preview sheet per model into DIR
   python3 tools/build_models.py --only NAME     # build only one model
+
+Every helmet is checked against every mask (fit.py): a mask worn under a helmet must not show through it.
+The build fails if one does.
 """
 import argparse
 import os
@@ -13,6 +16,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "models"))
 
+import fit  # noqa: E402
 import helmets  # noqa: E402
 import masks  # noqa: E402
 from mannequin import mannequin  # noqa: E402
@@ -36,6 +40,20 @@ MODELS = {
 
 
 MASKS = {"gas_mask", "small_box_respirator", "m2_mask", "lederschutzmaske", "austrian_gas_mask"}
+HELMETS = {"stahlhelm_m1916", "brodie_mk1", "adrian_m15", "berndorfer"}
+
+
+def check_fit(built):
+    """Every helmet over every mask: report where a mask comes out through a helmet."""
+    bad = 0
+    for h in sorted(HELMETS & built.keys()):
+        for k in sorted(MASKS & built.keys()):
+            crossings = fit.piercings(built[h], built[k])
+            if crossings:
+                bad += 1
+                box, _, point, _ = crossings[0]
+                print(f"FIT: {k} shows through {h} in {len(crossings)} places, e.g. at {tuple(round(float(c), 2) for c in point)}")
+    return bad
 
 
 def _write_item_model(name):
@@ -52,10 +70,12 @@ def main():
     ap.add_argument("--only")
     args = ap.parse_args()
     body = mannequin() if args.preview else None
+    built = {}
     for name, (build, icon_view) in MODELS.items():
         if args.only and name != args.only:
             continue
         model = build()
+        built[name] = model
         texture = paint(model)
         geo_dir = os.path.join(ASSETS, "geo", "armor")
         tex_dir = os.path.join(ASSETS, "textures", "armor")
@@ -75,6 +95,10 @@ def main():
             close_center = (0, 27, -2) if name in MASKS else (0, 29, 0)
             sheet([(model, texture)], scale=24, size=(360, 360), center=close_center).save(
                 os.path.join(args.preview, name + "_close.png"))
+    if not args.only:
+        if check_fit(built):
+            sys.exit("some masks show through helmets")
+        print("fit: every mask fits under every helmet")
 
 
 if __name__ == "__main__":

@@ -29,8 +29,9 @@ def _inside_shell(axis_z):
 def _chin_strap(m, strap, buckle, top=28.5):
     # down both cheeks from under the shell, and across under the chin
     h = top - 23.5
-    m.box("armorHead", (-4.5, 23.5, -1.5), (0.5, h, 1.0), strap)
-    m.box("armorHead", (4.0, 23.5, -1.5), (0.5, h, 1.0), strap)
+    # (tagged as straps: a mask's straps may pass under them, see fit.py)
+    m.box("armorHead", (-4.5, 23.5, -1.5), (0.5, h, 1.0), strap, strap=True)
+    m.box("armorHead", (4.0, 23.5, -1.5), (0.5, h, 1.0), strap, strap=True)
     m.box("armorHead", (-4.0, 23.5, -1.5), (8.0, 0.5, 1.0), strap, faces=("north", "south", "down"))
     m.box("armorHead", (-4.75, 25.0, -1.75), (0.75, 1.0, 1.5), buckle)
 
