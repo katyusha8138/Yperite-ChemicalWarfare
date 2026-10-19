@@ -1,16 +1,16 @@
 {
   "gas.yperite.tear_gas": "催涙ガス",
   "gas.yperite.chlorine": "塩素ガス",
+  "gas.yperite.blood_gas": "血液剤ガス",
   "gas.yperite.yperite": "イペリット",
   "gas.yperite.blue_cross": "青十字ガス",
   "gas.yperite.nerve_gas": "神経ガス",
-
-  "gas_category.yperite.lacrimatory": "催涙系",
-  "gas_category.yperite.asphyxiant": "窒息系",
-  "gas_category.yperite.vesicant": "皮膚障害系",
-  "gas_category.yperite.incapacitant": "無力化系",
-  "gas_category.yperite.high_potency": "高効力系",
-
+  "gas_category.yperite.riot_control": "催涙剤(暴動鎮圧剤)",
+  "gas_category.yperite.choking": "窒息剤",
+  "gas_category.yperite.blood": "血液剤",
+  "gas_category.yperite.blister": "びらん剤",
+  "gas_category.yperite.nerve": "神経剤",
+  "gas_category.yperite.incapacitant": "無力化剤",
   "commands.yperite.gas.unknown_type": "そのガスは存在しません",
   "commands.yperite.gas.burst.blocked": "放出できる空きブロックがありません(壁の中か、未ロードのチャンクです)",
   "commands.yperite.gas.burst.success": "%1$s を質量 %2$s で放出しました(%3$s, %4$s, %5$s)",

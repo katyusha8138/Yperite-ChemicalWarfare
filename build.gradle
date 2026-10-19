@@ -16,6 +16,14 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
+sourceSets {
+    // In-world tests. They are part of the mod only in dev runs and never end up in the released jar.
+    gametest {
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
 
@@ -29,6 +37,7 @@ minecraft {
             mods {
                 "${mod_id}" {
                     source sourceSets.main
+                    source sourceSets.gametest
                 }
             }
         }

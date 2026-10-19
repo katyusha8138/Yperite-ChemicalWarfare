@@ -27,8 +27,11 @@ public final class GasLayer {
     private static final float BUOYANCY_SKEW = 0.95f;
     private static final float MIN_VERTICAL_FACTOR = 0.05f;
     private static final float MAX_VERTICAL_FACTOR = 2f;
-    /** Residue below {@code minConcentration * this} is dropped. */
-    private static final float RESIDUE_MIN_RATIO = 0.25f;
+    /**
+     * Residue below {@code minConcentration * this} is dropped. It has to stay well below what a single step
+     * deposits from thin gas, otherwise small deposits would be discarded before they can add up.
+     */
+    private static final float RESIDUE_MIN_RATIO = 0.01f;
     /** After trimming to the cap, leave this much headroom so that trimming does not run every step. */
     private static final float TRIM_TARGET_RATIO = 0.9f;
     private static final int MAX_RELEASE_RADIUS = 24;
@@ -210,7 +213,7 @@ public final class GasLayer {
                 if (returned > 0f) {
                     getOrCreate(nextGas, chunkKey).addTo(entry.getLongKey(), returned);
                 }
-                if (amount >= residueMin) {
+                if (amount > 0f) {
                     if (out == null) {
                         out = getOrCreate(nextResidue, chunkKey);
                     }
@@ -321,6 +324,11 @@ public final class GasLayer {
             }
         }
 
+        // Faint residue is dropped only now, after this step's deposits were added. Dropping it earlier would
+        // throw away every small deposit before the next one could add to it.
+        for (Long2FloatOpenHashMap cells : nextResidue.values()) {
+            cells.values().removeIf(v -> v < residueMin);
+        }
         gas = pruneEmpty(nextGas);
         residue = pruneEmpty(nextResidue);
         gasCells = countCells(gas);

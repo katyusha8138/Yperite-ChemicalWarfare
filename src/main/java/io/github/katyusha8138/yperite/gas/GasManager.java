@@ -79,7 +79,8 @@ public final class GasManager {
         }
     }
 
-    private static void step(ServerLevel level, GasSavedData data, int intervalTicks) {
+    /** One simulation step. Package-private so that in-world tests can drive and time it. */
+    static void step(ServerLevel level, GasSavedData data, int intervalTicks) {
         boolean windEnabled = YperiteConfig.WIND_ENABLED.get() && YperiteConfig.WIND_GAIN.get() > 0.0;
         WindModel.Wind wind = windEnabled ? WindModel.at(level) : WindModel.Wind.CALM;
         GasStepParams params = new GasStepParams(

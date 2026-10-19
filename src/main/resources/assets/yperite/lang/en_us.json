@@ -1,16 +1,16 @@
 {
   "gas.yperite.tear_gas": "Tear Gas",
   "gas.yperite.chlorine": "Chlorine Gas",
+  "gas.yperite.blood_gas": "Blood Agent Gas",
   "gas.yperite.yperite": "Yperite",
   "gas.yperite.blue_cross": "Blue Cross Gas",
   "gas.yperite.nerve_gas": "Nerve Gas",
-
-  "gas_category.yperite.lacrimatory": "Lacrimatory",
-  "gas_category.yperite.asphyxiant": "Asphyxiant",
-  "gas_category.yperite.vesicant": "Vesicant",
-  "gas_category.yperite.incapacitant": "Incapacitant",
-  "gas_category.yperite.high_potency": "High-potency",
-
+  "gas_category.yperite.riot_control": "Riot control agent",
+  "gas_category.yperite.choking": "Choking agent",
+  "gas_category.yperite.blood": "Blood agent",
+  "gas_category.yperite.blister": "Blister agent",
+  "gas_category.yperite.nerve": "Nerve agent",
+  "gas_category.yperite.incapacitant": "Incapacitating agent",
   "commands.yperite.gas.unknown_type": "No such gas",
   "commands.yperite.gas.burst.blocked": "No open block to release into (inside a wall, or the chunk is not loaded)",
   "commands.yperite.gas.burst.success": "Released %1$s with mass %2$s at %3$s, %4$s, %5$s",

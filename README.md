@@ -10,16 +10,22 @@ Minecraft に毒ガスを中心とした化学兵器を追加する mod です�
 ## 現在の状態
 
 開発初期です。ガス濃度場(拡散・風・比重・遮蔽・地面残留)とデバッグコマンドまでが動きます。
+曝露・症状、防護具、散布手段、Superb Warfare 連携はこれからです(計画は設計書を参照)。
+
+組み込みガス(系統):
+`tear_gas`(催涙剤)、`chlorine`(窒息剤)、`blood_gas`(血液剤)、`yperite`(びらん剤)、
+`nerve_gas`(神経剤)、`blue_cross`(無力化剤)。
 
 ## 開発
 
 Java 17 が必要です。
 
 ```sh
-./gradlew build        # ビルドとテスト
-./gradlew test         # シミュレーション核の JUnit テストのみ
-./gradlew runServer    # 開発用サーバー
-./gradlew runClient    # 開発用クライアント
+./gradlew build               # ビルドと単体テスト
+./gradlew test                # シミュレーション核の単体テストのみ
+./gradlew runGameTestServer   # ワールド内テスト(実ブロック・扉・コマンドなど)
+./gradlew runServer           # 開発用サーバー
+./gradlew runClient           # 開発用クライアント
 ```
 
 ### デバッグコマンド(OP 権限)

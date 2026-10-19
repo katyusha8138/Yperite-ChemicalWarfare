@@ -229,6 +229,25 @@ class GasLayerTest {
     }
 
     @Test
+    void thinGasStillBuildsUpResidueOverTime() {
+        // Each step deposits only about 0.002 per cell, far less than the gas minimum, so residue only
+        // appears if small deposits are allowed to add up.
+        BoxTerrain room = new BoxTerrain(10, 2, 10);
+        GasPhysics settling = new GasPhysics(-1f, 0.08f, 0f, 0.1f, 0f, 0f, 0f, 0f);
+        GasStepParams params = new GasStepParams(DT, 0.01f, 1_000_000, 0f, 0f, 0f);
+        GasLayer layer = new GasLayer();
+        for (int x = 0; x < 10; x++) {
+            for (int z = 0; z < 10; z++) {
+                layer.add(x, 0, z, 0.1f);
+            }
+        }
+
+        run(layer, room, settling, params, 100);
+
+        assertTrue(layer.totalResidue() > 5.0, "thin gas should still leave residue, got " + layer.totalResidue());
+    }
+
+    @Test
     void residueEvaporatesBackIntoGas() {
         BoxTerrain room = new BoxTerrain(5, 4, 5);
         GasPhysics evaporating = new GasPhysics(0f, 0.08f, 0f, 0f, 0f, 0.5f, 0f, 0f);
