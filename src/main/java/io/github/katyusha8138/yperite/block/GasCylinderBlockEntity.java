@@ -8,14 +8,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 /** What a gas cylinder holds, and the slow release while its valve is open. */
 public class GasCylinderBlockEntity extends BlockEntity {
@@ -45,9 +52,14 @@ public class GasCylinderBlockEntity extends BlockEntity {
     }
 
     public void setContents(@Nullable GasType type, float amount) {
+        ResourceLocation before = gasId;
         this.gasId = type == null ? null : type.id();
         this.amount = type == null ? 0f : Math.max(0f, amount);
         setChanged();
+        // clients draw the cylinder's band in the colour of its gas: tell them when the gas changes
+        if (level != null && !level.isClientSide && !Objects.equals(before, gasId)) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
     }
 
     /** The fill level, 0..1, relative to the configured capacity. */
@@ -93,6 +105,36 @@ public class GasCylinderBlockEntity extends BlockEntity {
         setChanged();
         level.sendParticles(ParticleTypes.CLOUD, outlet.getX() + 0.5, outlet.getY() + 0.5, outlet.getZ() + 0.5, 3, 0.15, 0.15, 0.15, 0.02);
         level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.3f, 1.8f);
+    }
+
+    // ------------------------------------------------------------------ what clients know: only the gas, for the band
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        if (gasId != null) {
+            tag.putString(TAG_GAS, gasId.toString());
+        }
+        return tag;
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        gasId = tag.contains(TAG_GAS) ? ResourceLocation.tryParse(tag.getString(TAG_GAS)) : null;
+        if (level != null && level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
+        }
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+        CompoundTag tag = packet.getTag();
+        handleUpdateTag(tag == null ? new CompoundTag() : tag);
     }
 
     @Override

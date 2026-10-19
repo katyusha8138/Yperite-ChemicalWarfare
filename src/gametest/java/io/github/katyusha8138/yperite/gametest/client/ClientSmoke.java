@@ -44,10 +44,11 @@ public final class ClientSmoke {
         return "item replace entity @s hotbar." + slot + " with " + (item.equals("air") ? "minecraft:air" : "yperite:" + item);
     }
 
-    /** With -Dyperite.smoke.only=show_ only the scenes whose names start with that are run. */
+    /** With -Dyperite.smoke.only=show_ only the scenes whose names start with that are run (several: comma-separated). */
     private static final String ONLY = System.getProperty("yperite.smoke.only", "");
 
-    private static final List<Scene> SCENES = allScenes().stream().filter(s -> s.name().startsWith(ONLY)).toList();
+    private static final List<Scene> SCENES = allScenes().stream()
+            .filter(s -> java.util.Arrays.stream(ONLY.split(",")).anyMatch(prefix -> s.name().startsWith(prefix))).toList();
 
     /** Five scenes: put on the given items, then show them from four sides. */
     private static List<Scene> showcase(String name, String... commands) {
@@ -151,8 +152,11 @@ public final class ClientSmoke {
                     hotbar(8, "air")), CameraType.FIRST_PERSON, 0f, 60f),
             new Scene("8_cylinders_and_grenade", List.of(
                     "setblock -1 81 2 minecraft:air", "setblock 1 81 2 minecraft:air",
-                    "setblock -1 80 4 yperite:gas_cylinder[open=false,powered=false]",
-                    "setblock 1 80 4 yperite:gas_cylinder[open=true,powered=false]",
+                    // the band takes the colour of the gas inside: chlorine, yperite (open), Blue Cross, empty
+                    "setblock -2 80 4 yperite:gas_cylinder[open=false,powered=false]{Gas:\"yperite:chlorine\",Amount:2000f}",
+                    "setblock 0 80 4 yperite:gas_cylinder[open=true,powered=false]{Gas:\"yperite:yperite\",Amount:2000f}",
+                    "setblock 2 80 4 yperite:gas_cylinder[open=false,powered=false]{Gas:\"yperite:blue_cross\",Amount:2000f}",
+                    "setblock 3 80 3 yperite:gas_cylinder[open=false,powered=false]",
                     "summon yperite:gas_grenade 0.5 80.3 2.5 {Item:{id:\"yperite:chlorine_grenade\",Count:1b},NoGravity:1b}"),
                     CameraType.FIRST_PERSON, 0f, 18f),
             // Only has an effect when Superb Warfare is loaded (-PwithSbw): the items do not exist otherwise.
@@ -194,7 +198,10 @@ public final class ClientSmoke {
         if (tick == 40) {
             // The software renderer's light map comes out black, so make everything bright by other means.
             mc.options.gamma().set(1.0);
-            run(server, "gamemode creative", "fill -8 79 -8 8 95 8 minecraft:air", "fill -8 79 -8 8 79 8 minecraft:stone",
+            // no chat lines from the commands and no tutorial hints over the pictures
+            mc.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);
+            mc.getToasts().clear();
+            run(server, "gamerule sendCommandFeedback false", "gamemode creative", "fill -8 79 -8 8 95 8 minecraft:air", "fill -8 79 -8 8 79 8 minecraft:stone",
                     "fill -8 80 -4 8 90 -4 minecraft:white_concrete", "fill -8 80 6 8 90 6 minecraft:white_concrete",
                     "tp @s 0.5 80 0.5 0 0",
                     "effect give @s minecraft:night_vision infinite 0 true", "time set day", "weather clear");
