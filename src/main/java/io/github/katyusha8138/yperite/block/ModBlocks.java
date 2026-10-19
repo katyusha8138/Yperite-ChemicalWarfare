@@ -11,6 +11,7 @@ public final class ModBlocks {
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, YperiteMod.MODID);
 
     public static final RegistryObject<Block> GAS_ALARM = BLOCKS.register("gas_alarm", GasAlarmBlock::new);
+    public static final RegistryObject<Block> GAS_CYLINDER = BLOCKS.register("gas_cylinder", GasCylinderBlock::new);
 
     private ModBlocks() {
     }

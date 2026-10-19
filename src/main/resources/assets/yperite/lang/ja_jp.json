@@ -116,5 +116,18 @@
   "item.yperite.decon_powder.cleaned": "残留を中和した",
   "item.yperite.decon_powder.nothing": "ここに残留はない",
   "item.yperite.medicine.used": "薬を飲んだ",
-  "curios.identifier.face": "顔"
+  "curios.identifier.face": "顔",
+  "item.yperite.tear_gas_grenade": "催涙ガス手榴弾",
+  "item.yperite.chlorine_grenade": "塩素ガス手榴弾",
+  "item.yperite.blood_gas_grenade": "血液剤ガス手榴弾",
+  "item.yperite.yperite_grenade": "イペリット手榴弾",
+  "item.yperite.nerve_gas_grenade": "神経ガス手榴弾",
+  "item.yperite.blue_cross_grenade": "青十字ガス手榴弾",
+  "entity.yperite.gas_grenade": "ガス手榴弾",
+  "block.yperite.gas_cylinder": "ガスボンベ",
+  "item.yperite.gas_grenade.contents": "中身: %1$s",
+  "item.yperite.gas_grenade.hint": "右クリックで投げる。着地して数秒後にガスが出る",
+  "item.yperite.gas_cylinder.empty": "空",
+  "item.yperite.gas_cylinder.contents": "中身: %1$s(残り %2$s%%)",
+  "item.yperite.gas_cylinder.hint": "置いて、素手で右クリックするかレッドストーン信号で弁が開く"
 }

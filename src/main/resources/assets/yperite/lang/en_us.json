@@ -116,5 +116,18 @@
   "item.yperite.decon_powder.cleaned": "Neutralised the residue",
   "item.yperite.decon_powder.nothing": "No residue here",
   "item.yperite.medicine.used": "You took the medicine",
-  "curios.identifier.face": "Face"
+  "curios.identifier.face": "Face",
+  "item.yperite.tear_gas_grenade": "Tear Gas Grenade",
+  "item.yperite.chlorine_grenade": "Chlorine Grenade",
+  "item.yperite.blood_gas_grenade": "Blood Agent Grenade",
+  "item.yperite.yperite_grenade": "Yperite Grenade",
+  "item.yperite.nerve_gas_grenade": "Nerve Gas Grenade",
+  "item.yperite.blue_cross_grenade": "Blue Cross Grenade",
+  "entity.yperite.gas_grenade": "Gas Grenade",
+  "block.yperite.gas_cylinder": "Gas Cylinder",
+  "item.yperite.gas_grenade.contents": "Contents: %1$s",
+  "item.yperite.gas_grenade.hint": "Right-click to throw. The gas comes out a few seconds after it lands",
+  "item.yperite.gas_cylinder.empty": "Empty",
+  "item.yperite.gas_cylinder.contents": "Contents: %1$s (%2$s%% left)",
+  "item.yperite.gas_cylinder.hint": "Place it, then right-click with an empty hand or give it a redstone signal to open the valve"
 }

@@ -67,7 +67,21 @@ public final class ClientSmoke {
                     hotbar(8, "air")), CameraType.FIRST_PERSON, 0f, 60f),
             new Scene("6_alarm_off_and_on", List.of(
                     "setblock -1 81 2 yperite:gas_alarm[power=0]",
-                    "setblock 1 81 2 yperite:gas_alarm[power=15]"), CameraType.FIRST_PERSON, -20f, 15f));
+                    "setblock 1 81 2 yperite:gas_alarm[power=15]"), CameraType.FIRST_PERSON, -20f, 15f),
+            new Scene("7_delivery_hotbar", List.of(
+                    hotbar(0, "tear_gas_grenade"), hotbar(1, "chlorine_grenade"), hotbar(2, "blood_gas_grenade"),
+                    hotbar(3, "yperite_grenade"), hotbar(4, "nerve_gas_grenade"), hotbar(5, "blue_cross_grenade"),
+                    hotbar(6, "gas_cylinder"),
+                    "item replace entity @s hotbar.7 with yperite:gas_cylinder{BlockEntityTag:{Gas:\"yperite:chlorine\",Amount:2000f}}",
+                    hotbar(8, "air")), CameraType.FIRST_PERSON, 0f, 60f),
+            new Scene("8_cylinders_and_grenade", List.of(
+                    "setblock -1 81 2 minecraft:air", "setblock 1 81 2 minecraft:air",
+                    "setblock -1 80 4 yperite:gas_cylinder[open=false,powered=false]",
+                    "setblock 1 80 4 yperite:gas_cylinder[open=true,powered=false]",
+                    "summon yperite:gas_grenade 0.5 80.3 2.5 {Item:{id:\"yperite:chlorine_grenade\",Count:1b},NoGravity:1b}"),
+                    CameraType.FIRST_PERSON, 0f, 18f),
+            new Scene("9_cloud_from_an_open_cylinder", List.of(
+                    "yperite gas burst yperite:chlorine 150 2 0 81 5"), CameraType.FIRST_PERSON, 0f, 12f));
 
     private static int tick;
     private static int scene = -1;

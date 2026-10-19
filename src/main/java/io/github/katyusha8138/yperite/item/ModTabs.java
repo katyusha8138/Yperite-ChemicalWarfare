@@ -36,6 +36,9 @@ public final class ModTabs {
                 output.accept(ModItems.MEDICINE_GENERAL.get());
                 output.accept(ModItems.ANTIDOTE_NERVE.get());
                 output.accept(ModItems.OINTMENT_BLISTER.get());
+                ModItems.GRENADES.values().forEach(grenade -> output.accept(grenade.get()));
+                output.accept(ModItems.GAS_CYLINDER.get());
+                ModItems.GRENADES.values().forEach(grenade -> output.accept(GasCylinderItem.full(((GasGrenadeItem) grenade.get()).gas())));
             })
             .build());
 

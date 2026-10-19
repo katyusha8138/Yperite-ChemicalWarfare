@@ -53,6 +53,12 @@ public final class GasGameTests {
         reset(level);
     }
 
+    /** The wind command test has a batch of its own: a test that fixes the wind must not run at the same time. */
+    @BeforeBatch(batch = "windcommand")
+    public static void resetBeforeWindCommandBatch(ServerLevel level) {
+        reset(level);
+    }
+
     @BeforeBatch(batch = "cost")
     public static void resetBeforeCostBatch(ServerLevel level) {
         reset(level);
@@ -323,7 +329,7 @@ public final class GasGameTests {
         helper.succeed();
     }
 
-    @GameTest(template = ROOM, timeoutTicks = 200, batch = "wind")
+    @GameTest(template = ROOM, timeoutTicks = 200, batch = "windcommand")
     public static void windCommandsSetShowAndResetTheWind(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         CommandSourceStack source = level.getServer().createCommandSourceStack().withLevel(level);

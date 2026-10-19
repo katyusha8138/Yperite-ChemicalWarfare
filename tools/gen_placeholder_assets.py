@@ -166,6 +166,27 @@ def ointment():
     return img
 
 
+def grenade(band):
+    img = canvas(); d = ImageDraw.Draw(img)
+    box(d, 6, 1, 9, 3, GREY_D)                      # fuse and lever
+    d.line([9, 2, 12, 2], fill=GREY_D)
+    d.ellipse([3, 3, 12, 14], fill=(95, 105, 70, 255), outline=OUT)
+    d.rectangle([4, 7, 11, 9], fill=band)           # the band marks the gas
+    d.line([4, 6, 11, 6], fill=OUT)
+    d.line([4, 10, 11, 10], fill=OUT)
+    return img
+
+
+# Band colours are chosen to be told apart at a glance; they only roughly follow each gas's own colour.
+GRENADE_BANDS = {
+    "tear_gas_grenade": (233, 231, 200, 255),
+    "chlorine_grenade": (185, 217, 74, 255),
+    "blood_gas_grenade": (200, 80, 90, 255),
+    "yperite_grenade": (201, 162, 75, 255),
+    "nerve_gas_grenade": (150, 130, 230, 255),
+    "blue_cross_grenade": (111, 168, 220, 255),
+}
+
 ICONS = {
     "gas_mask": gas_mask,
     "gas_filter_general": lambda: filter_can((130, 150, 70, 255), WHITE),
@@ -183,6 +204,7 @@ ICONS = {
     "antidote_nerve": antidote,
     "ointment_blister": ointment,
 }
+ICONS.update({name: (lambda band=band: grenade(band)) for name, band in GRENADE_BANDS.items()})
 HANDHELD = {"gas_detector", "wind_vane"}
 
 
@@ -199,6 +221,64 @@ def alarm_block(lit):
         d.ellipse([6, 6, 9, 9], fill=(255, 245, 190, 255))
     d.rectangle([5, 12, 10, 13], fill=GREY_D)
     return img
+
+
+def cylinder_side():
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 15, 15], fill=(112, 122, 132, 255))
+    d.rectangle([0, 0, 1, 15], fill=(140, 150, 160, 255))      # highlight
+    d.rectangle([13, 0, 15, 15], fill=(80, 88, 98, 255))       # shade
+    d.rectangle([0, 5, 15, 7], fill=YELLOW)                    # warning band
+    d.line([0, 4, 15, 4], fill=OUT)
+    d.line([0, 8, 15, 8], fill=OUT)
+    return img
+
+
+def cylinder_top():
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 15, 15], fill=GREY_D)
+    d.ellipse([2, 2, 13, 13], fill=GREY, outline=OUT)
+    return img
+
+
+def cylinder_valve(open_):
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 15, 15], fill=GREEN if open_ else RED)
+    d.ellipse([2, 2, 13, 13], outline=OUT)
+    d.line([8, 3, 8, 12] if open_ else [3, 8, 12, 8], fill=OUT)
+    return img
+
+
+def cuboid(frm, to, side, top):
+    """A model element that uses the usual Minecraft uv layout, so that textures are not stretched."""
+    x0, y0, z0 = frm
+    x1, y1, z1 = to
+    faces = {
+        "north": {"texture": side, "uv": [x0, 16 - y1, x1, 16 - y0]},
+        "south": {"texture": side, "uv": [x0, 16 - y1, x1, 16 - y0]},
+        "east": {"texture": side, "uv": [z0, 16 - y1, z1, 16 - y0]},
+        "west": {"texture": side, "uv": [z0, 16 - y1, z1, 16 - y0]},
+        "up": {"texture": top, "uv": [x0, z0, x1, z1]},
+        "down": {"texture": top, "uv": [x0, z0, x1, z1]},
+    }
+    return {"from": list(frm), "to": list(to), "faces": faces}
+
+
+def cylinder_model(valve_texture):
+    return {
+        "parent": "minecraft:block/block",
+        "textures": {
+            "particle": "yperite:block/gas_cylinder_side",
+            "side": "yperite:block/gas_cylinder_side",
+            "top": "yperite:block/gas_cylinder_top",
+            "valve": valve_texture,
+        },
+        "elements": [
+            cuboid((4, 0, 4), (12, 12, 12), "#side", "#top"),
+            cuboid((6, 12, 6), (10, 14, 10), "#side", "#top"),
+            cuboid((5, 14, 5), (11, 16, 11), "#side", "#valve"),
+        ],
+    }
 
 
 def face_slot():
@@ -263,6 +343,19 @@ def main():
     write_json({"parent": "yperite:block/gas_alarm"}, "models", "item", "gas_alarm.json")
     variants = {f"power={p}": {"model": "yperite:block/gas_alarm" if p == 0 else "yperite:block/gas_alarm_on"} for p in range(16)}
     write_json({"variants": variants}, "blockstates", "gas_alarm.json")
+
+    save(cylinder_side(), "textures", "block", "gas_cylinder_side.png")
+    save(cylinder_top(), "textures", "block", "gas_cylinder_top.png")
+    save(cylinder_valve(False), "textures", "block", "gas_cylinder_valve.png")
+    save(cylinder_valve(True), "textures", "block", "gas_cylinder_valve_open.png")
+    write_json(cylinder_model("yperite:block/gas_cylinder_valve"), "models", "block", "gas_cylinder.json")
+    write_json(cylinder_model("yperite:block/gas_cylinder_valve_open"), "models", "block", "gas_cylinder_open.json")
+    write_json({"parent": "yperite:block/gas_cylinder"}, "models", "item", "gas_cylinder.json")
+    cylinder_variants = {
+        f"open={str(o).lower()},powered={str(p).lower()}": {"model": "yperite:block/gas_cylinder_open" if o else "yperite:block/gas_cylinder"}
+        for o in (False, True) for p in (False, True)
+    }
+    write_json({"variants": cylinder_variants}, "blockstates", "gas_cylinder.json")
 
     save(face_slot(), "textures", "slot", "face.png")
     armor_layers()

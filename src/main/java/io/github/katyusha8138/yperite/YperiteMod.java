@@ -1,8 +1,10 @@
 package io.github.katyusha8138.yperite;
 
 import com.mojang.logging.LogUtils;
+import io.github.katyusha8138.yperite.block.ModBlockEntities;
 import io.github.katyusha8138.yperite.block.ModBlocks;
 import io.github.katyusha8138.yperite.config.YperiteConfig;
+import io.github.katyusha8138.yperite.entity.ModEntities;
 import io.github.katyusha8138.yperite.exposure.ProtectionRegistry;
 import io.github.katyusha8138.yperite.gas.GasTypes;
 import io.github.katyusha8138.yperite.item.ModItems;
@@ -25,6 +27,8 @@ public final class YperiteMod {
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         GasTypes.register(modBus);
         ModBlocks.register(modBus);
+        ModBlockEntities.register(modBus);
+        ModEntities.register(modBus);
         ModItems.register(modBus);
         ModTabs.register(modBus);
         ModRecipes.register(modBus);

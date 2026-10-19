@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "open=false,powered=false": {
+      "model": "yperite:block/gas_cylinder"
+    },
+    "open=false,powered=true": {
+      "model": "yperite:block/gas_cylinder"
+    },
+    "open=true,powered=false": {
+      "model": "yperite:block/gas_cylinder_open"
+    },
+    "open=true,powered=true": {
+      "model": "yperite:block/gas_cylinder_open"
+    }
+  }
+}

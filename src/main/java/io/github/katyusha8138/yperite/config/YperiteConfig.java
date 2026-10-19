@@ -26,6 +26,11 @@ public final class YperiteConfig {
     public static final ForgeConfigSpec.DoubleValue AFTEREFFECTS_MAX_HEALTH_LOSS;
     public static final ForgeConfigSpec.DoubleValue FILTER_WEAR;
     public static final ForgeConfigSpec.DoubleValue SUIT_WEAR;
+    public static final ForgeConfigSpec.DoubleValue GRENADE_MASS;
+    public static final ForgeConfigSpec.DoubleValue GRENADE_RADIUS;
+    public static final ForgeConfigSpec.IntValue GRENADE_FUSE_TICKS;
+    public static final ForgeConfigSpec.DoubleValue CYLINDER_CAPACITY;
+    public static final ForgeConfigSpec.DoubleValue CYLINDER_RATE;
     public static final ForgeConfigSpec.BooleanValue PARTICLES_ENABLED;
     public static final ForgeConfigSpec.IntValue PARTICLE_INTERVAL;
     public static final ForgeConfigSpec.IntValue PARTICLE_RANGE;
@@ -113,6 +118,24 @@ public final class YperiteConfig {
         SUIT_WEAR = b
                 .comment("How fast protective clothing loses durability when gas reaches it. 0 means it never wears out.")
                 .defineInRange("suitWear", 1.0, 0.0, 10.0);
+        b.pop();
+
+        b.comment("Delivery: grenades and cylinders. Masses use the same unit as /yperite gas burst.").push("delivery");
+        GRENADE_MASS = b
+                .comment("Gas released by one grenade. 300 fills a small room with dense gas.")
+                .defineInRange("grenadeMass", 300.0, 1.0, 20000.0);
+        GRENADE_RADIUS = b
+                .comment("Radius in blocks over which a grenade spreads its gas when it goes off.")
+                .defineInRange("grenadeRadius", 2.5, 0.5, 10.0);
+        GRENADE_FUSE_TICKS = b
+                .comment("Ticks between a grenade's first impact and its release of gas (20 ticks are one second).")
+                .defineInRange("grenadeFuseTicks", 60, 5, 400);
+        CYLINDER_CAPACITY = b
+                .comment("Gas in a full cylinder (creative tab and /give). Gas is released a little at a time while the valve is open.")
+                .defineInRange("cylinderCapacity", 2000.0, 10.0, 200000.0);
+        CYLINDER_RATE = b
+                .comment("Mass an open cylinder releases per second.")
+                .defineInRange("cylinderRatePerSecond", 15.0, 0.1, 1000.0);
         b.pop();
 
         b.comment("Gas particles (sent from the server to nearby players)").push("particles");
