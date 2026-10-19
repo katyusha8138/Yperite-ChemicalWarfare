@@ -1,0 +1,23 @@
+{
+  "gas.yperite.tear_gas": "催涙ガス",
+  "gas.yperite.chlorine": "塩素ガス",
+  "gas.yperite.yperite": "イペリット",
+  "gas.yperite.blue_cross": "青十字ガス",
+  "gas.yperite.nerve_gas": "神経ガス",
+
+  "gas_category.yperite.lacrimatory": "催涙系",
+  "gas_category.yperite.asphyxiant": "窒息系",
+  "gas_category.yperite.vesicant": "皮膚障害系",
+  "gas_category.yperite.incapacitant": "無力化系",
+  "gas_category.yperite.high_potency": "高効力系",
+
+  "commands.yperite.gas.unknown_type": "そのガスは存在しません",
+  "commands.yperite.gas.burst.blocked": "放出できる空きブロックがありません(壁の中か、未ロードのチャンクです)",
+  "commands.yperite.gas.burst.success": "%1$s を質量 %2$s で放出しました(%3$s, %4$s, %5$s)",
+  "commands.yperite.gas.clear.all": "すべてのガスを消しました",
+  "commands.yperite.gas.clear.one": "%1$s を消しました",
+  "commands.yperite.gas.info.line": "%1$s: ガス %2$s セル(総量 %3$s)、残留 %4$s セル(総量 %5$s)",
+  "commands.yperite.gas.info.none": "このディメンションにガスはありません",
+  "commands.yperite.gas.probe.line": "%1$s: 濃度 %2$s、残留 %3$s",
+  "commands.yperite.gas.probe.none": "この位置にガスはありません"
+}
