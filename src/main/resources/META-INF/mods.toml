@@ -31,3 +31,11 @@ mandatory = false
 versionRange = "[5.2,)"
 ordering = "NONE"
 side = "BOTH"
+
+# Optional: chemical ammunition for Superb Warfare's 40mm launchers, mortar and artillery.
+[[dependencies.${mod_id}]]
+modId = "superbwarfare"
+mandatory = false
+versionRange = "[0.8.9,)"
+ordering = "AFTER"
+side = "BOTH"

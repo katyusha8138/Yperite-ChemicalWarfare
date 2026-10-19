@@ -1,6 +1,7 @@
 package io.github.katyusha8138.yperite.item;
 
 import io.github.katyusha8138.yperite.YperiteMod;
+import io.github.katyusha8138.yperite.compat.superbwarfare.ChemicalRound;
 import io.github.katyusha8138.yperite.protection.FilterKind;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -39,6 +40,7 @@ public final class ModTabs {
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(grenade.get()));
                 output.accept(ModItems.GAS_CYLINDER.get());
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(GasCylinderItem.full(((GasGrenadeItem) grenade.get()).gas())));
+                ChemicalRound.ITEMS.forEach(round -> output.accept(round.get()));
             })
             .build());
 

@@ -89,6 +89,10 @@ public final class GasTypes {
                     .rainWashoutPerSecond(0.05f).waterAbsorbPerSecond(0.10f)
                     .build());
 
+    /** Every gas that this mod adds, in a fixed order. Items made per gas (grenades, chemical rounds) follow it. */
+    public static final java.util.List<RegistryObject<GasType>> BUILT_IN =
+            java.util.List.of(TEAR_GAS, CHLORINE, BLOOD_GAS, YPERITE, NERVE_GAS, BLUE_CROSS);
+
     private GasTypes() {
     }
 

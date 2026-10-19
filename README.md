@@ -13,7 +13,7 @@ Minecraft に毒ガスを中心とした化学兵器を追加する mod です�
 曝露と症状(吸入と皮膚、遅れて発症、段階的な悪化、系統ごとの後遺症)が動きます。
 防護(ガスマスクとフィルター、防護服、検知器・警報器、風向計、除染、治療薬)も動きます。
 散布手段として、ガス手榴弾(6 種)とガスボンベも使えます(入手はクリエイティブタブとコマンドのみで、クラフトレシピはまだありません)。
-Superb Warfare 連携はこれからです(計画は設計書を参照)。
+Superb Warfare が入っていれば、化学弾(40mm 擲弾、迫撃砲弾、砲兵の大口径砲弾)も使えます(下の「任意の連携」)。
 
 組み込みガス(系統):
 `tear_gas`(催涙剤)、`chlorine`(窒息剤)、`blood_gas`(血液剤)、`yperite`(びらん剤)、
@@ -28,6 +28,7 @@ Java 17 が必要です。
 ./gradlew test                # シミュレーション核の単体テストのみ
 ./gradlew runGameTestServer   # ワールド内テスト(実ブロック・扉・コマンドなど)
 ./gradlew -PnoCurios runGameTestServer   # Curios なしで同じ試験(任意の依存の確認)
+./gradlew -PwithSbw runGameTestServer    # Superb Warfare を読み込んだ試験(連携の確認。Kotlin for Forge も自動で入る)
 ./gradlew runServer           # 開発用サーバー
 ./gradlew runClient           # 開発用クライアント
 ./gradlew -PsmokeClient runClient   # 見た目の確認(仮想ディスプレイ上で場面を撮影、docs/DESIGN.md §7.9)
@@ -70,6 +71,10 @@ Java 17 が必要です。
 ```
 
 ## 任意の連携
+
+- [Superb Warfare](https://modrinth.com/mod/superb-warfare)(0.8.9.2 で確認): 入っていれば、6 種のガスを詰めた 40mm 擲弾(M79 などで撃つ)、
+  迫撃砲弾(迫撃砲で撃つ)、大口径砲弾(Mk42、Mle1934、FH-77BW、PLZ-05 で撃つ)が増えます。着弾した場所に、小さな爆発とともにガスが出ます。
+  クリエイティブタブ「Yperite - 化学戦」から出せます(クラフトレシピはまだありません)。SBW のファイルは書き換えません。
 
 - [Curios](https://www.curseforge.com/minecraft/mc-mods/curios): 入っていれば、ガスマスクを「顔」スロットにも着けられます(ヘルメットと併用可。顔枠でも見た目に描かれます)。
 

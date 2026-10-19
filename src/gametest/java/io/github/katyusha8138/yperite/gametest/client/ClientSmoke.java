@@ -80,6 +80,12 @@ public final class ClientSmoke {
                     "setblock 1 80 4 yperite:gas_cylinder[open=true,powered=false]",
                     "summon yperite:gas_grenade 0.5 80.3 2.5 {Item:{id:\"yperite:chlorine_grenade\",Count:1b},NoGravity:1b}"),
                     CameraType.FIRST_PERSON, 0f, 18f),
+            // Only has an effect when Superb Warfare is loaded (-PwithSbw): the items do not exist otherwise.
+            new Scene("10_chemical_rounds_for_superb_warfare", List.of(
+                    hotbar(0, "grenade_40mm_chlorine"), hotbar(1, "grenade_40mm_nerve_gas"), hotbar(2, "grenade_40mm_yperite"),
+                    hotbar(3, "mortar_shell_tear_gas"), hotbar(4, "mortar_shell_blood_gas"), hotbar(5, "mortar_shell_blue_cross"),
+                    hotbar(6, "large_shell_chlorine"), hotbar(7, "large_shell_yperite"), hotbar(8, "large_shell_nerve_gas")),
+                    CameraType.FIRST_PERSON, 0f, 60f),
             new Scene("9_cloud_from_an_open_cylinder", List.of(
                     "yperite gas burst yperite:chlorine 150 2 0 81 5"), CameraType.FIRST_PERSON, 0f, 12f));
 

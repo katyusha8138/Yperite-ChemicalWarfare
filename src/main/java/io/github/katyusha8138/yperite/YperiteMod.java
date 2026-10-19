@@ -3,6 +3,7 @@ package io.github.katyusha8138.yperite;
 import com.mojang.logging.LogUtils;
 import io.github.katyusha8138.yperite.block.ModBlockEntities;
 import io.github.katyusha8138.yperite.block.ModBlocks;
+import io.github.katyusha8138.yperite.compat.superbwarfare.SbwCompat;
 import io.github.katyusha8138.yperite.config.YperiteConfig;
 import io.github.katyusha8138.yperite.entity.ModEntities;
 import io.github.katyusha8138.yperite.exposure.ProtectionRegistry;
@@ -11,6 +12,7 @@ import io.github.katyusha8138.yperite.item.ModItems;
 import io.github.katyusha8138.yperite.item.ModRecipes;
 import io.github.katyusha8138.yperite.item.ModTabs;
 import io.github.katyusha8138.yperite.protection.EquipmentProtection;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -33,6 +35,9 @@ public final class YperiteMod {
         ModTabs.register(modBus);
         ModRecipes.register(modBus);
         ProtectionRegistry.register(new EquipmentProtection());
+        if (ModList.get().isLoaded(SbwCompat.MODID)) {
+            SbwCompat.init(modBus);
+        }
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, YperiteConfig.SPEC);
     }
 }

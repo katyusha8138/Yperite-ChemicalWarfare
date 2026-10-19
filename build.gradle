@@ -17,7 +17,10 @@ java {
 }
 
 // ./gradlew -PnoCurios runGameTestServer  runs everything without Curios, to check that it really is optional.
-def withCurios = !project.hasProperty('noCurios')
+// ./gradlew -PwithSbw runGameTestServer    runs with Superb Warfare (and Kotlin for Forge, which it needs) loaded, to test
+// the integration. Superb Warfare brings its own copy of Curios, so the separate one is left out in that case.
+def withSbw = project.hasProperty('withSbw')
+def withCurios = !project.hasProperty('noCurios') && !withSbw
 
 sourceSets {
     // In-world tests. They are part of the mod only in dev runs and never end up in the released jar.
@@ -26,6 +29,9 @@ sourceSets {
         runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
         if (!withCurios) {
             java.exclude '**/CuriosGameTests.java'
+        }
+        if (!withSbw) {
+            java.exclude '**/SbwGameTests.java'
         }
     }
 }
@@ -94,6 +100,13 @@ sourceSets.main.resources {
 repositories {
     mavenCentral()
     maven {
+        name = 'Modrinth (Superb Warfare, Kotlin for Forge)'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+    maven {
         name = 'Illusive Soulworks (Curios)'
         url = 'https://maven.theillusivec4.top/'
         content {
@@ -110,6 +123,13 @@ dependencies {
     compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     if (withCurios) {
         runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}")
+    }
+
+    // Superb Warfare is optional: its jar is only needed to compile the integration. Dev runs load it with -PwithSbw.
+    compileOnly fg.deobf("maven.modrinth:superb-warfare:${sbw_version}")
+    if (withSbw) {
+        runtimeOnly fg.deobf("maven.modrinth:kotlin-for-forge:${kff_version}")
+        runtimeOnly fg.deobf("maven.modrinth:superb-warfare:${sbw_version}")
     }
 
     testImplementation platform('org.junit:junit-bom:5.10.2')

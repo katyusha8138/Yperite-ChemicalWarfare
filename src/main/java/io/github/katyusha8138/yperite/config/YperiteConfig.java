@@ -31,6 +31,13 @@ public final class YperiteConfig {
     public static final ForgeConfigSpec.IntValue GRENADE_FUSE_TICKS;
     public static final ForgeConfigSpec.DoubleValue CYLINDER_CAPACITY;
     public static final ForgeConfigSpec.DoubleValue CYLINDER_RATE;
+    public static final ForgeConfigSpec.DoubleValue SBW_GRENADE_MASS;
+    public static final ForgeConfigSpec.DoubleValue SBW_GRENADE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue SBW_MORTAR_MASS;
+    public static final ForgeConfigSpec.DoubleValue SBW_MORTAR_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue SBW_LARGE_MASS;
+    public static final ForgeConfigSpec.DoubleValue SBW_LARGE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue SBW_EXPLOSION_SCALE;
     public static final ForgeConfigSpec.BooleanValue PARTICLES_ENABLED;
     public static final ForgeConfigSpec.IntValue PARTICLE_INTERVAL;
     public static final ForgeConfigSpec.IntValue PARTICLE_RANGE;
@@ -136,6 +143,31 @@ public final class YperiteConfig {
         CYLINDER_RATE = b
                 .comment("Mass an open cylinder releases per second.")
                 .defineInRange("cylinderRatePerSecond", 15.0, 0.1, 1000.0);
+        b.pop();
+
+        b.comment("Superb Warfare integration: chemical rounds. Only used when Superb Warfare is installed.",
+                "Explosion settings are read when its data loads, so they need a restart or /reload to change.").push("superbwarfare");
+        SBW_GRENADE_MASS = b
+                .comment("Gas released by a chemical 40mm grenade.")
+                .defineInRange("grenade40mmMass", 150.0, 1.0, 20000.0);
+        SBW_GRENADE_RADIUS = b
+                .comment("Radius over which a 40mm grenade spreads its gas.")
+                .defineInRange("grenade40mmRadius", 2.0, 0.5, 10.0);
+        SBW_MORTAR_MASS = b
+                .comment("Gas released by a chemical mortar shell.")
+                .defineInRange("mortarShellMass", 600.0, 1.0, 20000.0);
+        SBW_MORTAR_RADIUS = b
+                .comment("Radius over which a mortar shell spreads its gas.")
+                .defineInRange("mortarShellRadius", 4.0, 0.5, 10.0);
+        SBW_LARGE_MASS = b
+                .comment("Gas released by a chemical large cannon shell.")
+                .defineInRange("largeShellMass", 1200.0, 1.0, 20000.0);
+        SBW_LARGE_RADIUS = b
+                .comment("Radius over which a large cannon shell spreads its gas.")
+                .defineInRange("largeShellRadius", 5.0, 0.5, 10.0);
+        SBW_EXPLOSION_SCALE = b
+                .comment("Scales the small explosion that comes with a chemical round. 0 turns the explosion off, so only gas is released.")
+                .defineInRange("explosionScale", 1.0, 0.0, 5.0);
         b.pop();
 
         b.comment("Gas particles (sent from the server to nearby players)").push("particles");

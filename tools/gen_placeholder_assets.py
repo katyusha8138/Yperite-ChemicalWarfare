@@ -187,6 +187,41 @@ GRENADE_BANDS = {
     "blue_cross_grenade": (111, 168, 220, 255),
 }
 
+def round_40mm(band):
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.rectangle([6, 8, 9, 14], fill=(200, 160, 60, 255), outline=OUT)         # brass case
+    d.ellipse([5, 2, 10, 9], fill=(95, 105, 70, 255), outline=OUT)             # grenade head
+    d.rectangle([5, 5, 10, 6], fill=band)
+    return img
+
+
+def round_mortar(band):
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.ellipse([4, 1, 11, 9], fill=(95, 105, 70, 255), outline=OUT)             # body
+    d.rectangle([4, 4, 11, 6], fill=band)
+    d.rectangle([6, 9, 9, 12], fill=GREY, outline=OUT)                         # tail
+    d.polygon([(3, 15), (6, 10), (6, 15)], fill=GREY_D, outline=OUT)           # fins
+    d.polygon([(12, 15), (9, 10), (9, 15)], fill=GREY_D, outline=OUT)
+    return img
+
+
+def round_large(band):
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.polygon([(8, 0), (12, 5), (12, 15), (4, 15), (4, 5)], fill=(95, 105, 70, 255), outline=OUT)
+    d.rectangle([4, 6, 12, 8], fill=band)
+    d.rectangle([4, 12, 12, 14], fill=(200, 160, 60, 255))                     # driving band
+    return img
+
+
+GAS_BANDS = {
+    "tear_gas": (233, 231, 200, 255),
+    "chlorine": (185, 217, 74, 255),
+    "blood_gas": (200, 80, 90, 255),
+    "yperite": (201, 162, 75, 255),
+    "nerve_gas": (150, 130, 230, 255),
+    "blue_cross": (111, 168, 220, 255),
+}
+
 ICONS = {
     "gas_mask": gas_mask,
     "gas_filter_general": lambda: filter_can((130, 150, 70, 255), WHITE),
@@ -205,6 +240,11 @@ ICONS = {
     "ointment_blister": ointment,
 }
 ICONS.update({name: (lambda band=band: grenade(band)) for name, band in GRENADE_BANDS.items()})
+# Chemical ammunition for Superb Warfare (the items exist only when that mod is installed).
+for _gas, _band in GAS_BANDS.items():
+    ICONS[f"grenade_40mm_{_gas}"] = (lambda band=_band: round_40mm(band))
+    ICONS[f"mortar_shell_{_gas}"] = (lambda band=_band: round_mortar(band))
+    ICONS[f"large_shell_{_gas}"] = (lambda band=_band: round_large(band))
 HANDHELD = {"gas_detector", "wind_vane"}
 
 
