@@ -170,6 +170,8 @@ public final class ClientSmoke {
             // every gas side by side, drifting in a light wind: tear gas, chlorine, blood agent, yperite, nerve, Blue Cross
             new Scene("11_clouds_of_every_gas", List.of(
                     "yperite gas clear", "yperite wind set 270 0.3",
+                    // take away the cylinders of the scene before (filled first, so that the command never fails)
+                    "fill -3 80 3 3 80 4 minecraft:glass", "fill -3 80 3 3 80 4 minecraft:air",
                     "yperite gas burst yperite:tear_gas 260 2 -6 82 5", "yperite gas burst yperite:chlorine 260 2 -3 82 5",
                     "yperite gas burst yperite:blood_gas 260 2 0 82 5", "yperite gas burst yperite:yperite 260 2 3 82 5",
                     "yperite gas burst yperite:nerve_gas 260 2 5 82 2", "yperite gas burst yperite:blue_cross 260 2 6 82 5"),
@@ -216,11 +218,12 @@ public final class ClientSmoke {
             mc.options.gamma().set(1.0);
             // no chat lines from the commands and no tutorial hints over the pictures
             mc.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);
+            mc.options.chatVisibility().set(net.minecraft.world.entity.player.ChatVisiblity.HIDDEN);
             mc.getToasts().clear();
             run(server, "gamerule sendCommandFeedback false", "gamemode creative", "fill -8 79 -8 8 95 8 minecraft:air", "fill -8 79 -8 8 79 8 minecraft:stone",
                     "fill -8 80 -4 8 90 -4 minecraft:white_concrete", "fill -8 80 6 8 90 6 minecraft:white_concrete",
                     "tp @s 0.5 80 0.5 0 0",
-                    "effect clear @s", "effect give @s minecraft:night_vision infinite 0 true", "time set day", "weather clear");
+                    "effect give @s minecraft:night_vision infinite 0 true", "time set day", "gamerule doDaylightCycle false", "weather clear");
             server.execute(() -> {
                 ServerPlayer player = server.getPlayerList().getPlayers().get(0);
                 player.getAbilities().flying = true;
