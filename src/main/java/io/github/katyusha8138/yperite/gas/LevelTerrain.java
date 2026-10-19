@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -35,7 +36,7 @@ final class LevelTerrain implements GasTerrain {
     private final boolean raining;
 
     /**
-     * @param wantSky  compute {@link GasTerrain#SKY} (needed for wind)
+     * @param wantSky  compute the sky light (needed for wind and open-air thinning)
      * @param wantRain compute {@link GasTerrain#RAIN}
      */
     LevelTerrain(ServerLevel level, boolean wantSky, boolean wantRain) {
@@ -90,9 +91,11 @@ final class LevelTerrain implements GasTerrain {
         if (self.getFluidState().is(FluidTags.WATER)) {
             flags |= SUBMERGED;
         }
-        if (wantSky && level.canSeeSky(cursor)) {
-            flags |= SKY;
-            if (wantRain && raining && level.isRainingAt(cursor)) {
+        if (wantSky) {
+            // Raw sky light: 15 under open sky, fading by one per block into buildings and caves.
+            int skyLight = level.getBrightness(LightLayer.SKY, cursor);
+            flags = GasTerrain.withSkyLight(flags, skyLight);
+            if (wantRain && raining && skyLight >= 15 && level.isRainingAt(cursor)) {
                 flags |= RAIN;
             }
         }

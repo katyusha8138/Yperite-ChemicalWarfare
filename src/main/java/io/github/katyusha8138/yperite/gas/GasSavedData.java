@@ -12,6 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,8 +26,13 @@ public final class GasSavedData extends SavedData {
     private static final String TAG_GAS_VALUES = "GasValues";
     private static final String TAG_RESIDUE_CELLS = "ResidueCells";
     private static final String TAG_RESIDUE_VALUES = "ResidueValues";
+    private static final String TAG_WIND = "Wind";
+    private static final String TAG_WIND_FROM = "FromDegrees";
+    private static final String TAG_WIND_STRENGTH = "Strength";
 
     private final Map<GasType, GasLayer> layers = new LinkedHashMap<>();
+    @Nullable
+    private WindModel.Override windOverride;
 
     public static GasSavedData get(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(GasSavedData::load, GasSavedData::new, ID);
@@ -43,6 +50,17 @@ public final class GasSavedData extends SavedData {
 
     public Map<GasType, GasLayer> layers() {
         return layers;
+    }
+
+    /** The wind an operator fixed for this dimension, or null when the wind follows time and weather. */
+    @Nullable
+    public WindModel.Override windOverride() {
+        return windOverride;
+    }
+
+    public void setWindOverride(@Nullable WindModel.Override windOverride) {
+        this.windOverride = windOverride;
+        setDirty();
     }
 
     public boolean isEmpty() {
@@ -81,11 +99,21 @@ public final class GasSavedData extends SavedData {
             list.add(tag);
         }
         root.put(TAG_LAYERS, list);
+        if (windOverride != null) {
+            CompoundTag wind = new CompoundTag();
+            wind.putFloat(TAG_WIND_FROM, windOverride.fromDegrees());
+            wind.putFloat(TAG_WIND_STRENGTH, windOverride.strength());
+            root.put(TAG_WIND, wind);
+        }
         return root;
     }
 
     public static GasSavedData load(CompoundTag root) {
         GasSavedData data = new GasSavedData();
+        if (root.contains(TAG_WIND, Tag.TAG_COMPOUND)) {
+            CompoundTag wind = root.getCompound(TAG_WIND);
+            data.windOverride = new WindModel.Override(wind.getFloat(TAG_WIND_FROM), wind.getFloat(TAG_WIND_STRENGTH));
+        }
         ListTag list = root.getList(TAG_LAYERS, Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag tag = list.getCompound(i);

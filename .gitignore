@@ -6,6 +6,7 @@ build/
 # Minecraft dev run directory
 run/
 run-data/
+run-gametest/
 
 # IDE
 .idea/

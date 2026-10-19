@@ -52,6 +52,8 @@ minecraft {
         }
 
         gameTestServer {
+            // Its own directory, so that the test world never mixes with a development server world.
+            workingDirectory project.file('run-gametest')
             property 'forge.enabledGameTestNamespaces', mod_id
         }
 
@@ -59,6 +61,14 @@ minecraft {
             workingDirectory project.file('run-data')
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
+    }
+}
+
+// Every GameTest run starts from a fresh world: gas and wind are saved with the world, and a leftover would leak
+// into the next run.
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    doFirst {
+        delete project.file('run-gametest/world')
     }
 }
 

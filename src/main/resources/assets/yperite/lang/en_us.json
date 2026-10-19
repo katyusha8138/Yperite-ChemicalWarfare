@@ -19,5 +19,19 @@
   "commands.yperite.gas.info.line": "%1$s: %2$s gas cells (total %3$s), %4$s residue cells (total %5$s)",
   "commands.yperite.gas.info.none": "There is no gas in this dimension",
   "commands.yperite.gas.probe.line": "%1$s: concentration %2$s, residue %3$s",
-  "commands.yperite.gas.probe.none": "No gas at this position"
+  "commands.yperite.gas.probe.none": "No gas at this position",
+  "compass.yperite.north": "north",
+  "compass.yperite.north_east": "north-east",
+  "compass.yperite.east": "east",
+  "compass.yperite.south_east": "south-east",
+  "compass.yperite.south": "south",
+  "compass.yperite.south_west": "south-west",
+  "compass.yperite.west": "west",
+  "compass.yperite.north_west": "north-west",
+  "commands.yperite.wind.calm": "There is no wind in this dimension",
+  "commands.yperite.wind.info": "Wind from the %1$s (%2$s°), strength %3$s (about %4$s blocks per second), %5$s",
+  "commands.yperite.wind.mode.auto": "automatic (follows time and weather)",
+  "commands.yperite.wind.mode.fixed": "fixed (set by command)",
+  "commands.yperite.wind.set": "Wind fixed: from the %1$s (%2$s°), strength %3$s",
+  "commands.yperite.wind.auto": "Wind is automatic again"
 }

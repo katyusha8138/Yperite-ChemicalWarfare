@@ -20,7 +20,7 @@ final class BoxTerrain implements GasTerrain {
     final int sizeZ;
     private Solid solid = (x, y, z) -> false;
     private final Set<Long> unloaded = new HashSet<>();
-    private boolean sky;
+    private int skyLight;
     private boolean rain;
     private boolean submerged;
 
@@ -40,8 +40,9 @@ final class BoxTerrain implements GasTerrain {
         return this;
     }
 
-    BoxTerrain sky(boolean sky) {
-        this.sky = sky;
+    /** Sky light of every cell: 0 is fully covered, 15 is open sky. */
+    BoxTerrain skyLight(int skyLight) {
+        this.skyLight = skyLight;
         return this;
     }
 
@@ -89,9 +90,7 @@ final class BoxTerrain implements GasTerrain {
                 flags |= FLOOR;
             }
         }
-        if (sky) {
-            flags |= SKY;
-        }
+        flags = GasTerrain.withSkyLight(flags, skyLight);
         if (rain) {
             flags |= RAIN;
         }

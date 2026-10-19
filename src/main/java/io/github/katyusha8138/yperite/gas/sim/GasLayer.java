@@ -190,7 +190,17 @@ public final class GasLayer {
         final boolean windy = params.hasWind();
         final float windX = params.windX();
         final float windZ = params.windZ();
-        final float windGain = params.windGain();
+
+        // Tables indexed by sky light (0 = fully covered, 15 = open sky).
+        final float[] windScale = new float[16];     // cells moved per step for a wind of 1 block per second
+        final float[] dilution = new float[16];      // factor on spreading and decay
+        final float[] airKeepByLight = new float[16];
+        for (int light = 0; light < 16; light++) {
+            float openness = (float) Math.pow(light / 15.0, params.shelterExponent());
+            windScale[light] = openness * dt;
+            dilution[light] = 1f + (params.openAirDilution() - 1f) * openness;
+            airKeepByLight[light] = (float) Math.pow(airKeep, dilution[light]);
+        }
 
         Long2ObjectOpenHashMap<Long2FloatOpenHashMap> nextGas = new Long2ObjectOpenHashMap<>(Math.max(16, gas.size() * 2));
         Long2ObjectOpenHashMap<Long2FloatOpenHashMap> nextResidue = new Long2ObjectOpenHashMap<>(Math.max(16, residue.size() * 2));
@@ -224,6 +234,7 @@ public final class GasLayer {
 
         // Gas: decay, deposit, then spread to the neighbours.
         final float[] weights = new float[6];
+        final float[] advect = new float[6];
         for (Long2ObjectMap.Entry<Long2FloatOpenHashMap> chunk : gas.long2ObjectEntrySet()) {
             long chunkKey = chunk.getLongKey();
             Long2FloatOpenHashMap cells = chunk.getValue();
@@ -240,11 +251,12 @@ public final class GasLayer {
             while (it.hasNext()) {
                 Long2FloatMap.Entry entry = it.next();
                 long key = entry.getLongKey();
-                float c = entry.getFloatValue() * airKeep;
                 int x = Cells.x(key);
                 int y = Cells.y(key);
                 int z = Cells.z(key);
                 int flags = terrain.flags(x, y, z);
+                int light = GasTerrain.skyLight(flags);
+                float c = entry.getFloatValue() * airKeepByLight[light];
 
                 if ((flags & GasTerrain.RAIN) != 0) {
                     c *= rainKeep;
@@ -266,6 +278,7 @@ public final class GasLayer {
                 }
 
                 float sum = 0f;
+                java.util.Arrays.fill(advect, 0f);
                 if ((flags & GasTerrain.SOLID) != 0) {
                     // Buried in a block: push everything out to whichever sides are open.
                     int open = Integer.bitCount(flags & GasTerrain.EXIT_MASK);
@@ -278,15 +291,13 @@ public final class GasLayer {
                     }
                     sum = 1f;
                 } else {
+                    float spread = dilution[light];
                     for (int d = 0; d < 6; d++) {
                         if ((flags & (1 << d)) == 0) {
                             weights[d] = 0f;
                             continue;
                         }
-                        float w = d == Cells.DOWN ? downWeight : d == Cells.UP ? upWeight : diffusion;
-                        if (windy && d >= Cells.NORTH && (flags & GasTerrain.SKY) != 0) {
-                            w *= Math.max(0.1f, 1f + windGain * (Cells.DX[d] * windX + Cells.DZ[d] * windZ));
-                        }
+                        float w = (d == Cells.DOWN ? downWeight : d == Cells.UP ? upWeight : diffusion) * spread;
                         weights[d] = w;
                         sum += w;
                     }
@@ -297,14 +308,36 @@ public final class GasLayer {
                         }
                         sum = MAX_OUTFLOW;
                     }
+                    if (windy && light > 0) {
+                        // Wind carries a share of the gas one cell downwind. Through a closed face it carries
+                        // nothing, so gas banks up against walls instead of passing through them.
+                        float ax = windX * windScale[light];
+                        float az = windZ * windScale[light];
+                        float total = Math.abs(ax) + Math.abs(az);
+                        if (total > 1f) {
+                            ax /= total;
+                            az /= total;
+                        }
+                        int dirX = ax > 0f ? Cells.EAST : Cells.WEST;
+                        int dirZ = az > 0f ? Cells.SOUTH : Cells.NORTH;
+                        if ((flags & (1 << dirX)) != 0) {
+                            advect[dirX] = Math.abs(ax);
+                        }
+                        if ((flags & (1 << dirZ)) != 0) {
+                            advect[dirZ] = Math.abs(az);
+                        }
+                    }
                 }
 
-                float stay = c * (1f - sum);
+                // What the wind carries leaves first; the rest spreads by diffusion.
+                float carried = advect[Cells.NORTH] + advect[Cells.SOUTH] + advect[Cells.WEST] + advect[Cells.EAST];
+                float remaining = 1f - carried;
+                float stay = c * remaining * (1f - sum);
                 if (stay > 0f) {
                     ownOut.addTo(key, stay);
                 }
                 for (int d = 0; d < 6; d++) {
-                    float w = weights[d];
+                    float w = advect[d] + remaining * weights[d];
                     if (w <= 0f) {
                         continue;
                     }

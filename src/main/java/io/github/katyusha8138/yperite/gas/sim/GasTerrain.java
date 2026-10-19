@@ -13,10 +13,20 @@ public interface GasTerrain {
     int SUBMERGED = 1 << 7;
     /** Rain falls on the cell. */
     int RAIN = 1 << 8;
-    /** The cell is open to the sky, so wind reaches it. */
-    int SKY = 1 << 9;
+    // Bit 9 is reserved.
     /** The cell itself lies inside a gas-blocking block. */
     int SOLID = 1 << 10;
+    /** Bits 11..14: sky light of the cell, 0 (fully covered) .. 15 (open sky). Decides how open to the air it is. */
+    int SKY_LIGHT_SHIFT = 11;
+    int SKY_LIGHT_MASK = 0xF << SKY_LIGHT_SHIFT;
+
+    static int skyLight(int flags) {
+        return (flags & SKY_LIGHT_MASK) >>> SKY_LIGHT_SHIFT;
+    }
+
+    static int withSkyLight(int flags, int skyLight) {
+        return (flags & ~SKY_LIGHT_MASK) | ((skyLight & 0xF) << SKY_LIGHT_SHIFT);
+    }
 
     /** Whether the chunk is loaded. Gas in unloaded chunks is frozen and gas never flows into them. */
     boolean isChunkLoaded(int chunkX, int chunkZ);

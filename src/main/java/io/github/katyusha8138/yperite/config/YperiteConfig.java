@@ -10,7 +10,9 @@ public final class YperiteConfig {
     public static final ForgeConfigSpec.IntValue GAS_MAX_CELLS;
     public static final ForgeConfigSpec.DoubleValue GAS_MIN_CONCENTRATION;
     public static final ForgeConfigSpec.BooleanValue WIND_ENABLED;
-    public static final ForgeConfigSpec.DoubleValue WIND_GAIN;
+    public static final ForgeConfigSpec.DoubleValue WIND_MAX_SPEED;
+    public static final ForgeConfigSpec.DoubleValue WIND_SHELTER_EXPONENT;
+    public static final ForgeConfigSpec.DoubleValue OPEN_AIR_DILUTION;
     public static final ForgeConfigSpec.BooleanValue PARTICLES_ENABLED;
     public static final ForgeConfigSpec.IntValue PARTICLE_INTERVAL;
     public static final ForgeConfigSpec.IntValue PARTICLE_RANGE;
@@ -29,15 +31,25 @@ public final class YperiteConfig {
         GAS_MIN_CONCENTRATION = b
                 .comment("Gas thinner than this disappears. 1.0 is dense, harmful gas.")
                 .defineInRange("minConcentration", 0.01, 0.0001, 0.5);
+        OPEN_AIR_DILUTION = b
+                .comment("In fully open air gas spreads and decays this many times faster than indoors.",
+                        "Cells that are partly covered get a share of the bonus. 1 turns the effect off.")
+                .defineInRange("openAirDilution", 1.5, 1.0, 4.0);
         b.push("wind");
         WIND_ENABLED = b
-                .comment("Whether wind carries gas that is open to the sky.")
+                .comment("Whether wind carries gas that is open to the air.")
                 .define("enabled", true);
-        WIND_GAIN = b
-                .comment("How strongly wind skews the spread. 0 disables the effect.")
-                .defineInRange("gain", 2.5, 0.0, 10.0);
-        b.pop();
-        b.pop();
+        WIND_MAX_SPEED = b
+                .comment("Speed in blocks per second at the strongest wind (strength 1). A storm reaches it; calm days are about half.",
+                        "With the default update interval of 4 ticks speeds up to 5 blocks per second are exact; faster",
+                        "winds are capped at one block per update.")
+                .defineInRange("maxSpeed", 4.0, 0.0, 20.0);
+        WIND_SHELTER_EXPONENT = b
+                .comment("How quickly wind fades towards the inside of buildings and caves. The wind at a cell is scaled by",
+                        "(skyLight / 15) ^ this. 1 fades linearly; larger values give a sharper edge near openings.")
+                .defineInRange("shelterExponent", 2.0, 0.25, 8.0);
+        b.pop(); // wind
+        b.pop(); // gas
 
         b.comment("Gas particles (sent from the server to nearby players)").push("particles");
         PARTICLES_ENABLED = b

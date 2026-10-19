@@ -5,10 +5,12 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import io.github.katyusha8138.yperite.config.YperiteConfig;
 import io.github.katyusha8138.yperite.gas.GasManager;
 import io.github.katyusha8138.yperite.gas.GasSavedData;
 import io.github.katyusha8138.yperite.gas.GasType;
 import io.github.katyusha8138.yperite.gas.GasTypes;
+import io.github.katyusha8138.yperite.gas.WindModel;
 import io.github.katyusha8138.yperite.gas.sim.GasLayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -31,6 +33,9 @@ import java.util.Map;
  * /yperite gas clear [type]
  * /yperite gas info
  * /yperite gas probe
+ * /yperite wind
+ * /yperite wind set &lt;fromDegrees&gt; &lt;strength&gt;
+ * /yperite wind auto
  * </pre>
  */
 public final class YperiteCommand {
@@ -60,7 +65,54 @@ public final class YperiteCommand {
                                         .suggests((ctx, builder) -> SharedSuggestionProvider.suggestResource(GasTypes.REGISTRY.get().getKeys(), builder))
                                         .executes(ctx -> clear(ctx, gasType(ctx)))))
                         .then(Commands.literal("info").executes(YperiteCommand::info))
-                        .then(Commands.literal("probe").executes(YperiteCommand::probe))));
+                        .then(Commands.literal("probe").executes(YperiteCommand::probe)))
+                .then(Commands.literal("wind")
+                        .executes(YperiteCommand::windInfo)
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("fromDegrees", FloatArgumentType.floatArg(0f, 360f))
+                                        .then(Commands.argument("strength", FloatArgumentType.floatArg(0f, 1f))
+                                                .executes(YperiteCommand::windSet))))
+                        .then(Commands.literal("auto").executes(YperiteCommand::windAuto))));
+    }
+
+    private static final String[] COMPASS = {"north", "north_east", "east", "south_east", "south", "south_west", "west", "north_west"};
+
+    private static int windInfo(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        if (!level.dimensionType().hasSkyLight()) {
+            ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.wind.calm"), false);
+            return 0;
+        }
+        WindModel.Wind wind = GasManager.wind(level);
+        boolean fixed = GasManager.data(level).windOverride() != null;
+        float degrees = wind.fromDegrees();
+        double speed = wind.strength() * YperiteConfig.WIND_MAX_SPEED.get();
+        Component direction = Component.translatable("compass.yperite." + COMPASS[Math.round(degrees / 45f) % 8]);
+        Component mode = Component.translatable(fixed ? "commands.yperite.wind.mode.fixed" : "commands.yperite.wind.mode.auto");
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.wind.info",
+                direction, Math.round(degrees), fmt2(wind.strength()), fmt2((float) speed), mode), false);
+        return 1;
+    }
+
+    private static int windSet(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        float degrees = FloatArgumentType.getFloat(ctx, "fromDegrees");
+        float strength = FloatArgumentType.getFloat(ctx, "strength");
+        GasManager.data(level).setWindOverride(new WindModel.Override(degrees, strength));
+        Component direction = Component.translatable("compass.yperite." + COMPASS[Math.round(degrees / 45f) % 8]);
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.wind.set",
+                direction, Math.round(degrees), fmt2(strength)), true);
+        return 1;
+    }
+
+    private static int windAuto(CommandContext<CommandSourceStack> ctx) {
+        GasManager.data(ctx.getSource().getLevel()).setWindOverride(null);
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.yperite.wind.auto"), true);
+        return 1;
+    }
+
+    private static String fmt2(float value) {
+        return String.format(Locale.ROOT, "%.2f", value);
     }
 
     private static GasType gasType(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {

@@ -21,7 +21,27 @@ class GasLayerTest {
     }
 
     private static GasStepParams calm() {
-        return new GasStepParams(DT, 0f, 10_000_000, 0f, 0f, 0f);
+        return new GasStepParams(DT, 0f, 10_000_000, 0f, 0f, 1f, 1f);
+    }
+
+    /** Wind in blocks per second; sky light shapes it linearly (exponent 1). */
+    private static GasStepParams wind(float windX, float windZ) {
+        return new GasStepParams(DT, 0f, 10_000_000, windX, windZ, 1f, 1f);
+    }
+
+    private static double variance(GasLayer layer, int sizeX) {
+        double total = 0;
+        double mean = 0;
+        for (int x = 0; x < sizeX; x++) {
+            total += layer.get(x, 0, 0);
+            mean += layer.get(x, 0, 0) * x;
+        }
+        mean /= total;
+        double variance = 0;
+        for (int x = 0; x < sizeX; x++) {
+            variance += layer.get(x, 0, 0) * (x - mean) * (x - mean);
+        }
+        return variance / total;
     }
 
     private static void run(GasLayer layer, GasTerrain terrain, GasPhysics physics, GasStepParams params, int steps) {
@@ -181,31 +201,139 @@ class GasLayerTest {
     }
 
     @Test
-    void windCarriesGasDownwindOnlyWhereTheSkyIsOpen() {
+    void windCarriesGasDownwindAtTheExpectedSpeed() {
         GasPhysics gas = neutral(0f, 0.05f);
-        GasStepParams east = new GasStepParams(DT, 0f, 10_000_000, 0.8f, 0f, 2.5f);
-        GasStepParams west = new GasStepParams(DT, 0f, 10_000_000, -0.8f, 0f, 2.5f);
+        BoxTerrain open = new BoxTerrain(141, 3, 9).skyLight(15);
 
         GasLayer still = new GasLayer();
-        still.add(30, 1, 4, 20f);
-        run(still, new BoxTerrain(61, 3, 9).sky(true), gas, calm(), 100);
-        assertEquals(30.0, centroid(still, 0, 61, 3, 9), 0.05, "no wind, no drift");
+        still.add(50, 1, 4, 20f);
+        run(still, open, gas, calm(), 100);
+        assertEquals(50.0, centroid(still, 0, 141, 3, 9), 0.05, "no wind, no drift");
 
-        GasLayer blownEast = new GasLayer();
-        blownEast.add(30, 1, 4, 20f);
-        run(blownEast, new BoxTerrain(61, 3, 9).sky(true), gas, east, 100);
-        assertTrue(centroid(blownEast, 0, 61, 3, 9) > 34.0, "wind from the west should push gas east");
+        // 2 blocks per second for 100 steps of 0.2 s is 40 blocks.
+        GasLayer east = new GasLayer();
+        east.add(50, 1, 4, 20f);
+        run(east, open, gas, wind(2f, 0f), 100);
+        assertEquals(90.0, centroid(east, 0, 141, 3, 9), 1.0, "wind from the west should carry gas 40 blocks east");
+        assertEquals(20.0, east.totalMass(), 0.01, "wind moves gas, it does not create or destroy it");
 
-        GasLayer blownWest = new GasLayer();
-        blownWest.add(30, 1, 4, 20f);
-        run(blownWest, new BoxTerrain(61, 3, 9).sky(true), gas, west, 100);
-        assertTrue(centroid(blownWest, 0, 61, 3, 9) < 26.0, "wind from the east should push gas west");
+        GasLayer west = new GasLayer();
+        west.add(50, 1, 4, 20f);
+        run(west, open, gas, wind(-2f, 0f), 100);
+        assertEquals(10.0, centroid(west, 0, 141, 3, 9), 1.0, "wind from the east should carry gas 40 blocks west");
+    }
 
-        GasLayer indoors = new GasLayer();
-        indoors.add(30, 1, 4, 20f);
-        run(indoors, new BoxTerrain(61, 3, 9).sky(false), gas, east, 100);
-        assertEquals(30.0, centroid(indoors, 0, 61, 3, 9), 0.05, "wind does not reach covered cells");
-        assertEquals(20.0, blownEast.totalMass(), 0.05);
+    @Test
+    void strongWindStillCarriesAtItsFullSpeed() {
+        // 4 blocks per second is 0.8 cells per step, close to the limit of one cell per step.
+        BoxTerrain open = new BoxTerrain(141, 3, 9).skyLight(15);
+        GasLayer layer = new GasLayer();
+        layer.add(20, 1, 4, 20f);
+
+        run(layer, open, neutral(0f, 0.05f), wind(4f, 0f), 100);
+
+        assertEquals(100.0, centroid(layer, 0, 141, 3, 9), 1.5);
+        assertEquals(20.0, layer.totalMass(), 0.01);
+    }
+
+    @Test
+    void windOnTheDiagonalMovesBothWaysAndKeepsTheMass() {
+        BoxTerrain open = new BoxTerrain(81, 3, 81).skyLight(15);
+        GasLayer layer = new GasLayer();
+        layer.add(20, 1, 20, 20f);
+
+        run(layer, open, neutral(0f, 0.05f), wind(1.5f, 1.5f), 100);
+
+        assertEquals(50.0, centroid(layer, 0, 81, 3, 81), 1.0);
+        assertEquals(50.0, centroid(layer, 2, 81, 3, 81), 1.0);
+        assertEquals(20.0, layer.totalMass(), 0.01);
+    }
+
+    @Test
+    void windBanksGasUpAgainstAWallInsteadOfPushingItThrough() {
+        BoxTerrain walled = new BoxTerrain(81, 3, 9).skyLight(15).solid((x, y, z) -> x == 60);
+        GasLayer layer = new GasLayer();
+        layer.add(50, 1, 4, 20f);
+
+        run(layer, walled, neutral(0f, 0.05f), wind(3f, 0f), 300);
+
+        double beyond = 0;
+        for (int x = 61; x < 81; x++) {
+            for (int y = 0; y < 3; y++) {
+                for (int z = 0; z < 9; z++) {
+                    beyond += layer.get(x, y, z);
+                }
+            }
+        }
+        assertEquals(0.0, beyond, 0.0, "wind must not carry gas through a wall");
+        assertEquals(20.0, layer.totalMass(), 0.01);
+        assertTrue(layer.get(59, 1, 4) > layer.get(50, 1, 4), "gas should collect against the wall");
+    }
+
+    @Test
+    void windFadesTowardsCoveredCells() {
+        GasPhysics gas = neutral(0f, 0.05f);
+        for (int[] spec : new int[][]{{15, 0}, {8, 0}, {0, 0}}) {
+            // columns: sky light, unused
+            int light = spec[0];
+            GasLayer layer = new GasLayer();
+            layer.add(30, 1, 4, 20f);
+            run(layer, new BoxTerrain(141, 3, 9).skyLight(light), gas, wind(2f, 0f), 100);
+            double expected = 30.0 + 40.0 * (light / 15.0);
+            assertEquals(expected, centroid(layer, 0, 141, 3, 9), 1.0, "sky light " + light);
+        }
+    }
+
+    @Test
+    void shelterExponentSteepensTheFadeOut() {
+        // With exponent 2 a cell at sky light 8 feels (8/15)^2 = 28% of the wind.
+        GasStepParams steep = new GasStepParams(DT, 0f, 10_000_000, 2f, 0f, 2f, 1f);
+        GasLayer layer = new GasLayer();
+        layer.add(30, 1, 4, 20f);
+
+        run(layer, new BoxTerrain(141, 3, 9).skyLight(8), neutral(0f, 0.05f), steep, 100);
+
+        assertEquals(30.0 + 40.0 * (8.0 / 15.0) * (8.0 / 15.0), centroid(layer, 0, 141, 3, 9), 1.0);
+    }
+
+    @Test
+    void openAirDecaysFasterThanCoveredAir() {
+        GasPhysics decaying = new GasPhysics(0f, 0.1f, 0.10f, 0f, 0f, 0f, 0f, 0f);
+        GasStepParams boosted = new GasStepParams(DT, 0f, 10_000_000, 0f, 0f, 1f, 1.5f);
+
+        GasLayer covered = new GasLayer();
+        covered.add(3, 2, 3, 100f);
+        run(covered, new BoxTerrain(6, 4, 6).skyLight(0), decaying, boosted, 100);
+        assertEquals(100.0 * Math.pow(0.9, 20), covered.totalMass(), 1.0, "indoors is unchanged");
+
+        GasLayer open = new GasLayer();
+        open.add(3, 2, 3, 100f);
+        run(open, new BoxTerrain(6, 4, 6).skyLight(15), decaying, boosted, 100);
+        assertEquals(100.0 * Math.pow(0.9, 20 * 1.5), open.totalMass(), 0.5, "open air decays 1.5 times faster");
+
+        GasLayer half = new GasLayer();
+        half.add(3, 2, 3, 100f);
+        run(half, new BoxTerrain(6, 4, 6).skyLight(8), decaying, boosted, 100);
+        double partly = 100.0 * Math.pow(0.9, 20 * (1 + 0.5 * 8.0 / 15.0));
+        assertEquals(partly, half.totalMass(), 0.7, "partly covered cells get a share of the bonus");
+    }
+
+    @Test
+    void openAirSpreadsFasterThanCoveredAir() {
+        // A one-block-wide corridor makes the spread a plain one-dimensional random walk.
+        GasPhysics gas = neutral(0f, 0.1f);
+        GasStepParams boosted = new GasStepParams(DT, 0f, 10_000_000, 0f, 0f, 1f, 1.5f);
+
+        GasLayer covered = new GasLayer();
+        covered.add(100, 0, 0, 10f);
+        run(covered, new BoxTerrain(201, 1, 1).skyLight(0), gas, boosted, 100);
+
+        GasLayer open = new GasLayer();
+        open.add(100, 0, 0, 10f);
+        run(open, new BoxTerrain(201, 1, 1).skyLight(15), gas, boosted, 100);
+
+        double ratio = variance(open, 201) / variance(covered, 201);
+        assertEquals(1.5, ratio, 0.1, "open air should spread 1.5 times as fast");
     }
 
     @Test
@@ -234,7 +362,7 @@ class GasLayerTest {
         // appears if small deposits are allowed to add up.
         BoxTerrain room = new BoxTerrain(10, 2, 10);
         GasPhysics settling = new GasPhysics(-1f, 0.08f, 0f, 0.1f, 0f, 0f, 0f, 0f);
-        GasStepParams params = new GasStepParams(DT, 0.01f, 1_000_000, 0f, 0f, 0f);
+        GasStepParams params = new GasStepParams(DT, 0.01f, 1_000_000, 0f, 0f, 1f, 1f);
         GasLayer layer = new GasLayer();
         for (int x = 0; x < 10; x++) {
             for (int z = 0; z < 10; z++) {
@@ -344,7 +472,7 @@ class GasLayerTest {
         BoxTerrain open = new BoxTerrain(41, 41, 41);
         GasLayer layer = new GasLayer();
         layer.add(20, 20, 20, 5000f);
-        GasStepParams capped = new GasStepParams(DT, 0f, 500, 0f, 0f, 0f);
+        GasStepParams capped = new GasStepParams(DT, 0f, 500, 0f, 0f, 1f, 1f);
 
         run(layer, open, neutral(0f, 0.1f), capped, 20);
 
@@ -357,7 +485,7 @@ class GasLayerTest {
         BoxTerrain open = new BoxTerrain(61, 61, 61);
         GasLayer layer = new GasLayer();
         layer.add(30, 30, 30, 100f);
-        GasStepParams params = new GasStepParams(DT, 0.01f, 1_000_000, 0f, 0f, 0f);
+        GasStepParams params = new GasStepParams(DT, 0.01f, 1_000_000, 0f, 0f, 1f, 1f);
 
         run(layer, open, neutral(0f, 0.1f), params, 100);
         assertTrue(layer.cellCount() > 1, "the cloud should have spread by now");
@@ -397,10 +525,10 @@ class GasLayerTest {
 
     @Test
     void largeFieldStaysWithinTheCapAndReportsTiming() {
-        BoxTerrain open = new BoxTerrain(120, 40, 120).solid((x, y, z) -> y < 4);
+        BoxTerrain open = new BoxTerrain(120, 40, 120).solid((x, y, z) -> y < 4).skyLight(15);
         GasLayer layer = new GasLayer();
         layer.release(open, 60, 6, 60, 10f, 40000f);
-        GasStepParams params = new GasStepParams(DT, 0.01f, 40000, 0.3f, 0.2f, 2.5f);
+        GasStepParams params = new GasStepParams(DT, 0.01f, 40000, 1.2f, 0.8f, 2f, 1.5f);
         GasPhysics gas = new GasPhysics(-0.5f, 0.08f, 0.02f, 0.05f, 0.002f, 0.002f, 0f, 0f);
 
         run(layer, open, gas, params, 5);

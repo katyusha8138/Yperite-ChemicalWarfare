@@ -19,5 +19,19 @@
   "commands.yperite.gas.info.line": "%1$s: ガス %2$s セル(総量 %3$s)、残留 %4$s セル(総量 %5$s)",
   "commands.yperite.gas.info.none": "このディメンションにガスはありません",
   "commands.yperite.gas.probe.line": "%1$s: 濃度 %2$s、残留 %3$s",
-  "commands.yperite.gas.probe.none": "この位置にガスはありません"
+  "commands.yperite.gas.probe.none": "この位置にガスはありません",
+  "compass.yperite.north": "北",
+  "compass.yperite.north_east": "北東",
+  "compass.yperite.east": "東",
+  "compass.yperite.south_east": "南東",
+  "compass.yperite.south": "南",
+  "compass.yperite.south_west": "南西",
+  "compass.yperite.west": "西",
+  "compass.yperite.north_west": "北西",
+  "commands.yperite.wind.calm": "このディメンションには風がありません",
+  "commands.yperite.wind.info": "風向: %1$s(%2$s°)から吹いています。強さ %3$s(約 %4$s ブロック/秒)、%5$s",
+  "commands.yperite.wind.mode.auto": "自動(時間と天候で変化)",
+  "commands.yperite.wind.mode.fixed": "固定(コマンドで設定)",
+  "commands.yperite.wind.set": "風を固定しました: %1$s(%2$s°)から、強さ %3$s",
+  "commands.yperite.wind.auto": "風を自動に戻しました"
 }

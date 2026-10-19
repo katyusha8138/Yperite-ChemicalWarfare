@@ -38,6 +38,14 @@ public final class GasManager {
         return placed;
     }
 
+    /** The wind in this dimension right now, as a vector with a length of 0..1 (see {@link WindModel.Wind}). */
+    public static WindModel.Wind wind(ServerLevel level) {
+        if (!YperiteConfig.WIND_ENABLED.get()) {
+            return WindModel.Wind.CALM;
+        }
+        return WindModel.at(level, data(level));
+    }
+
     public static float concentration(ServerLevel level, GasType type, BlockPos pos) {
         GasLayer layer = data(level).layerIfPresent(type);
         return layer == null ? 0f : layer.get(pos.getX(), pos.getY(), pos.getZ());
@@ -81,16 +89,20 @@ public final class GasManager {
 
     /** One simulation step. Package-private so that in-world tests can drive and time it. */
     static void step(ServerLevel level, GasSavedData data, int intervalTicks) {
-        boolean windEnabled = YperiteConfig.WIND_ENABLED.get() && YperiteConfig.WIND_GAIN.get() > 0.0;
-        WindModel.Wind wind = windEnabled ? WindModel.at(level) : WindModel.Wind.CALM;
+        double maxSpeed = YperiteConfig.WIND_MAX_SPEED.get();
+        boolean windEnabled = YperiteConfig.WIND_ENABLED.get() && maxSpeed > 0.0;
+        WindModel.Wind wind = windEnabled ? WindModel.at(level, data) : WindModel.Wind.CALM;
+        float openAirDilution = YperiteConfig.OPEN_AIR_DILUTION.get().floatValue();
         GasStepParams params = new GasStepParams(
                 intervalTicks / 20f,
                 YperiteConfig.GAS_MIN_CONCENTRATION.get().floatValue(),
                 YperiteConfig.GAS_MAX_CELLS.get(),
-                wind.x(),
-                wind.z(),
-                YperiteConfig.WIND_GAIN.get().floatValue());
-        LevelTerrain terrain = new LevelTerrain(level, windEnabled, true);
+                (float) (wind.x() * maxSpeed),
+                (float) (wind.z() * maxSpeed),
+                YperiteConfig.WIND_SHELTER_EXPONENT.get().floatValue(),
+                openAirDilution);
+        // Sky light is needed for wind and for the thinner air outdoors.
+        LevelTerrain terrain = new LevelTerrain(level, windEnabled || openAirDilution > 1f, true);
 
         for (Map.Entry<GasType, GasLayer> entry : data.layers().entrySet()) {
             GasLayer layer = entry.getValue();

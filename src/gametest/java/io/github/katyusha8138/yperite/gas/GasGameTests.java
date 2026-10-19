@@ -2,9 +2,11 @@ package io.github.katyusha8138.yperite.gas;
 
 import io.github.katyusha8138.yperite.YperiteMod;
 import io.github.katyusha8138.yperite.gas.sim.GasLayer;
+import io.github.katyusha8138.yperite.gas.sim.GasTerrain;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.gametest.framework.BeforeBatch;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +32,29 @@ public final class GasGameTests {
     private static final String BIG = "empty_32x16x32";
 
     private GasGameTests() {
+    }
+
+    // ------------------------------------------------------------------ clean slate
+
+    /** Gas and the fixed wind are saved with the world, so every batch starts by wiping them. */
+    private static void reset(ServerLevel level) {
+        GasManager.clear(level, null);
+        GasManager.data(level).setWindOverride(null);
+    }
+
+    @BeforeBatch(batch = "defaultBatch")
+    public static void resetBeforeDefaultBatch(ServerLevel level) {
+        reset(level);
+    }
+
+    @BeforeBatch(batch = "wind")
+    public static void resetBeforeWindBatch(ServerLevel level) {
+        reset(level);
+    }
+
+    @BeforeBatch(batch = "cost")
+    public static void resetBeforeCostBatch(ServerLevel level) {
+        reset(level);
     }
 
     // ------------------------------------------------------------------ helpers
@@ -283,6 +308,105 @@ public final class GasGameTests {
     private static void run(GameTestHelper helper, CommandSourceStack source, String command) {
         int result = source.getServer().getCommands().performPrefixedCommand(source, command);
         helper.assertTrue(result > 0, "command failed: /" + command);
+    }
+
+    // ------------------------------------------------------------------ openness and wind
+    // These change the dimension-wide wind, so they run in their own batch, one after another.
+
+    /**
+     * The terrain must report exactly the level's sky light. (The GameTest world does not light the space near its
+     * floor, so this checks the wiring at several heights rather than any particular brightness.)
+     */
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void terrainReportsTheLevelsSkyLight(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        sealRoom(helper);
+        LevelTerrain terrain = new LevelTerrain(level, true, false);
+        BlockPos base = helper.absolutePos(pos(5, 3, 5));
+        for (int dy : new int[]{0, 6, 40, 100, 150, 200}) {
+            BlockPos at = base.above(dy);
+            int expected = level.getBrightness(net.minecraft.world.level.LightLayer.SKY, at);
+            int actual = GasTerrain.skyLight(terrain.flags(at.getX(), at.getY(), at.getZ()));
+            helper.assertTrue(expected == actual, "sky light at +" + dy + " should be " + expected + " but the terrain reported " + actual);
+        }
+        // Without the sky option the terrain reports no sky light at all.
+        LevelTerrain blind = new LevelTerrain(level, false, false);
+        BlockPos high = base.above(200);
+        helper.assertTrue(GasTerrain.skyLight(blind.flags(high.getX(), high.getY(), high.getZ())) == 0, "sky light must be omitted when not requested");
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 200, batch = "wind")
+    public static void windCommandsSetShowAndResetTheWind(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        CommandSourceStack source = level.getServer().createCommandSourceStack().withLevel(level);
+        GasSavedData data = GasManager.data(level);
+
+        run(helper, source, "yperite wind");
+        helper.assertTrue(data.windOverride() == null, "the wind starts out automatic");
+
+        run(helper, source, "yperite wind set 270 0.5");
+        WindModel.Override fixed = data.windOverride();
+        helper.assertTrue(fixed != null && fixed.fromDegrees() == 270f && fixed.strength() == 0.5f, "wind set did not store the wind");
+        WindModel.Wind wind = GasManager.wind(level);
+        helper.assertTrue(wind.x() > 0.49f && Math.abs(wind.z()) < 0.01f,
+                "wind from the west must blow east (+x), got x=" + wind.x() + " z=" + wind.z());
+        helper.assertTrue(Math.abs(wind.fromDegrees() - 270f) < 0.5f, "fromDegrees round trip: " + wind.fromDegrees());
+        run(helper, source, "yperite wind");
+
+        GasSavedData reloaded = GasSavedData.load(data.save(new CompoundTag()));
+        helper.assertTrue(reloaded.windOverride() != null && reloaded.windOverride().strength() == 0.5f,
+                "the fixed wind must survive a save and load");
+
+        run(helper, source, "yperite wind auto");
+        helper.assertTrue(data.windOverride() == null, "wind auto must clear the fixed wind");
+        helper.succeed();
+    }
+
+    /**
+     * End to end on a real server: fixed wind, real sky light, real chunks. The cloud is released high above the arena
+     * because the GameTest world only has sky light up there. A light gas is used so that it does not sink back into
+     * the unlit space below.
+     */
+    @GameTest(template = BIG, timeoutTicks = 300, batch = "wind")
+    public static void fixedWindCarriesOpenAirGasDownwind(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        GasType gas = GasTypes.BLUE_CROSS.get();
+        GasSavedData data = GasManager.data(level);
+        // From the west at half strength: 2 blocks per second towards +x with the default maximum speed.
+        data.setWindOverride(new WindModel.Override(270f, 0.5f));
+
+        BlockPos start = helper.absolutePos(pos(16, 3, 16)).above(150);
+        GasManager.release(level, gas, start, 1f, 3000f);
+        LevelTerrain terrain = new LevelTerrain(level, true, false);
+        int light = GasTerrain.skyLight(terrain.flags(start.getX(), start.getY(), start.getZ()));
+        if (light != 15) {
+            data.setWindOverride(null);
+            GasManager.clear(level, gas);
+            helper.fail("the release point should be under open sky, sky light was " + light);
+            return;
+        }
+
+        helper.runAfterDelay(100, () -> {
+            double weighted = 0;
+            double total = 0;
+            for (int x = -16; x < 48; x++) {
+                for (int y = -12; y <= 12; y++) {
+                    for (int z = 0; z < 32; z++) {
+                        BlockPos at = start.offset(x, y, z - 16);
+                        double c = GasManager.concentration(level, gas, at);
+                        weighted += c * at.getX();
+                        total += c;
+                    }
+                }
+            }
+            data.setWindOverride(null);
+            GasManager.clear(level, gas);
+            helper.assertTrue(total > 100.0, "most of the gas should still be in the sampled box, total=" + total);
+            double shift = weighted / total - start.getX();
+            helper.assertTrue(shift > 5.0, "5 seconds of a 2 blocks per second wind should move the cloud east by about 10 blocks, shift=" + shift);
+            helper.succeed();
+        });
     }
 
     // ------------------------------------------------------------------ cost
