@@ -53,6 +53,12 @@ minecraft {
 
         client {
             property 'forge.enabledGameTestNamespaces', mod_id
+            // ./gradlew -PsmokeClient runClient  walks through the visual scenes under a virtual display and quits.
+            // See ClientSmoke. It loads the saved test world "smoke" from run/saves.
+            if (project.hasProperty('smokeClient')) {
+                property 'yperite.smoke', 'true'
+                args '--quickPlaySingleplayer', 'smoke'
+            }
         }
 
         server {

@@ -29,6 +29,7 @@ Java 17 が必要です。
 ./gradlew -PnoCurios runGameTestServer   # Curios なしで同じ試験(任意の依存の確認)
 ./gradlew runServer           # 開発用サーバー
 ./gradlew runClient           # 開発用クライアント
+./gradlew -PsmokeClient runClient   # 見た目の確認(仮想ディスプレイ上で場面を撮影、docs/DESIGN.md §7.9)
 ```
 
 ### デバッグコマンド(OP 権限)
@@ -60,7 +61,7 @@ Java 17 が必要です。
 
 ## 任意の連携
 
-- [Curios](https://www.curseforge.com/minecraft/mc-mods/curios): 入っていれば、ガスマスクを「顔」スロットにも着けられます(ヘルメットと併用可)。
+- [Curios](https://www.curseforge.com/minecraft/mc-mods/curios): 入っていれば、ガスマスクを「顔」スロットにも着けられます(ヘルメットと併用可。顔枠でも見た目に描かれます)。
 
 ## 素材について
 
