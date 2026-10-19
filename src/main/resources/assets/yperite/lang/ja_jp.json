@@ -152,5 +152,11 @@
   "item.yperite.chemical_round.hint.grenade_40mm": "M79 など 40mm 擲弾の発射器の弾。着弾した場所でガスを出し、小さな爆発も起こす",
   "item.yperite.chemical_round.hint.mortar_shell": "Superb Warfare の迫撃砲用。着弾した場所でガスを出し、小さな爆発も起こす",
   "item.yperite.chemical_round.hint.large_shell": "Mk 42、Mle 1934、FH-77BW、PLZ-05 用。着弾した場所でガスを出し、小さな爆発も起こす",
-  "weapon.yperite.cannon_chemical": "化学砲弾"
+  "weapon.yperite.cannon_chemical": "化学砲弾",
+  "item.yperite.stahlhelm_m1916": "シュタールヘルム M1916",
+  "tooltip.yperite.bullet_resistance": "弾丸耐性 %s%%(Superb Warfare)",
+  "tooltip.yperite.bullet_resistance.inactive": "弾丸耐性 %s%%(Superb Warfare 導入時)",
+  "item.yperite.brodie_mk1": "ブロディ・ヘルメット Mk I",
+  "item.yperite.adrian_m15": "アドリアン・ヘルメット M15",
+  "item.yperite.berndorfer": "ベルンドルファー型鉄帽"
 }

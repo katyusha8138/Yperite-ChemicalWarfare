@@ -31,7 +31,12 @@ public final class ClientSmoke {
     private record Scene(String name, List<String> commands, CameraType camera, float yaw, float pitch) {
         /** The three outfit scenes are shown on the player model of the inventory screen, which draws every render layer. */
         boolean inventory() {
-            return name.startsWith("1_") || name.startsWith("2_") || name.startsWith("3_");
+            return name.startsWith("1_") || name.startsWith("2_") || name.startsWith("3_") || name.startsWith("show_inventory");
+        }
+
+        /** Scenes named "show_..." show the player large from four sides (see ShowcaseScreen). */
+        boolean showcase() {
+            return name.startsWith("show_") && !inventory() && !name.endsWith("_setup") && !name.startsWith("show_world");
         }
     }
 
@@ -39,7 +44,47 @@ public final class ClientSmoke {
         return "item replace entity @s hotbar." + slot + " with " + (item.equals("air") ? "minecraft:air" : "yperite:" + item);
     }
 
-    private static final List<Scene> SCENES = List.of(
+    /** With -Dyperite.smoke.only=show_ only the scenes whose names start with that are run. */
+    private static final String ONLY = System.getProperty("yperite.smoke.only", "");
+
+    private static final List<Scene> SCENES = allScenes().stream().filter(s -> s.name().startsWith(ONLY)).toList();
+
+    private static List<Scene> allScenes() {
+        return List.of(
+            new Scene("show_brodie_mk1_setup", List.of(
+                    "item replace entity @s armor.head with yperite:brodie_mk1",
+                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
+                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_brodie_mk1@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_brodie_mk1@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_brodie_mk1@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_brodie_mk1@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_adrian_m15_setup", List.of(
+                    "item replace entity @s armor.head with yperite:adrian_m15",
+                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
+                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_adrian_m15@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_adrian_m15@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_adrian_m15@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_adrian_m15@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_stahlhelm_m1916_setup", List.of(
+                    "item replace entity @s armor.head with yperite:stahlhelm_m1916",
+                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
+                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_stahlhelm_m1916@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_stahlhelm_m1916@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_stahlhelm_m1916@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_stahlhelm_m1916@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_berndorfer_setup", List.of(
+                    "item replace entity @s armor.head with yperite:berndorfer",
+                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
+                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_berndorfer@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_berndorfer@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_berndorfer@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_berndorfer@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+            new Scene("show_world_front", List.of(), CameraType.THIRD_PERSON_FRONT, 0f, 0f),
+            new Scene("show_world_angle", List.of(), CameraType.THIRD_PERSON_FRONT, 40f, 0f),
             new Scene("1_mask_in_curios_face_slot", List.of(
                     // Survival, because in creative the inventory screen is the item browser, with no player model.
                     "gamemode survival", "effect clear @s", "@curios yperite:gas_mask"), CameraType.THIRD_PERSON_FRONT, 0f, 0f),
@@ -88,6 +133,7 @@ public final class ClientSmoke {
                     CameraType.FIRST_PERSON, 0f, 60f),
             new Scene("9_cloud_from_an_open_cylinder", List.of(
                     "yperite gas burst yperite:chlorine 150 2 0 81 5"), CameraType.FIRST_PERSON, 0f, 12f));
+    }
 
     private static int tick;
     private static int scene = -1;
@@ -144,7 +190,7 @@ public final class ClientSmoke {
             run(server, next.commands().toArray(new String[0]));
             run(server, String.format(java.util.Locale.ROOT, "tp @s 0.5 80 0.5 %s %s", next.yaw(), next.pitch()));
             mc.options.setCameraType(next.camera());
-            mc.setScreen(next.inventory() ? new InventoryScreen(mc.player) : null);
+            mc.setScreen(next.inventory() ? new InventoryScreen(mc.player) : next.showcase() ? showcase(next.name()) : null);
             System.out.println("[smoke] scene " + next.name() + " camera=" + mc.options.getCameraType());
             return;
         }
@@ -153,6 +199,12 @@ public final class ClientSmoke {
             Screenshot.grab(mc.gameDirectory, current.name() + ".png", mc.getMainRenderTarget(), message -> System.out.println("[smoke] " + message.getString()));
             pictureTaken = true;
         }
+    }
+
+    /** "show_x" draws four views; "show_x@2" only the third view, large. */
+    private static ShowcaseScreen showcase(String name) {
+        int at = name.lastIndexOf('@');
+        return at < 0 ? new ShowcaseScreen() : new ShowcaseScreen(Integer.parseInt(name.substring(at + 1)));
     }
 
     private static void run(MinecraftServer server, String... commands) {

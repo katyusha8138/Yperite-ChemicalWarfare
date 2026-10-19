@@ -4,6 +4,8 @@ import io.github.katyusha8138.yperite.YperiteMod;
 import io.github.katyusha8138.yperite.block.ModBlocks;
 import io.github.katyusha8138.yperite.gas.GasType;
 import io.github.katyusha8138.yperite.gas.GasTypes;
+import io.github.katyusha8138.yperite.item.armor.GeoArmorItem;
+import io.github.katyusha8138.yperite.item.armor.WarArmorMaterials;
 import io.github.katyusha8138.yperite.protection.FilterKind;
 import io.github.katyusha8138.yperite.protection.SuitProtection;
 import net.minecraft.world.item.ArmorItem;
@@ -36,6 +38,12 @@ public final class ModItems {
 
     public static final RegistryObject<Item> GAS_CYLINDER = ITEMS.register("gas_cylinder",
             () -> new GasCylinderItem(ModBlocks.GAS_CYLINDER.get(), new Item.Properties().stacksTo(1)));
+
+    // ---- First World War equipment
+    public static final RegistryObject<Item> STAHLHELM_M1916 = helmet("stahlhelm_m1916", 0.08);
+    public static final RegistryObject<Item> BRODIE_MK1 = helmet("brodie_mk1", 0.06);
+    public static final RegistryObject<Item> ADRIAN_M15 = helmet("adrian_m15", 0.05);
+    public static final RegistryObject<Item> BERNDORFER = helmet("berndorfer", 0.07);
 
     // ---- protection
     public static final RegistryObject<Item> GAS_MASK = ITEMS.register("gas_mask", () -> new GasMaskItem(new Item.Properties()));
@@ -74,6 +82,12 @@ public final class ModItems {
             () -> new MedicineItem(MedicineItem.Kind.BLISTER_OINTMENT, new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
 
     private ModItems() {
+    }
+
+    /** A First World War steel helmet; bullet resistance is Superb Warfare's (0..1) when new. */
+    private static RegistryObject<Item> helmet(String name, double bulletResistance) {
+        return ITEMS.register(name, () -> new GeoArmorItem(WarArmorMaterials.STEEL_HELMET, ArmorItem.Type.HELMET,
+                new Item.Properties(), name, bulletResistance, 0.0));
     }
 
     private static void registerGrenade(String name, RegistryObject<GasType> gas) {

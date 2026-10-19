@@ -152,5 +152,11 @@
   "item.yperite.chemical_round.hint.grenade_40mm": "Ammunition for the M79 and other 40mm launchers. Releases its gas where it lands, with a small explosion",
   "item.yperite.chemical_round.hint.mortar_shell": "For Superb Warfare's mortar. Releases its gas where it lands, with a small explosion",
   "item.yperite.chemical_round.hint.large_shell": "For the Mk 42, Mle 1934, FH-77BW and PLZ-05. Releases its gas where it lands, with a small explosion",
-  "weapon.yperite.cannon_chemical": "Chemical shell"
+  "weapon.yperite.cannon_chemical": "Chemical shell",
+  "item.yperite.stahlhelm_m1916": "Stahlhelm M1916",
+  "tooltip.yperite.bullet_resistance": "Bullet resistance %s%% (Superb Warfare)",
+  "tooltip.yperite.bullet_resistance.inactive": "Bullet resistance %s%% (with Superb Warfare)",
+  "item.yperite.brodie_mk1": "Brodie Helmet Mk I",
+  "item.yperite.adrian_m15": "Adrian Helmet M15",
+  "item.yperite.berndorfer": "Berndorfer Helmet"
 }

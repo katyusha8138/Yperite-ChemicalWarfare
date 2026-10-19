@@ -37,6 +37,10 @@ public final class ModTabs {
                 output.accept(ModItems.MEDICINE_GENERAL.get());
                 output.accept(ModItems.ANTIDOTE_NERVE.get());
                 output.accept(ModItems.OINTMENT_BLISTER.get());
+                output.accept(ModItems.BRODIE_MK1.get());
+                output.accept(ModItems.ADRIAN_M15.get());
+                output.accept(ModItems.STAHLHELM_M1916.get());
+                output.accept(ModItems.BERNDORFER.get());
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(grenade.get()));
                 output.accept(ModItems.GAS_CYLINDER.get());
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(GasCylinderItem.full(((GasGrenadeItem) grenade.get()).gas())));

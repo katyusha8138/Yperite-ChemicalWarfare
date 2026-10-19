@@ -63,6 +63,9 @@ minecraft {
             // See ClientSmoke. It loads the saved test world "smoke" from run/saves.
             if (project.hasProperty('smokeClient')) {
                 property 'yperite.smoke', 'true'
+                if (project.hasProperty('smokeOnly')) {
+                    property 'yperite.smoke.only', project.property('smokeOnly')
+                }
                 args '--quickPlaySingleplayer', 'smoke'
             }
         }
@@ -107,6 +110,13 @@ repositories {
         }
     }
     maven {
+        name = 'GeckoLib'
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroup 'software.bernie.geckolib'
+        }
+    }
+    maven {
         name = 'Illusive Soulworks (Curios)'
         url = 'https://maven.theillusivec4.top/'
         content {
@@ -117,6 +127,15 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // GeckoLib draws the worn equipment. It is required (mods.toml accepts 4.4.6 and later, the version that Superb
+    // Warfare bundles). Dev runs use the newest; with -PwithSbw the copy inside Superb Warfare is used instead, so that
+    // run also checks that nothing newer than 4.4.6 is needed.
+    if (withSbw) {
+        compileOnly fg.deobf("software.bernie.geckolib:geckolib-forge-1.20.1:${geckolib_version}")
+    } else {
+        implementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.20.1:${geckolib_version}")
+    }
 
     // Curios is optional: with it the gas mask can also be worn in a "face" slot next to a helmet.
     // Only the API is needed to compile; the full mod is loaded in development runs so that it gets tested.

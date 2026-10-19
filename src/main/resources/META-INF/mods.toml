@@ -25,6 +25,14 @@ versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
+# Required: draws the worn equipment. Superb Warfare bundles 4.4.6, so that is the oldest accepted.
+[[dependencies.${mod_id}]]
+modId = "geckolib"
+mandatory = true
+versionRange = "[4.4.6,)"
+ordering = "NONE"
+side = "BOTH"
+
 [[dependencies.${mod_id}]]
 modId = "curios"
 mandatory = false
