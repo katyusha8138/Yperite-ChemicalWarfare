@@ -11,7 +11,7 @@ import net.minecraft.world.level.Level;
 
 /**
  * A gas mask and a filter, anywhere in the grid, give the mask with the filter loaded. A filter that was in the
- * mask is lost, so swap filters only when the old one is spent.
+ * mask is lost, so swap filters only when the old one is spent. Masks with a built-in pad take no filter.
  */
 public class MaskFilterRecipe extends CustomRecipe {
     public MaskFilterRecipe(ResourceLocation id, CraftingBookCategory category) {
@@ -26,7 +26,10 @@ public class MaskFilterRecipe extends CustomRecipe {
             if (stack.isEmpty()) {
                 continue;
             }
-            if (stack.getItem() instanceof GasMaskItem) {
+            if (stack.getItem() instanceof GasMaskItem item) {
+                if (!item.type().acceptsFilters()) {
+                    return false;
+                }
                 masks++;
             } else if (stack.getItem() instanceof GasFilterItem) {
                 filters++;

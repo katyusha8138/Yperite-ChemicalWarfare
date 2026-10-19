@@ -61,3 +61,64 @@ def hinge_plate(m, bone, p, q, outward, drop, out, thickness, material, edge="bo
     if n @ o < 0:
         A, B, C, D = B, A, D, C
     return quad_plate(m, bone, A, B, C, D, thickness, material, overlap=0.0, edge=edge, fit="mean", **info)
+
+
+def _unit(v):
+    v = np.asarray(v, float)
+    return v / np.linalg.norm(v)
+
+
+def oriented_box(m, bone, center, ex, ey, sx, sy, sz, material, faces=None, **info):
+    """A box of size (sx, sy, sz) along the axes ex, ey and ez = ex x ey, centred on `center`."""
+    ex, ey = _unit(ex), _unit(ey)
+    return plate(m, bone, center, ex, ey, sx, sz, sy, material, faces=faces, **info)
+
+
+def chamfered_block(m, bone, center, u, v, a, b, c, depth, material, back=True, front=True, **info):
+    """A block with cut corners in any orientation: half-widths a along u and b along v, corners cut by c,
+    `depth` along w = u x v (centred). front/back say whether the faces at +w/2 and -w/2 are drawn."""
+    u, v = _unit(u), _unit(v)
+    w = np.cross(u, v)
+    centre = np.asarray(center, float)
+    # plate(): e1 = width axis, normal = thickness axis, e2 = e1 x normal is the height axis.
+    # We want the depth along w drawn as "height" so that front/back are the e2 ends: use e1 = u, normal = v
+    # gives e2 = u x v = w. Sizes: width (u), height (w), thickness (v).
+    def piece(cu, cv, half_u, half_v):
+        p = centre + u * cu + v * cv
+        faces = ["east", "west", "up", "down"]
+        if front:
+            faces.append("south")
+        if back:
+            faces.append("north")
+        return plate(m, bone, p, u, v, 2 * half_u, depth, 2 * half_v, material, faces=tuple(faces), **info)
+
+    piece(0.0, 0.0, a - c, b)
+    piece(a - c / 2, 0.0, c / 2, b - c)
+    piece(-(a - c / 2), 0.0, c / 2, b - c)
+    d = c / math.sqrt(2)
+    for su in (-1, 1):
+        for sv in (-1, 1):
+            p1 = centre + u * su * a + v * sv * (b - c)
+            p2 = centre + u * su * (a - c) + v * sv * b
+            n = _unit(u * su + v * sv)
+            mid = (p1 + p2) / 2 - n * d / 2
+            e1 = p2 - p1
+            faces = ["up", "down", "east", "west"]
+            if front:
+                faces.append("south")
+            if back:
+                faces.append("north")
+            # width along the cut, thickness inwards (n), height along w
+            plate(m, bone, mid, e1, n, c * math.sqrt(2), depth - 2 * EPS, d, material, faces=tuple(faces), **info)
+
+
+def octagon(m, bone, center, axis, radius, length, material, up=(0, 1, 0), **info):
+    """A short octagonal cylinder (a lens rim, a filter drum) along `axis`."""
+    w = _unit(axis)
+    upv = np.asarray(up, float)
+    if abs(float(upv @ w)) > 0.95:
+        upv = np.array([1.0, 0.0, 0.0])
+    u = _unit(np.cross(upv, w))
+    v = np.cross(w, u)
+    c = radius * (2 - math.sqrt(2))
+    chamfered_block(m, bone, center, u, v, radius, radius, c, length, material, **info)

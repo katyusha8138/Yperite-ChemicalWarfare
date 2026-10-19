@@ -18,7 +18,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -32,7 +31,7 @@ import java.util.function.Consumer;
  * {@code textures/armor/<model>.png}). It can carry Superb Warfare's bullet resistance (only applied when that mod is
  * installed, and scaled down as the piece wears out, as Superb Warfare does) and a movement penalty.
  */
-public class GeoArmorItem extends ArmorItem implements GeoItem {
+public class GeoArmorItem extends ArmorItem implements WornGeoItem {
     /** Per-slot ids so that pieces in different slots add up instead of replacing each other. */
     private static final UUID[] MODIFIER_IDS = {
             UUID.fromString("8f1b8a2e-55a4-4b52-9f0e-3c0a6f4b1d01"), UUID.fromString("8f1b8a2e-55a4-4b52-9f0e-3c0a6f4b1d02"),
@@ -58,6 +57,7 @@ public class GeoArmorItem extends ArmorItem implements GeoItem {
         this.speedPenalty = speedPenalty;
     }
 
+    @Override
     public String model() {
         return model;
     }

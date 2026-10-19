@@ -49,40 +49,38 @@ public final class ClientSmoke {
 
     private static final List<Scene> SCENES = allScenes().stream().filter(s -> s.name().startsWith(ONLY)).toList();
 
+    /** Five scenes: put on the given items, then show them from four sides. */
+    private static List<Scene> showcase(String name, String... commands) {
+        List<String> setup = new java.util.ArrayList<>(List.of(
+                "item replace entity @s armor.head with minecraft:air",
+                "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
+                "item replace entity @s armor.feet with minecraft:air", "@curios clear"));
+        setup.addAll(List.of(commands));
+        List<Scene> scenes = new java.util.ArrayList<>();
+        scenes.add(new Scene("show_" + name + "_setup", setup, CameraType.FIRST_PERSON, 0f, 0f));
+        for (int view = 0; view < 4; view++) {
+            scenes.add(new Scene("show_" + name + "@" + view, List.of(), CameraType.FIRST_PERSON, 0f, 0f));
+        }
+        return scenes;
+    }
+
+    private static final String FILTER = "{Filter:{Kind:\"general\",Charge:150f}}";
+
     private static List<Scene> allScenes() {
-        return List.of(
-            new Scene("show_brodie_mk1_setup", List.of(
-                    "item replace entity @s armor.head with yperite:brodie_mk1",
-                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
-                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_brodie_mk1@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_brodie_mk1@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_brodie_mk1@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_brodie_mk1@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_adrian_m15_setup", List.of(
-                    "item replace entity @s armor.head with yperite:adrian_m15",
-                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
-                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_adrian_m15@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_adrian_m15@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_adrian_m15@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_adrian_m15@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_stahlhelm_m1916_setup", List.of(
-                    "item replace entity @s armor.head with yperite:stahlhelm_m1916",
-                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
-                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_stahlhelm_m1916@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_stahlhelm_m1916@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_stahlhelm_m1916@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_stahlhelm_m1916@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_berndorfer_setup", List.of(
-                    "item replace entity @s armor.head with yperite:berndorfer",
-                    "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
-                    "item replace entity @s armor.feet with minecraft:air", "@curios clear"), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_berndorfer@0", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_berndorfer@1", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_berndorfer@2", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
-            new Scene("show_berndorfer@3", List.of(), CameraType.FIRST_PERSON, 0f, 0f),
+        List<Scene> all = new java.util.ArrayList<>();
+        for (String helmet : List.of("brodie_mk1", "adrian_m15", "stahlhelm_m1916", "berndorfer")) {
+            all.addAll(showcase(helmet, "item replace entity @s armor.head with yperite:" + helmet));
+        }
+        for (String mask : List.of("gas_mask", "small_box_respirator", "lederschutzmaske", "austrian_gas_mask")) {
+            all.addAll(showcase(mask, "item replace entity @s armor.head with yperite:" + mask + FILTER));
+        }
+        all.addAll(showcase("m2_mask", "item replace entity @s armor.head with yperite:m2_mask"));
+        // A helmet over a mask worn in the Curios face slot.
+        all.addAll(showcase("brodie_sbr", "item replace entity @s armor.head with yperite:brodie_mk1", "@curios yperite:small_box_respirator"));
+        all.addAll(showcase("stahlhelm_leder", "item replace entity @s armor.head with yperite:stahlhelm_m1916", "@curios yperite:lederschutzmaske"));
+        all.addAll(showcase("adrian_m2", "item replace entity @s armor.head with yperite:adrian_m15", "@curios yperite:m2_mask"));
+        all.addAll(showcase("berndorfer_austrian", "item replace entity @s armor.head with yperite:berndorfer", "@curios yperite:austrian_gas_mask"));
+        all.addAll(List.of(
             new Scene("show_world_front", List.of(), CameraType.THIRD_PERSON_FRONT, 0f, 0f),
             new Scene("show_world_angle", List.of(), CameraType.THIRD_PERSON_FRONT, 40f, 0f),
             new Scene("1_mask_in_curios_face_slot", List.of(
@@ -132,7 +130,8 @@ public final class ClientSmoke {
                     hotbar(6, "large_shell_chlorine"), hotbar(7, "large_shell_yperite"), hotbar(8, "large_shell_nerve_gas")),
                     CameraType.FIRST_PERSON, 0f, 60f),
             new Scene("9_cloud_from_an_open_cylinder", List.of(
-                    "yperite gas burst yperite:chlorine 150 2 0 81 5"), CameraType.FIRST_PERSON, 0f, 12f));
+                    "yperite gas burst yperite:chlorine 150 2 0 81 5"), CameraType.FIRST_PERSON, 0f, 12f)));
+        return all;
     }
 
     private static int tick;

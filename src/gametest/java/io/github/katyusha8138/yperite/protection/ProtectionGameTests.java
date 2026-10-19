@@ -130,6 +130,46 @@ public final class ProtectionGameTests {
     }
 
     @GameTest(template = ROOM, timeoutTicks = 200, batch = "protection")
+    public static void theFrenchM2WorksOnItsSewnInPadAndWearsIt(GameTestHelper helper) {
+        fillRoomWith(helper, GasTypes.CHLORINE.get());
+        FakePlayer bare = standAt(helper, "m2_bare", 10, 1, 10);
+        FakePlayer masked = standAt(helper, "m2_worn", 10, 1, 10);
+        ItemStack m2 = new ItemStack(ModItems.M2_MASK.get());
+        helper.assertTrue(GasMaskItem.filterKind(m2) == FilterKind.IMPREGNATED, "a new M2 carries its pad");
+        helper.assertTrue(GasMaskItem.charge(m2) == FilterKind.IMPREGNATED.capacity(), "a new pad is full");
+        masked.setItemSlot(EquipmentSlot.HEAD, m2);
+
+        evaluate(helper, bare, 20);
+        evaluate(helper, masked, 20);
+
+        float bareDose = dose(bare, GasCategory.CHOKING);
+        float maskedDose = dose(masked, GasCategory.CHOKING);
+        helper.assertTrue(maskedDose < bareDose * 0.3f, "the pad should stop most chlorine: bare=" + bareDose + " masked=" + maskedDose);
+        helper.assertTrue(GasMaskItem.charge(m2) < FilterKind.IMPREGNATED.capacity() - 1f, "the pad should have worn, charge=" + GasMaskItem.charge(m2));
+        helper.assertTrue(GasMaskItem.filterKind(m2) == FilterKind.IMPREGNATED, "a worn pad is still the same pad");
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 200, batch = "protection")
+    public static void aFirstWorldWarMaskLetsArsenicalSmokeThroughWhereAModernOneDoesNot(GameTestHelper helper) {
+        fillRoomWith(helper, GasTypes.BLUE_CROSS.get());
+        FakePlayer modern = standAt(helper, "smoke_modern", 10, 1, 10);
+        FakePlayer old = standAt(helper, "smoke_sbr", 10, 1, 10);
+        modern.setItemSlot(EquipmentSlot.HEAD, mask(FilterKind.GENERAL));
+        ItemStack sbr = new ItemStack(ModItems.SMALL_BOX_RESPIRATOR.get());
+        GasMaskItem.load(sbr, FilterKind.GENERAL);
+        old.setItemSlot(EquipmentSlot.HEAD, sbr);
+
+        evaluate(helper, modern, 20);
+        evaluate(helper, old, 20);
+
+        float modernDose = dose(modern, GasCategory.INCAPACITANT);
+        float oldDose = dose(old, GasCategory.INCAPACITANT);
+        helper.assertTrue(oldDose > modernDose * 2f, "the old filter should let much more smoke through: modern=" + modernDose + " old=" + oldDose);
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 200, batch = "protection")
     public static void theGeneralFilterBarelyHelpsAgainstNerveGasButTheSpecialOneDoes(GameTestHelper helper) {
         fillRoomWith(helper, GasTypes.NERVE_GAS.get());
         FakePlayer bare = standAt(helper, "nerve_bare", 10, 1, 10);
@@ -275,6 +315,16 @@ public final class ProtectionGameTests {
         extra.setItem(1, new ItemStack(ModItems.GAS_FILTER_GENERAL.get()));
         extra.setItem(2, new ItemStack(net.minecraft.world.item.Items.STICK));
         helper.assertTrue(!recipe.matches(extra, level), "an unrelated item spoils the recipe");
+
+        TransientCraftingContainer oldPattern = grid();
+        oldPattern.setItem(0, new ItemStack(ModItems.LEDERSCHUTZMASKE.get()));
+        oldPattern.setItem(1, new ItemStack(ModItems.GAS_FILTER_GENERAL.get()));
+        helper.assertTrue(recipe.matches(oldPattern, level), "the German leather mask takes a screw-in filter");
+
+        TransientCraftingContainer sewnIn = grid();
+        sewnIn.setItem(0, new ItemStack(ModItems.M2_MASK.get()));
+        sewnIn.setItem(1, new ItemStack(ModItems.GAS_FILTER_GENERAL.get()));
+        helper.assertTrue(!recipe.matches(sewnIn, level), "the M2's pad is sewn in: no filter can be loaded");
         helper.succeed();
     }
 

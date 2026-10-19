@@ -22,6 +22,11 @@ public final class ModTabs {
                 output.accept(mask);
                 output.accept(GasMaskItem.withFilter(mask, FilterKind.GENERAL));
                 output.accept(GasMaskItem.withFilter(mask, FilterKind.SPECIAL));
+                // The First World War patterns, ready to wear.
+                ModItems.MASKS.stream().skip(1).forEach(old -> {
+                    ItemStack stack = new ItemStack(old.get());
+                    output.accept(GasMaskItem.typeOf(stack).acceptsFilters() ? GasMaskItem.withFilter(stack, FilterKind.GENERAL) : stack);
+                });
                 output.accept(ModItems.GAS_FILTER_GENERAL.get());
                 output.accept(ModItems.GAS_FILTER_SPECIAL.get());
                 output.accept(ModItems.SEALED_FABRIC.get());

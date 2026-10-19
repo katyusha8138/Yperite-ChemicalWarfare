@@ -11,12 +11,15 @@ import org.jetbrains.annotations.Nullable;
  *   <li>general: stops riot control, choking and incapacitating agents well, blister agents mostly, but is
  *       poor against blood and nerve agents</li>
  *   <li>special: good against everything, but its charge is smaller</li>
+ *   <li>impregnated: the M2's built-in pad; fair against choking agents, weak against the rest</li>
  * </ul>
  */
 public enum FilterKind {
     //                 id         charge   RIOT  CHOKE BLOOD BLIST NERVE INCAP
     GENERAL("general", 150f, 0.05f, 0.05f, 0.60f, 0.10f, 0.70f, 0.08f),
-    SPECIAL("special", 100f, 0.03f, 0.03f, 0.08f, 0.05f, 0.04f, 0.03f);
+    SPECIAL("special", 100f, 0.03f, 0.03f, 0.08f, 0.05f, 0.04f, 0.03f),
+    /** The cloth pad sewn into the French M2: no item of its own, it cannot be changed. */
+    IMPREGNATED("impregnated", 60f, 0.15f, 0.10f, 0.45f, 0.20f, 0.70f, 0.50f);
 
     private final String id;
     private final float capacity;

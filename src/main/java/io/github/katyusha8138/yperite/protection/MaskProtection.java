@@ -18,10 +18,18 @@ public final class MaskProtection {
      * @param charge what is left of the filter's charge
      */
     public static float inhalePass(@Nullable FilterKind kind, float charge, GasCategory category) {
+        return inhalePass(MaskType.MODERN, kind, charge, category);
+    }
+
+    /**
+     * The same for a given pattern of mask: its seal and its filters' weak spots count too. A filter never makes the
+     * mask worse than having none.
+     */
+    public static float inhalePass(MaskType type, @Nullable FilterKind kind, float charge, GasCategory category) {
         if (kind == null || charge <= 0f) {
             return WITHOUT_FILTER;
         }
-        return kind.pass(category);
+        return Math.min(WITHOUT_FILTER, type.pass(kind, category));
     }
 
     /** The charge left after the filter took in {@code dose}; never below zero. */

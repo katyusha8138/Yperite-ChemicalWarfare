@@ -51,6 +51,42 @@ class ProtectionMathTest {
     }
 
     @Test
+    void theModernMaskSealsPerfectlyAndTheOldPatternsLeakALittle() {
+        for (GasCategory category : GasCategory.values()) {
+            assertEquals(FilterKind.GENERAL.pass(category), MaskType.MODERN.pass(FilterKind.GENERAL, category), 1e-6f);
+            for (MaskType type : MaskType.values()) {
+                float pass = MaskProtection.inhalePass(type, FilterKind.GENERAL, 1f, category);
+                assertTrue(pass >= FilterKind.GENERAL.pass(category) && pass <= 1f, type + " / " + category + " pass=" + pass);
+                assertTrue(pass >= type.leak(), "nothing seals better than its own leak");
+                assertTrue(pass < MaskProtection.WITHOUT_FILTER, type + " with a working filter must still help against " + category);
+            }
+        }
+    }
+
+    @Test
+    void theFirstWorldWarFiltersLetArsenicalSmokeThrough() {
+        for (MaskType type : MaskType.values()) {
+            float smoke = type.pass(FilterKind.GENERAL, GasCategory.INCAPACITANT);
+            float modern = MaskType.MODERN.pass(FilterKind.GENERAL, GasCategory.INCAPACITANT);
+            if (type.weakAgainstArsenicalSmoke()) {
+                assertTrue(smoke > 2f * modern, type + " should let much more smoke through, " + smoke + " vs " + modern);
+            } else {
+                assertEquals(modern, smoke, 1e-6f);
+            }
+        }
+        assertTrue(MaskType.M2.weakAgainstArsenicalSmoke());
+        assertTrue(!MaskType.MODERN.weakAgainstArsenicalSmoke());
+    }
+
+    @Test
+    void onlyMasksWithoutChangeableFiltersHaveABuiltInPad() {
+        for (MaskType type : MaskType.values()) {
+            assertEquals(type.acceptsFilters(), type.builtIn() == null, type.toString());
+        }
+        assertEquals(FilterKind.IMPREGNATED, MaskType.M2.builtIn());
+    }
+
+    @Test
     void aFilterWearsByTheDoseItTakesAndNeverGoesBelowZero() {
         assertEquals(90f, MaskProtection.wear(100f, 10f), 0f);
         assertEquals(0f, MaskProtection.wear(5f, 10f), 0f);

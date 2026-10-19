@@ -113,56 +113,72 @@ public final class DeliveryGameTests {
 
     // ------------------------------------------------------------------ grenades
 
-    @GameTest(template = ROOM, timeoutTicks = 200, batch = "delivery")
+    // The grenades wait for their landing instead of a fixed number of ticks: in the first batch after the server
+    // starts, the test area may take a moment before its entities tick.
+
+    @GameTest(template = ROOM, timeoutTicks = 400, batch = "delivery")
     public static void grenadeWaitsForItsFuseThenReleasesGas(GameTestHelper helper) {
         sealRoom(helper);
         GasGrenadeEntity grenade = spawnGrenade(helper, "tear_gas_grenade", 10, 3, 10);
-        helper.runAfterDelay(35, () -> {
-            if (!grenade.isFuseLit()) {
-                throw new GameTestAssertException("the fuse should be lit after the grenade has landed");
-            }
-            if (grenade.isRemoved() || totalMass(helper, GasTypes.TEAR_GAS.get()) > 0.0) {
-                throw new GameTestAssertException("the grenade went off before its fuse ran out");
-            }
-        });
-        helper.runAfterDelay(120, () -> {
-            if (!grenade.isRemoved()) {
-                throw new GameTestAssertException("the grenade should be gone after it went off");
-            }
-            double mass = totalMass(helper, GasTypes.TEAR_GAS.get());
-            if (mass < 0.5 * YperiteConfig.GRENADE_MASS.get()) {
-                throw new GameTestAssertException("the grenade released too little gas: " + mass);
-            }
-            helper.succeed();
-        });
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    if (!grenade.isFuseLit()) {
+                        throw new GameTestAssertException("the fuse should be lit after the grenade has landed");
+                    }
+                })
+                .thenIdle(20)
+                .thenExecute(() -> {
+                    if (grenade.isRemoved() || totalMass(helper, GasTypes.TEAR_GAS.get()) > 0.0) {
+                        throw new GameTestAssertException("the grenade went off before its fuse ran out");
+                    }
+                })
+                .thenWaitUntil(() -> {
+                    if (!grenade.isRemoved()) {
+                        throw new GameTestAssertException("the grenade should be gone after it went off");
+                    }
+                })
+                .thenExecute(() -> {
+                    double mass = totalMass(helper, GasTypes.TEAR_GAS.get());
+                    if (mass < 0.5 * YperiteConfig.GRENADE_MASS.get()) {
+                        throw new GameTestAssertException("the grenade released too little gas: " + mass);
+                    }
+                })
+                .thenSucceed();
     }
 
-    @GameTest(template = ROOM, timeoutTicks = 200, batch = "delivery")
+    @GameTest(template = ROOM, timeoutTicks = 400, batch = "delivery")
     public static void grenadeKeepsItsFuseThroughSaveAndLoad(GameTestHelper helper) {
         sealRoom(helper);
         GasGrenadeEntity grenade = spawnGrenade(helper, "chlorine_grenade", 10, 3, 10);
-        helper.runAfterDelay(30, () -> {
-            CompoundTag tag = new CompoundTag();
-            if (!grenade.save(tag)) {
-                throw new GameTestAssertException("the grenade did not save");
-            }
-            tag.remove("UUID");
-            grenade.discard();
-            if (!(EntityType.loadEntityRecursive(tag, helper.getLevel(), entity -> entity) instanceof GasGrenadeEntity loaded)) {
-                throw new GameTestAssertException("the grenade did not load back");
-            }
-            if (!loaded.isFuseLit() || loaded.fuseTicks() <= 0 || loaded.gas() != GasTypes.CHLORINE.get()) {
-                throw new GameTestAssertException("the loaded grenade lost its fuse or gas: fuse " + loaded.fuseTicks() + ", gas " + loaded.gas());
-            }
-            helper.getLevel().addFreshEntity(loaded);
-        });
-        helper.runAfterDelay(130, () -> {
-            double mass = totalMass(helper, GasTypes.CHLORINE.get());
-            if (mass < 0.5 * YperiteConfig.GRENADE_MASS.get()) {
-                throw new GameTestAssertException("the loaded grenade did not go off: " + mass);
-            }
-            helper.succeed();
-        });
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    if (!grenade.isFuseLit()) {
+                        throw new GameTestAssertException("the fuse should be lit after the grenade has landed");
+                    }
+                })
+                .thenIdle(5)
+                .thenExecute(() -> {
+                    CompoundTag tag = new CompoundTag();
+                    if (!grenade.save(tag)) {
+                        throw new GameTestAssertException("the grenade did not save");
+                    }
+                    tag.remove("UUID");
+                    grenade.discard();
+                    if (!(EntityType.loadEntityRecursive(tag, helper.getLevel(), entity -> entity) instanceof GasGrenadeEntity loaded)) {
+                        throw new GameTestAssertException("the grenade did not load back");
+                    }
+                    if (!loaded.isFuseLit() || loaded.fuseTicks() <= 0 || loaded.gas() != GasTypes.CHLORINE.get()) {
+                        throw new GameTestAssertException("the loaded grenade lost its fuse or gas: fuse " + loaded.fuseTicks() + ", gas " + loaded.gas());
+                    }
+                    helper.getLevel().addFreshEntity(loaded);
+                })
+                .thenWaitUntil(() -> {
+                    double mass = totalMass(helper, GasTypes.CHLORINE.get());
+                    if (mass < 0.5 * YperiteConfig.GRENADE_MASS.get()) {
+                        throw new GameTestAssertException("the loaded grenade did not go off: " + mass);
+                    }
+                })
+                .thenSucceed();
     }
 
     @GameTest(template = ROOM, timeoutTicks = 60, batch = "delivery")

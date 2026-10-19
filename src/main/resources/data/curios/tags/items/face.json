@@ -1,6 +1,10 @@
 {
   "replace": false,
   "values": [
-    "yperite:gas_mask"
+    "yperite:gas_mask",
+    "yperite:small_box_respirator",
+    "yperite:m2_mask",
+    "yperite:lederschutzmaske",
+    "yperite:austrian_gas_mask"
   ]
 }

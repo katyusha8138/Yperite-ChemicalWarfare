@@ -1,5 +1,7 @@
 package io.github.katyusha8138.yperite.gametest.client;
 
+import io.github.katyusha8138.yperite.item.GasMaskItem;
+import io.github.katyusha8138.yperite.protection.FilterKind;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +21,8 @@ final class SmokeCurios {
         ItemStack stack = itemOrClear.equals("clear")
                 ? ItemStack.EMPTY
                 : new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(itemOrClear)));
+        // Masks go on with a fresh filter, so that it is drawn.
+        GasMaskItem.load(stack, FilterKind.GENERAL);
         CuriosApi.getCuriosInventory(player).resolve()
                 .flatMap(handler -> handler.getStacksHandler("face"))
                 .ifPresent(slots -> slots.getStacks().setStackInSlot(0, stack));

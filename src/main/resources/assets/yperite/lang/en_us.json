@@ -158,5 +158,12 @@
   "tooltip.yperite.bullet_resistance.inactive": "Bullet resistance %s%% (with Superb Warfare)",
   "item.yperite.brodie_mk1": "Brodie Helmet Mk I",
   "item.yperite.adrian_m15": "Adrian Helmet M15",
-  "item.yperite.berndorfer": "Berndorfer Helmet"
+  "item.yperite.berndorfer": "Berndorfer Helmet",
+  "item.yperite.small_box_respirator": "Small Box Respirator",
+  "item.yperite.m2_mask": "M2 Gas Mask",
+  "item.yperite.lederschutzmaske": "Lederschutzmaske",
+  "item.yperite.austrian_gas_mask": "Austro-Hungarian Gas Mask",
+  "tooltip.yperite.gas_mask.pad": "Impregnated pad",
+  "tooltip.yperite.gas_mask.arsenical": "Its filters let arsenical smoke (Blue Cross) through",
+  "tooltip.yperite.gas_mask.no_reload": "The pad is sewn in and cannot be replaced. Wear it as a helmet or in the Curios face slot"
 }

@@ -31,3 +31,7 @@ logs/
 
 # Claude Code (personal settings only; .claude/settings.json and hooks are shared)
 .claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc

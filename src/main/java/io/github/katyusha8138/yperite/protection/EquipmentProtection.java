@@ -55,7 +55,8 @@ public final class EquipmentProtection implements ProtectionRegistry.Provider {
         ItemStack mask = findMask(entity);
         float inhale = 1f;
         if (!mask.isEmpty()) {
-            inhale = MaskProtection.inhalePass(GasMaskItem.filterKind(mask), GasMaskItem.charge(mask), category);
+            inhale = MaskProtection.inhalePass(GasMaskItem.typeOf(mask), GasMaskItem.filterKind(mask),
+                    GasMaskItem.charge(mask), category);
         }
         float skin = SuitProtection.skinPass(wornParts(entity, mask));
         return new ProtectionRegistry.Protection(inhale, skin);

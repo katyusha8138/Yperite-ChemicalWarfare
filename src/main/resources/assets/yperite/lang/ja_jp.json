@@ -158,5 +158,12 @@
   "tooltip.yperite.bullet_resistance.inactive": "弾丸耐性 %s%%(Superb Warfare 導入時)",
   "item.yperite.brodie_mk1": "ブロディ・ヘルメット Mk I",
   "item.yperite.adrian_m15": "アドリアン・ヘルメット M15",
-  "item.yperite.berndorfer": "ベルンドルファー型鉄帽"
+  "item.yperite.berndorfer": "ベルンドルファー型鉄帽",
+  "item.yperite.small_box_respirator": "小箱型呼吸器(SBR)",
+  "item.yperite.m2_mask": "M2 ガスマスク",
+  "item.yperite.lederschutzmaske": "革製防毒面(Lederschutzmaske)",
+  "item.yperite.austrian_gas_mask": "墺洪軍ガスマスク",
+  "tooltip.yperite.gas_mask.pad": "薬剤含浸パッド",
+  "tooltip.yperite.gas_mask.arsenical": "フィルターがヒ素系の煙(青十字)を通してしまう",
+  "tooltip.yperite.gas_mask.no_reload": "パッドは縫い込みで交換できない。頭防具、または Curios の顔スロットに着ける"
 }

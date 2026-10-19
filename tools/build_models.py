@@ -14,6 +14,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "models"))
 
 import helmets  # noqa: E402
+import masks  # noqa: E402
 from mannequin import mannequin  # noqa: E402
 from paint import paint  # noqa: E402
 from preview import icon, sheet  # noqa: E402
@@ -26,7 +27,15 @@ MODELS = {
     "brodie_mk1": (helmets.brodie_mk1, None),
     "adrian_m15": (helmets.adrian_m15, None),
     "berndorfer": (helmets.berndorfer, None),
+    "gas_mask": (masks.gas_mask, None),
+    "small_box_respirator": (masks.small_box_respirator, None),
+    "m2_mask": (masks.m2_mask, None),
+    "lederschutzmaske": (masks.lederschutzmaske, None),
+    "austrian_gas_mask": (masks.austrian_gas_mask, None),
 }
+
+
+MASKS = {"gas_mask", "small_box_respirator", "m2_mask", "lederschutzmaske", "austrian_gas_mask"}
 
 
 def _write_item_model(name):
@@ -63,7 +72,8 @@ def main():
         if args.preview:
             os.makedirs(args.preview, exist_ok=True)
             sheet([body, (model, texture)]).save(os.path.join(args.preview, name + ".png"))
-            sheet([(model, texture)], scale=24, size=(360, 360), center=(0, 29, 0)).save(
+            close_center = (0, 27, -2) if name in MASKS else (0, 29, 0)
+            sheet([(model, texture)], scale=24, size=(360, 360), center=close_center).save(
                 os.path.join(args.preview, name + "_close.png"))
 
 

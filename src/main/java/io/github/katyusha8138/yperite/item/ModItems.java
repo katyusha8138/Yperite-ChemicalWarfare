@@ -7,6 +7,7 @@ import io.github.katyusha8138.yperite.gas.GasTypes;
 import io.github.katyusha8138.yperite.item.armor.GeoArmorItem;
 import io.github.katyusha8138.yperite.item.armor.WarArmorMaterials;
 import io.github.katyusha8138.yperite.protection.FilterKind;
+import io.github.katyusha8138.yperite.protection.MaskType;
 import io.github.katyusha8138.yperite.protection.SuitProtection;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
@@ -18,6 +19,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class ModItems {
@@ -46,7 +48,11 @@ public final class ModItems {
     public static final RegistryObject<Item> BERNDORFER = helmet("berndorfer", 0.07);
 
     // ---- protection
-    public static final RegistryObject<Item> GAS_MASK = ITEMS.register("gas_mask", () -> new GasMaskItem(new Item.Properties()));
+    public static final RegistryObject<Item> GAS_MASK = mask(MaskType.MODERN);
+    public static final RegistryObject<Item> SMALL_BOX_RESPIRATOR = mask(MaskType.SMALL_BOX_RESPIRATOR);
+    public static final RegistryObject<Item> M2_MASK = mask(MaskType.M2);
+    public static final RegistryObject<Item> LEDERSCHUTZMASKE = mask(MaskType.LEDERSCHUTZMASKE);
+    public static final RegistryObject<Item> AUSTRIAN_GAS_MASK = mask(MaskType.AUSTRIAN);
     public static final RegistryObject<Item> GAS_FILTER_GENERAL = ITEMS.register("gas_filter_general",
             () -> new GasFilterItem(FilterKind.GENERAL, new Item.Properties().stacksTo(16)));
     public static final RegistryObject<Item> GAS_FILTER_SPECIAL = ITEMS.register("gas_filter_special",
@@ -82,6 +88,14 @@ public final class ModItems {
             () -> new MedicineItem(MedicineItem.Kind.BLISTER_OINTMENT, new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
 
     private ModItems() {
+    }
+
+    /** Every pattern of gas mask, in the order of {@link MaskType}. */
+    public static final List<RegistryObject<Item>> MASKS = List.of(GAS_MASK, SMALL_BOX_RESPIRATOR, M2_MASK, LEDERSCHUTZMASKE, AUSTRIAN_GAS_MASK);
+
+    /** A gas mask of the given pattern; the pattern also names the item. */
+    private static RegistryObject<Item> mask(MaskType type) {
+        return ITEMS.register(type.model(), () -> new GasMaskItem(type, new Item.Properties()));
     }
 
     /** A First World War steel helmet; bullet resistance is Superb Warfare's (0..1) when new. */
