@@ -99,6 +99,16 @@ public final class ClientSmoke {
         all.addAll(showcase("german_kit", kit("stahlhelm_m1916", "german", "lederschutzmaske", "sappenpanzer")));
         all.addAll(showcase("french_kit", kit("adrian_m15", "french", "m2_mask", null)));
         all.addAll(showcase("austrian_kit", kit("berndorfer", "austrian", "austrian_gas_mask", null)));
+        // The protective outfit, with a mask under the hood, and again with body armour and a haversack over it.
+        all.addAll(showcase("suit_kit", "item replace entity @s armor.head with yperite:protective_hood",
+                "item replace entity @s armor.chest with yperite:protective_jacket",
+                "item replace entity @s armor.legs with yperite:protective_trousers",
+                "item replace entity @s armor.feet with yperite:protective_boots", "@curios yperite:gas_mask"));
+        all.addAll(showcase("suit_armour_kit", "item replace entity @s armor.head with yperite:protective_hood",
+                "item replace entity @s armor.chest with yperite:protective_jacket",
+                "item replace entity @s armor.legs with yperite:protective_trousers",
+                "item replace entity @s armor.feet with yperite:protective_boots", "@curios yperite:small_box_respirator",
+                "@curios body yperite:sappenpanzer"));
         // Body armour on its own in the chest slot, with the respirator's haversack over it.
         all.addAll(showcase("sappenpanzer_kit", "item replace entity @s armor.chest with yperite:sappenpanzer",
                 "@curios yperite:small_box_respirator"));

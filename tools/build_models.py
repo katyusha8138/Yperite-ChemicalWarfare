@@ -21,35 +21,39 @@ import body_armor  # noqa: E402
 import fit  # noqa: E402
 import helmets  # noqa: E402
 import masks  # noqa: E402
+import suit  # noqa: E402
 import uniforms  # noqa: E402
 from mannequin import mannequin  # noqa: E402
 from paint import paint  # noqa: E402
-from preview import icon, sheet  # noqa: E402
+from preview import sheet  # noqa: E402
 
 ASSETS = os.path.join(HERE, "..", "src", "main", "resources", "assets", "yperite")
 
-# name -> (builder, icon view: yaw, pitch, scale, centre)
+# name -> builder (item icons are drawn by hand: see build_icons.py)
 MODELS = {
-    "stahlhelm_m1916": (helmets.stahlhelm_m1916, None),
-    "brodie_mk1": (helmets.brodie_mk1, None),
-    "adrian_m15": (helmets.adrian_m15, None),
-    "berndorfer": (helmets.berndorfer, None),
-    "gas_mask": (masks.gas_mask, None),
-    "small_box_respirator": (masks.small_box_respirator, None),
-    "m2_mask": (masks.m2_mask, None),
-    "lederschutzmaske": (masks.lederschutzmaske, None),
-    "austrian_gas_mask": (masks.austrian_gas_mask, None),
-    "sappenpanzer": (body_armor.sappenpanzer, None),
-    "dayfield": (body_armor.dayfield, None),
+    "stahlhelm_m1916": helmets.stahlhelm_m1916,
+    "brodie_mk1": helmets.brodie_mk1,
+    "adrian_m15": helmets.adrian_m15,
+    "berndorfer": helmets.berndorfer,
+    "gas_mask": masks.gas_mask,
+    "small_box_respirator": masks.small_box_respirator,
+    "m2_mask": masks.m2_mask,
+    "lederschutzmaske": masks.lederschutzmaske,
+    "austrian_gas_mask": masks.austrian_gas_mask,
+    "sappenpanzer": body_armor.sappenpanzer,
+    "dayfield": body_armor.dayfield,
 }
+for _piece in ("hood", "jacket", "trousers", "boots"):
+    MODELS[f"protective_{_piece}"] = getattr(suit, f"protective_{_piece}")
 NATIONS = ("british", "french", "german", "austrian")
 for _nation in NATIONS:
     for _piece in ("tunic", "trousers", "puttees"):
-        MODELS[f"{_nation}_{_piece}"] = (getattr(uniforms, f"{_nation}_{_piece}"), None)
+        MODELS[f"{_nation}_{_piece}"] = getattr(uniforms, f"{_nation}_{_piece}")
 
 # How far each piece stands off the chest, front and back, for what is worn over it (the game has the same
 # numbers in the items): tunics, then body armour.
 STAND_OFF = {f"{n}_tunic": (uniforms.STAND_OFF["front"], uniforms.STAND_OFF["back"]) for n in NATIONS}
+STAND_OFF["protective_jacket"] = (suit.STAND_OFF["front"], suit.STAND_OFF["back"])
 STAND_OFF.update(body_armor.STAND_OFF)
 
 
@@ -85,6 +89,20 @@ def check_fit(built):
             pairs.append(("small_box_respirator", _worn(sbr, tf + af, tb + ab), a, armour, None))
     for a in armours:
         pairs.append(("small_box_respirator", _worn(built["small_box_respirator"], *STAND_OFF[a]), a, built[a], None))
+    # the protective outfit: the hood over every mask, the trousers into the boots and under the jacket, armour
+    # and the haversack over the jacket
+    for k in MASKS:
+        pairs.append(("protective_hood", built["protective_hood"], k, built[k], None))
+    pairs.append(("protective_boots", built["protective_boots"], "protective_trousers", built["protective_trousers"], up))
+    pairs.append(("protective_jacket", built["protective_jacket"], "protective_trousers", built["protective_trousers"], None))
+    jf, jb = STAND_OFF["protective_jacket"]
+    jacket = built["protective_jacket"]
+    pairs.append(("small_box_respirator", _worn(built["small_box_respirator"], jf, jb), "protective_jacket", jacket, None))
+    for a in armours:
+        af, ab = STAND_OFF[a]
+        armour = _worn(built[a], jf, jb)
+        pairs.append((a, armour, "protective_jacket", jacket, None))
+        pairs.append(("small_box_respirator", _worn(built["small_box_respirator"], jf + af, jb + ab), a, armour, None))
     bad = 0
     for outer_name, outer, inner_name, inner, tuck in pairs:
         crossings = fit.piercings(outer, inner, tuck=tuck or (0.0, -1.0, 0.0))
@@ -96,14 +114,6 @@ def check_fit(built):
     return bad
 
 
-def _write_item_model(name):
-    import json
-    path = os.path.join(ASSETS, "models", "item", name + ".json")
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump({"parent": "minecraft:item/generated", "textures": {"layer0": "yperite:item/" + name}}, f, indent=2)
-        f.write("\n")
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview")
@@ -111,7 +121,7 @@ def main():
     args = ap.parse_args()
     body = mannequin() if args.preview else None
     built = {}
-    for name, (build, icon_view) in MODELS.items():
+    for name, build in MODELS.items():
         if args.only and name != args.only:
             continue
         model = build()
@@ -122,11 +132,6 @@ def main():
         os.makedirs(geo_dir, exist_ok=True)
         os.makedirs(tex_dir, exist_ok=True)
         model.write(os.path.join(geo_dir, name + ".geo.json"), os.path.join(tex_dir, name + ".png"), texture)
-        if icon_view:
-            yaw, pitch, scale, centre = icon_view
-            item_dir = os.path.join(ASSETS, "textures", "item")
-            icon([(model, texture)], yaw, pitch, scale, centre).save(os.path.join(item_dir, name + ".png"))
-            _write_item_model(name)
         cubes = sum(len(b.cubes) for b in model.bones.values())
         print(f"{name}: {cubes} cubes, texture {model.tex_w}x{model.tex_h}")
         if args.preview:

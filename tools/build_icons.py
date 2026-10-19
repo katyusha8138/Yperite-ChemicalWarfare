@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""Writes every item icon (textures/item/<name>.png) from the pixel art in tools/icons.
+
+Usage:
+  python3 tools/build_icons.py                  # write the icons into the mod's assets
+  python3 tools/build_icons.py --preview FILE   # also write one enlarged sheet of all of them
+"""
+import argparse
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "icons"))
+
+import gear  # noqa: E402
+import pixel  # noqa: E402
+import wear  # noqa: E402
+
+ITEMS = os.path.join(HERE, "..", "src", "main", "resources", "assets", "yperite", "textures", "item")
+GASES = ("tear_gas", "chlorine", "blood_gas", "yperite", "nerve_gas", "blue_cross")
+
+
+def icons():
+    out = {
+        "stahlhelm_m1916": wear.stahlhelm, "brodie_mk1": wear.brodie, "adrian_m15": wear.adrian,
+        "berndorfer": wear.berndorfer,
+        "gas_mask": wear.gas_mask, "small_box_respirator": wear.small_box_respirator, "m2_mask": wear.m2_mask,
+        "lederschutzmaske": wear.lederschutzmaske, "austrian_gas_mask": wear.austrian_gas_mask,
+        "sappenpanzer": wear.sappenpanzer, "dayfield": wear.dayfield,
+        "gas_filter_general": gear.gas_filter_general, "gas_filter_special": gear.gas_filter_special,
+        "protective_hood": gear.protective_hood, "protective_jacket": gear.protective_jacket,
+        "protective_trousers": gear.protective_trousers, "protective_boots": gear.protective_boots,
+        "sealed_fabric": gear.sealed_fabric, "gas_detector": gear.gas_detector, "wind_vane": gear.wind_vane,
+        "decon_solution": gear.decon_solution, "decon_powder": gear.decon_powder,
+        "medicine_general": gear.medicine_general, "antidote_nerve": gear.antidote_nerve,
+        "ointment_blister": gear.ointment_blister,
+    }
+    for army in ("british", "french", "german", "austrian"):
+        for piece in ("tunic", "trousers", "puttees"):
+            out[f"{army}_{piece}"] = getattr(wear, f"{army}_{piece}")
+    for gas in GASES:
+        out[f"{gas}_grenade"] = lambda g=gas: gear.grenade(g)
+        out[f"grenade_40mm_{gas}"] = lambda g=gas: gear.grenade_40mm(g)
+        out[f"mortar_shell_{gas}"] = lambda g=gas: gear.mortar_shell(g)
+        out[f"large_shell_{gas}"] = lambda g=gas: gear.large_shell(g)
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--preview")
+    args = ap.parse_args()
+    drawn = {name: make() for name, make in icons().items()}
+    for name, image in drawn.items():
+        image.save(os.path.join(ITEMS, name + ".png"))
+    missing = sorted(f[:-4] for f in os.listdir(ITEMS) if f.endswith(".png") and f[:-4] not in drawn)
+    print(f"{len(drawn)} icons written" + (f"; not drawn here: {', '.join(missing)}" if missing else ""))
+    if args.preview:
+        pixel.sheet(list(drawn.values()), scale=6, columns=12).save(args.preview)
+
+
+if __name__ == "__main__":
+    main()

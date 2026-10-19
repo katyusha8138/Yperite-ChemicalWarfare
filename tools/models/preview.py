@@ -93,24 +93,3 @@ def sheet(models_and_textures, views=((0, 0), (35, 8), (90, 0), (160, 8), (-35, 
     for k, tile in enumerate(tiles):
         out.paste(tile, (k * size[0], 0))
     return out
-
-
-def icon(models_and_textures, yaw=-35.0, pitch=25.0, scale=1.0, center=(0, 29, 0), size=16, outline=(28, 28, 30)):
-    """An inventory icon drawn from the model itself: rendered small at a three-quarter view, with a dark outline
-    around the shape like vanilla item sprites. Background is transparent."""
-    big = 8
-    img = render(models_and_textures, yaw, pitch, scale * big, (size * big, size * big), center, bg=(255, 0, 255))
-    arr = np.asarray(img).astype(int)
-    # take the middle sample of each block, which keeps hard pixel edges
-    small = arr[big // 2::big, big // 2::big][:size, :size]
-    mask = ~((small[..., 0] == 255) & (small[..., 1] == 0) & (small[..., 2] == 255))
-    out = np.zeros((size, size, 4), dtype=np.uint8)
-    out[mask, :3] = small[mask]
-    out[mask, 3] = 255
-    ring = np.zeros_like(mask)
-    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-        ring |= np.roll(np.roll(mask, dy, axis=0), dx, axis=1)
-    ring &= ~mask
-    out[ring, :3] = outline
-    out[ring, 3] = 255
-    return Image.fromarray(out, "RGBA")

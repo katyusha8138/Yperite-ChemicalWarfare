@@ -61,7 +61,7 @@ def sappenpanzer():
     # the straps: two down the back and one round the waist behind
     leather = Steel(BOOT_BROWN, seed=202, sheen=0.7, wear=0.0)
     for sx in (-1, 1):
-        oriented_box(m, "layer_back", (sx * 2.4, 19.0, BODY_BACK + 0.125), X, Y, 0.9, 9.6, 0.25, leather, strap=True)
+        oriented_box(m, "layer_back", (sx * 2.4, 18.8, BODY_BACK + 0.125), X, Y, 0.9, 8.6, 0.25, leather, strap=True)
     oriented_box(m, "layer_back", (0, 15.6, BODY_BACK + 0.3), X, Y, 7.8, 0.9, 0.1, leather, strap=True)
     for sx in (-1, 1):
         oriented_box(m, "layer_back", (sx * 2.4, 15.6, BODY_BACK + 0.38), X, Y, 0.7, 0.7, 0.06, Steel(BRASS, seed=203))

@@ -82,13 +82,15 @@ public final class ModItems {
             () -> new GasFilterItem(FilterKind.SPECIAL, new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
     public static final RegistryObject<Item> SEALED_FABRIC = ITEMS.register("sealed_fabric", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> PROTECTIVE_HOOD = ITEMS.register("protective_hood",
-            () -> new ProtectiveArmorItem(ArmorItem.Type.HELMET, SuitProtection.Part.HOOD, new Item.Properties()));
+            () -> new ProtectiveArmorItem(ArmorItem.Type.HELMET, SuitProtection.Part.HOOD, "protective_hood", new Item.Properties()));
+    /** The jacket stands off the chest like a tunic (model pixels; the models are built with the same numbers). */
     public static final RegistryObject<Item> PROTECTIVE_JACKET = ITEMS.register("protective_jacket",
-            () -> new ProtectiveArmorItem(ArmorItem.Type.CHESTPLATE, SuitProtection.Part.JACKET, new Item.Properties()));
+            () -> new ProtectiveArmorItem(ArmorItem.Type.CHESTPLATE, SuitProtection.Part.JACKET, "protective_jacket", new Item.Properties())
+                    .standOff(0.9f, 0.6f));
     public static final RegistryObject<Item> PROTECTIVE_TROUSERS = ITEMS.register("protective_trousers",
-            () -> new ProtectiveArmorItem(ArmorItem.Type.LEGGINGS, SuitProtection.Part.TROUSERS, new Item.Properties()));
+            () -> new ProtectiveArmorItem(ArmorItem.Type.LEGGINGS, SuitProtection.Part.TROUSERS, "protective_trousers", new Item.Properties()));
     public static final RegistryObject<Item> PROTECTIVE_BOOTS = ITEMS.register("protective_boots",
-            () -> new ProtectiveArmorItem(ArmorItem.Type.BOOTS, SuitProtection.Part.BOOTS, new Item.Properties()));
+            () -> new ProtectiveArmorItem(ArmorItem.Type.BOOTS, SuitProtection.Part.BOOTS, "protective_boots", new Item.Properties()));
 
     // ---- detection
     public static final RegistryObject<Item> GAS_DETECTOR = ITEMS.register("gas_detector",
