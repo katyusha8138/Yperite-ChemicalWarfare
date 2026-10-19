@@ -166,7 +166,23 @@ public final class ClientSmoke {
                     hotbar(6, "large_shell_chlorine"), hotbar(7, "large_shell_yperite"), hotbar(8, "large_shell_nerve_gas")),
                     CameraType.FIRST_PERSON, 0f, 60f),
             new Scene("9_cloud_from_an_open_cylinder", List.of(
-                    "yperite gas burst yperite:chlorine 150 2 0 81 5"), CameraType.FIRST_PERSON, 0f, 12f)));
+                    "yperite gas burst yperite:chlorine 150 2 0 81 5"), CameraType.FIRST_PERSON, 0f, 12f),
+            // every gas side by side, drifting in a light wind: tear gas, chlorine, blood agent, yperite, nerve, Blue Cross
+            new Scene("11_clouds_of_every_gas", List.of(
+                    "yperite gas clear", "yperite wind set 270 0.3",
+                    "yperite gas burst yperite:tear_gas 260 2 -6 82 5", "yperite gas burst yperite:chlorine 260 2 -3 82 5",
+                    "yperite gas burst yperite:blood_gas 260 2 0 82 5", "yperite gas burst yperite:yperite 260 2 3 82 5",
+                    "yperite gas burst yperite:nerve_gas 260 2 5 82 2", "yperite gas burst yperite:blue_cross 260 2 6 82 5"),
+                    CameraType.FIRST_PERSON, 0f, 8f),
+            // standing inside a thick chlorine cloud: the view closes in and turns yellow-green
+            new Scene("12_inside_a_chlorine_cloud", List.of(
+                    "yperite gas clear", "yperite wind set 0 0",
+                    "yperite gas burst yperite:chlorine 400 3 0 81 1"), CameraType.FIRST_PERSON, 0f, 5f),
+            // residue on the ground: a low mist lies over it
+            new Scene("13_yperite_residue_mist", List.of(
+                    "yperite gas clear", "yperite wind set 0 0",
+                    "yperite gas contaminate yperite:yperite 1.5 3 0 80 4"), CameraType.FIRST_PERSON, 0f, 40f),
+            new Scene("14_clear_again", List.of("yperite gas clear", "yperite wind auto"), CameraType.FIRST_PERSON, 0f, 5f)));
         return all;
     }
 
@@ -204,7 +220,7 @@ public final class ClientSmoke {
             run(server, "gamerule sendCommandFeedback false", "gamemode creative", "fill -8 79 -8 8 95 8 minecraft:air", "fill -8 79 -8 8 79 8 minecraft:stone",
                     "fill -8 80 -4 8 90 -4 minecraft:white_concrete", "fill -8 80 6 8 90 6 minecraft:white_concrete",
                     "tp @s 0.5 80 0.5 0 0",
-                    "effect give @s minecraft:night_vision infinite 0 true", "time set day", "weather clear");
+                    "effect clear @s", "effect give @s minecraft:night_vision infinite 0 true", "time set day", "weather clear");
             server.execute(() -> {
                 ServerPlayer player = server.getPlayerList().getPlayers().get(0);
                 player.getAbilities().flying = true;

@@ -181,5 +181,6 @@
   "item.yperite.sappenpanzer": "ザッペンパンツァー(塹壕用胴鎧)",
   "item.yperite.dayfield": "デイフィールド防弾胴衣",
   "tooltip.yperite.body_armour.curios": "Curios の胴スロットに入れると軍服の上に着られる",
-  "tooltip.yperite.body_armour": "胴防具として着る"
+  "tooltip.yperite.body_armour": "胴防具として着る",
+  "commands.yperite.gas.contaminate.success": "%3$s %4$s %5$s の周りの地面 %1$s マスに %2$s の残留を置いた"
 }

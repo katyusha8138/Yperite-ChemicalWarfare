@@ -38,6 +38,38 @@ public final class GasManager {
         return placed;
     }
 
+    /**
+     * Lays residue of a gas on the ground in a disc around {@code center}: on each column, the first open cell
+     * resting on a solid floor, within a few blocks above or below the centre. Returns how many cells got some.
+     * For testing and for debug commands; in play residue comes from gas settling.
+     */
+    public static int contaminate(ServerLevel level, GasType type, BlockPos center, int radius, float amount) {
+        GasLayer layer = data(level).layer(type);
+        BlockPos.MutableBlockPos at = new BlockPos.MutableBlockPos();
+        int cells = 0;
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                if (dx * dx + dz * dz > radius * radius) {
+                    continue;
+                }
+                for (int dy = 3; dy >= -4; dy--) {
+                    at.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
+                    BlockPos below = at.below();
+                    if (!level.getBlockState(at).isCollisionShapeFullBlock(level, at)
+                            && level.getBlockState(below).isFaceSturdy(level, below, net.minecraft.core.Direction.UP)) {
+                        layer.addResidue(at.getX(), at.getY(), at.getZ(), amount);
+                        cells++;
+                        break;
+                    }
+                }
+            }
+        }
+        if (cells > 0) {
+            data(level).setDirty();
+        }
+        return cells;
+    }
+
     /** The wind in this dimension right now, as a vector with a length of 0..1 (see {@link WindModel.Wind}). */
     public static WindModel.Wind wind(ServerLevel level) {
         if (!YperiteConfig.WIND_ENABLED.get()) {
@@ -73,11 +105,13 @@ public final class GasManager {
     /** Called every server tick for every dimension. */
     static void tick(ServerLevel level) {
         GasSavedData data = data(level);
+        long time = level.getGameTime();
+        // the haze in players' eyes, also when the last gas has just gone
+        GasSight.update(level, data, time);
         if (data.isEmpty()) {
             return;
         }
 
-        long time = level.getGameTime();
         int interval = YperiteConfig.GAS_UPDATE_INTERVAL.get();
         if (time % interval == 0) {
             step(level, data, interval);

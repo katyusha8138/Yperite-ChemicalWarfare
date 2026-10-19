@@ -10,6 +10,7 @@ import io.github.katyusha8138.yperite.exposure.ExposureManager;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -40,6 +41,7 @@ import java.util.Map;
  *
  * <pre>
  * /yperite gas burst &lt;type&gt; &lt;mass&gt; &lt;radius&gt; [pos]
+ * /yperite gas contaminate &lt;type&gt; &lt;amount&gt; &lt;radius&gt; [pos]
  * /yperite gas clear [type]
  * /yperite gas info
  * /yperite gas probe
@@ -72,6 +74,14 @@ public final class YperiteCommand {
                                                         .executes(ctx -> burst(ctx, BlockPos.containing(ctx.getSource().getPosition())))
                                                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                                                 .executes(ctx -> burst(ctx, BlockPosArgument.getLoadedBlockPos(ctx, "pos"))))))))
+                        .then(Commands.literal("contaminate")
+                                .then(Commands.argument("type", ResourceLocationArgument.id())
+                                        .suggests((ctx, builder) -> SharedSuggestionProvider.suggestResource(GasTypes.REGISTRY.get().getKeys(), builder))
+                                        .then(Commands.argument("amount", FloatArgumentType.floatArg(0.01f, 1000f))
+                                                .then(Commands.argument("radius", IntegerArgumentType.integer(0, 16))
+                                                        .executes(ctx -> contaminate(ctx, BlockPos.containing(ctx.getSource().getPosition())))
+                                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                                .executes(ctx -> contaminate(ctx, BlockPosArgument.getLoadedBlockPos(ctx, "pos"))))))))
                         .then(Commands.literal("clear")
                                 .executes(ctx -> clear(ctx, null))
                                 .then(Commands.argument("type", ResourceLocationArgument.id())
@@ -213,6 +223,19 @@ public final class YperiteCommand {
         ctx.getSource().sendSuccess(() -> Component.translatable(
                 "commands.yperite.gas.burst.success", type.displayName(), fmt(placed), pos.getX(), pos.getY(), pos.getZ()), true);
         return 1;
+    }
+
+    private static int contaminate(CommandContext<CommandSourceStack> ctx, BlockPos pos) throws CommandSyntaxException {
+        GasType type = gasType(ctx);
+        float amount = FloatArgumentType.getFloat(ctx, "amount");
+        int radius = IntegerArgumentType.getInteger(ctx, "radius");
+        int cells = GasManager.contaminate(ctx.getSource().getLevel(), type, pos, radius, amount);
+        if (cells == 0) {
+            throw NOTHING_PLACED.create();
+        }
+        ctx.getSource().sendSuccess(() -> Component.translatable(
+                "commands.yperite.gas.contaminate.success", cells, type.displayName(), pos.getX(), pos.getY(), pos.getZ()), true);
+        return cells;
     }
 
     private static int clear(CommandContext<CommandSourceStack> ctx, GasType type) {

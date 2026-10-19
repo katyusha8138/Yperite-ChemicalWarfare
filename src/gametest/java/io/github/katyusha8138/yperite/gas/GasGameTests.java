@@ -448,4 +448,32 @@ public final class GasGameTests {
         helper.assertTrue(millis < 400.0, "a single gas step took " + millis + " ms");
         helper.succeed();
     }
+
+    @GameTest(template = ROOM, timeoutTicks = 40)
+    public static void aPlayerInsideACloudSeesHazeInItsColour(GameTestHelper helper) {
+        sealRoom(helper);
+        net.minecraft.server.level.ServerLevel level = helper.getLevel();
+        net.minecraft.core.BlockPos centre = helper.absolutePos(pos(4, 2, 4));
+        GasManager.release(level, GasTypes.CHLORINE.get(), centre, 2f, 200f);
+        GasSavedData data = GasManager.data(level);
+        GasSight.Sight inside = GasSight.at(level, data, net.minecraft.world.phys.Vec3.atCenterOf(centre));
+        GasSight.Sight away = GasSight.at(level, data, net.minecraft.world.phys.Vec3.atCenterOf(helper.absolutePos(pos(16, 2, 16))));
+        helper.assertTrue(inside.density() > 0.5f, "thick chlorine should haze the view, density " + inside.density());
+        helper.assertTrue(inside.color() == GasTypes.CHLORINE.get().color(), "the haze takes the colour of the gas");
+        helper.assertTrue(away.clear(), "clear air away from the cloud, density " + away.density());
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 40)
+    public static void contaminatingLaysResidueOnTheFloorOnly(GameTestHelper helper) {
+        net.minecraft.server.level.ServerLevel level = helper.getLevel();
+        net.minecraft.core.BlockPos centre = helper.absolutePos(pos(10, 2, 10));
+        int cells = GasManager.contaminate(level, GasTypes.YPERITE.get(), centre, 2, 1.5f);
+        helper.assertTrue(cells == 13, "a disc of radius 2 covers 13 columns, got " + cells);
+        net.minecraft.core.BlockPos floor = helper.absolutePos(pos(10, 1, 10));
+        helper.assertTrue(GasManager.residue(level, GasTypes.YPERITE.get(), floor) == 1.5f, "the residue lies on the floor");
+        helper.assertTrue(GasManager.residue(level, GasTypes.YPERITE.get(), centre) == 0f, "and not in the air above it");
+        GasManager.clear(level, GasTypes.YPERITE.get());
+        helper.succeed();
+    }
 }

@@ -49,6 +49,7 @@ Java 17 が必要です。
 
 ```
 /yperite gas burst <type> <mass> <radius> [pos]   ガスを放出
+/yperite gas contaminate <type> <amount> <radius> [pos]   地面に残留を置く
 /yperite gas clear [type]                          ガスを消す
 /yperite gas info                                  セル数と総量を表示
 /yperite gas probe                                 自分の位置の濃度を表示
@@ -66,6 +67,7 @@ Java 17 が必要です。
 /yperite gas burst yperite:chlorine 300 3
 ```
 
+ガスは風に流れる煙の塊として見え、雲の中に入ると視界がガスの色に霞みます。地面に残ったガス(イペリットなど)は低い靄として見えます。
 離れて待てば回復します。`/yperite gas clear` でガスを消せます。
 
 防護具を試すには、クリエイティブタブ「Yperite - 化学戦」にすべて入っています。
@@ -101,6 +103,7 @@ Java 17 が必要です。
 python3 tools/build_models.py   # 装備の GeckoLib モデルと貼り付け画像(重ね着のめり込みも検査)
 python3 tools/build_icons.py    # アイテムのアイコン(16×16 のドット絵)
 python3 tools/build_blocks.py   # ガスボンベと警報器のブロックモデル
+python3 tools/build_particles.py   # ガスの雲と地面の靄の粒子
 ```
 
 作り方と方針は [`docs/DESIGN.md`](docs/DESIGN.md) の「見た目」の節にあります。効果音はバニラのものを使っています。

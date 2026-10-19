@@ -6,6 +6,7 @@ import io.github.katyusha8138.yperite.exposure.ExposureManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -21,6 +22,11 @@ public final class GasEvents {
             GasManager.tick(level);
             ExposureManager.tick(level);
         }
+    }
+
+    @SubscribeEvent
+    public static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        GasSight.forget(event.getEntity().getUUID());
     }
 
     @SubscribeEvent

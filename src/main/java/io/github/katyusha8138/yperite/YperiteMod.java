@@ -11,6 +11,8 @@ import io.github.katyusha8138.yperite.gas.GasTypes;
 import io.github.katyusha8138.yperite.item.ModItems;
 import io.github.katyusha8138.yperite.item.ModRecipes;
 import io.github.katyusha8138.yperite.item.ModTabs;
+import io.github.katyusha8138.yperite.network.YperiteNetwork;
+import io.github.katyusha8138.yperite.particle.ModParticles;
 import io.github.katyusha8138.yperite.protection.EquipmentProtection;
 import io.github.katyusha8138.yperite.protection.compat.CuriosCompat;
 import net.minecraftforge.fml.ModList;
@@ -36,8 +38,10 @@ public final class YperiteMod {
         ModItems.register(modBus);
         ModTabs.register(modBus);
         ModRecipes.register(modBus);
+        ModParticles.register(modBus);
         ProtectionRegistry.register(new EquipmentProtection());
         modBus.addListener((FMLCommonSetupEvent event) -> {
+            event.enqueueWork(YperiteNetwork::register);
             if (CuriosCompat.isLoaded()) {
                 event.enqueueWork(CuriosCompat::init);
             }

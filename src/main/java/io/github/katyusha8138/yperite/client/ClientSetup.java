@@ -9,10 +9,13 @@ import io.github.katyusha8138.yperite.entity.ModEntities;
 import io.github.katyusha8138.yperite.gas.GasType;
 import io.github.katyusha8138.yperite.item.GasCylinderItem;
 import io.github.katyusha8138.yperite.item.ModItems;
+import io.github.katyusha8138.yperite.client.particle.GasCloudParticle;
+import io.github.katyusha8138.yperite.particle.ModParticles;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -26,6 +29,12 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.GAS_GRENADE.get(), ThrownItemRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.GAS_CLOUD.get(), sprites -> new GasCloudParticle.Provider(sprites, false));
+        event.registerSpriteSet(ModParticles.GAS_MIST.get(), sprites -> new GasCloudParticle.Provider(sprites, true));
     }
 
     /** The gas cylinder's band takes the colour of the gas inside (tint 0 of its model), placed or held. */

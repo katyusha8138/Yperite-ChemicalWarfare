@@ -179,7 +179,7 @@ def _spiral(t):
 def puttees(name, ramp, boot_ramp, tape_ramp=None):
     """Puttees wound from the ankle to below the knee and tied at the top, over laced ankle boots."""
     m = armor_model(name)
-    wrap = Wool(ramp, stripes=_spiral)
+    wrap = Wool(ramp, stripes=_spiral, noise=0.6)
     tape = Wool(tape_ramp or ramp, flat=True)
     boot = Steel(boot_ramp, seed=101, sheen=0.9, wear=0.0)
     sole = Steel(SOLE, seed=102, sheen=0.0, wear=0.0)

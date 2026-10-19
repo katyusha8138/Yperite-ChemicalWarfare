@@ -181,5 +181,6 @@
   "item.yperite.sappenpanzer": "Sappenpanzer",
   "item.yperite.dayfield": "Dayfield Body Shield",
   "tooltip.yperite.body_armour.curios": "Wear it over a tunic in the Curios body slot",
-  "tooltip.yperite.body_armour": "Wear it in the chest slot"
+  "tooltip.yperite.body_armour": "Wear it in the chest slot",
+  "commands.yperite.gas.contaminate.success": "Laid %2$s residue on %1$s cells of ground around %3$s %4$s %5$s"
 }

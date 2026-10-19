@@ -259,20 +259,37 @@ class Steel(Material):
         return pick(self.ramp, level)
 
 
+def blend(ramp, level):
+    """The colour of a fractional level, mixed between the two nearest tones of the ramp (no rounding, so that a
+    little noise reads as grain instead of jumping between tones in patches)."""
+    level = max(0.0, min(len(ramp) - 1.0, level))
+    i = int(math.floor(level))
+    j = min(len(ramp) - 1, i + 1)
+    f = level - i
+    a, b = ramp[i], ramp[j]
+    return (int(round(a[0] + (b[0] - a[0]) * f)), int(round(a[1] + (b[1] - a[1]) * f)),
+            int(round(a[2] + (b[2] - a[2]) * f)), 255)
+
+
 class Wool(Material):
     """Uniform cloth, painted in the manner of Steel but matte: vertical faces run from a lighter top to a darker
-    foot, the top row where the cloth turns over an edge is lighter and the hem darker. No noise and no glint.
+    foot, the top row where the cloth turns over an edge is lighter and the hem darker. Over that lies the look of
+    worn wool: a fine grain that differs from texel to texel, soft patches where the cloth has faded or soiled, and
+    now and then a darker fleck. Colours are mixed between the ramp's tones rather than rounded to them.
     `stripes(t)` may return an extra level for a texel (the turns of a puttee). `seams` are lines sewn into the
     cloth, (axis, value, facing): darker texels where that coordinate has that value, on the faces whose normal
     points along `facing` (a vector, or None for every face along the line). Small details (pockets, flaps) are
-    `flat`: one tone per face, so that a few texels do not turn into stripes."""
+    `flat`: one tone per face, so that a few texels do not turn into stripes, and only half the grain.
+    `noise` scales all of the grain, patches and flecks (0 for none)."""
 
-    def __init__(self, ramp, stripes=None, seams=(), flat=False, shift=0.0):
+    def __init__(self, ramp, stripes=None, seams=(), flat=False, shift=0.0, noise=1.0, seed=7):
         self.ramp = ramp
         self.stripes = stripes
         self.seams = seams
         self.flat = flat
         self.shift = shift
+        self.noise = noise * (0.5 if flat else 1.0)
+        self.seed = seed
 
     def color(self, t):
         n = np.asarray(t.normal)
@@ -300,7 +317,16 @@ class Wool(Material):
                 continue
             if abs(n[axis]) < 0.5 and abs(t.pos[axis] - value) < 0.5:
                 level -= 0.9
-        return pick(self.ramp, level)
+        if self.noise > 0:
+            grain = _hash(t.u, t.v, 0, self.seed) - 0.5
+            patches = vnoise(t.pos, 2.6, self.seed + 1) - 0.5
+            fleck = _hash(t.u, t.v, 1, self.seed + 2)
+            level += self.noise * (0.65 * grain + 0.75 * patches)
+            if fleck < 0.05:
+                level -= 0.7 * self.noise
+            elif fleck > 0.975:
+                level += 0.45 * self.noise
+        return blend(self.ramp, level)
 
 
 class Cloth(Material):
