@@ -12,10 +12,12 @@ import io.github.katyusha8138.yperite.item.ModItems;
 import io.github.katyusha8138.yperite.item.ModRecipes;
 import io.github.katyusha8138.yperite.item.ModTabs;
 import io.github.katyusha8138.yperite.protection.EquipmentProtection;
+import io.github.katyusha8138.yperite.protection.compat.CuriosCompat;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -35,6 +37,11 @@ public final class YperiteMod {
         ModTabs.register(modBus);
         ModRecipes.register(modBus);
         ProtectionRegistry.register(new EquipmentProtection());
+        modBus.addListener((FMLCommonSetupEvent event) -> {
+            if (CuriosCompat.isLoaded()) {
+                event.enqueueWork(CuriosCompat::init);
+            }
+        });
         if (ModList.get().isLoaded(SbwCompat.MODID)) {
             SbwCompat.init(modBus);
         }

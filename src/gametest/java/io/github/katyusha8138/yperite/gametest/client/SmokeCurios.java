@@ -14,17 +14,26 @@ final class SmokeCurios {
     private SmokeCurios() {
     }
 
-    static void equip(ServerPlayer player, String itemOrClear) {
+    /** "clear" empties the face and body slots; "body <item>" fills the body slot, "<item>" the face slot. */
+    static void equip(ServerPlayer player, String args) {
         if (!ModList.get().isLoaded("curios")) {
             return;
         }
-        ItemStack stack = itemOrClear.equals("clear")
-                ? ItemStack.EMPTY
-                : new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(itemOrClear)));
+        if (args.equals("clear")) {
+            put(player, "face", ItemStack.EMPTY);
+            put(player, "body", ItemStack.EMPTY);
+            return;
+        }
+        String slot = args.startsWith("body ") ? "body" : "face";
+        ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(args.substring(args.indexOf(' ') + 1))));
         // Masks go on with a fresh filter, so that it is drawn.
         GasMaskItem.load(stack, FilterKind.GENERAL);
+        put(player, slot, stack);
+    }
+
+    private static void put(ServerPlayer player, String slot, ItemStack stack) {
         CuriosApi.getCuriosInventory(player).resolve()
-                .flatMap(handler -> handler.getStacksHandler("face"))
+                .flatMap(handler -> handler.getStacksHandler(slot))
                 .ifPresent(slots -> slots.getStacks().setStackInSlot(0, stack));
     }
 }

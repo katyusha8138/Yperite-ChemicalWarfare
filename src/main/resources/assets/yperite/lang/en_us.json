@@ -165,5 +165,21 @@
   "item.yperite.austrian_gas_mask": "Austro-Hungarian Gas Mask",
   "tooltip.yperite.gas_mask.pad": "Impregnated pad",
   "tooltip.yperite.gas_mask.arsenical": "Its filters let arsenical smoke (Blue Cross) through",
-  "tooltip.yperite.gas_mask.no_reload": "The pad is sewn in and cannot be replaced. Wear it as a helmet or in the Curios face slot"
+  "tooltip.yperite.gas_mask.no_reload": "The pad is sewn in and cannot be replaced. Wear it as a helmet or in the Curios face slot",
+  "item.yperite.british_tunic": "British Service Dress Tunic",
+  "item.yperite.british_trousers": "British Service Dress Trousers",
+  "item.yperite.british_puttees": "British Puttees and Ankle Boots",
+  "item.yperite.french_tunic": "French Horizon Blue Tunic",
+  "item.yperite.french_trousers": "French Horizon Blue Trousers",
+  "item.yperite.french_puttees": "French Puttees and Boots",
+  "item.yperite.german_tunic": "German M1915 Field Blouse",
+  "item.yperite.german_trousers": "German Stone-Grey Trousers",
+  "item.yperite.german_puttees": "German Puttees and Ankle Boots",
+  "item.yperite.austrian_tunic": "Austro-Hungarian Field Tunic",
+  "item.yperite.austrian_trousers": "Austro-Hungarian Field Trousers",
+  "item.yperite.austrian_puttees": "Austro-Hungarian Puttees and Ankle Boots",
+  "item.yperite.sappenpanzer": "Sappenpanzer",
+  "item.yperite.dayfield": "Dayfield Body Shield",
+  "tooltip.yperite.body_armour.curios": "Wear it over a tunic in the Curios body slot",
+  "tooltip.yperite.body_armour": "Wear it in the chest slot"
 }

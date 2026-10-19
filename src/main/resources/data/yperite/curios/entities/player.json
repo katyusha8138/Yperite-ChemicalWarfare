@@ -3,6 +3,7 @@
     "player"
   ],
   "slots": [
-    "face"
+    "face",
+    "body"
   ]
 }

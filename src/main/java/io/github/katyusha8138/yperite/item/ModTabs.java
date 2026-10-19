@@ -46,6 +46,8 @@ public final class ModTabs {
                 output.accept(ModItems.ADRIAN_M15.get());
                 output.accept(ModItems.STAHLHELM_M1916.get());
                 output.accept(ModItems.BERNDORFER.get());
+                ModItems.UNIFORMS.forEach(piece -> output.accept(piece.get()));
+                ModItems.BODY_ARMOUR.forEach(armour -> output.accept(armour.get()));
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(grenade.get()));
                 output.accept(ModItems.GAS_CYLINDER.get());
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(GasCylinderItem.full(((GasGrenadeItem) grenade.get()).gas())));

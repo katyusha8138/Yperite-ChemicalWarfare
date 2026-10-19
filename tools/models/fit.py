@@ -113,8 +113,14 @@ def _surface_points(box, spacing):
     return np.array(pts), pairs
 
 
-# The wearer's head: a ray that runs into it from a helmet's face starts in the gap under the helmet.
-HEAD = Box("head", None, np.array([0.0, 28.0, 0.0]), np.eye(3), np.array([4.0, 4.0, 4.0]))
+def _part(lo, hi):
+    lo, hi = np.asarray(lo, float), np.asarray(hi, float)
+    return Box("wearer", None, (lo + hi) / 2, np.eye(3), (hi - lo) / 2)
+
+
+# The wearer: a ray that runs into the body from a face of a piece starts in the gap under that piece.
+WEARER = [_part(*p) for p in (((-4, 24, -4), (4, 32, 4)), ((-4, 12, -2), (4, 24, 2)), ((-8, 12, -2), (-4, 24, 2)),
+                                ((4, 12, -2), (8, 24, 2)), ((-3.9, 0, -2), (0.1, 12, 2)), ((-0.1, 0, -2), (3.9, 12, 2)))]
 
 
 def _exterior(point, normal, occluders, reach=2.0, step=0.1):
@@ -127,14 +133,15 @@ def _exterior(point, normal, occluders, reach=2.0, step=0.1):
     return True
 
 
-def piercings(outer, inner, spacing=0.12, margin=0.02):
+def piercings(outer, inner, spacing=0.12, margin=0.02, tuck=(0.0, -1.0, 0.0)):
     """Where a cube of `inner` (worn under, like a mask) comes out through the outside of `outer` (worn over, like
     a helmet). Crossings through a face that looks down are fine: going up under a brim is how a mask sits beneath
-    a helmet. So are crossings of faces inside the helmet (seams, the gap over the head): only a face that a ray
-    can leave without running into the helmet or the head counts. Cubes tagged strap=True on both sides may
+    a helmet. (`tuck` is the direction of such faces: up for trousers going down into puttees.) So are crossings
+    of faces inside the helmet (seams, the gap over the head): only a face that a ray can leave without running
+    into the helmet or the head counts. Cubes tagged strap=True on both sides may
     cross: a strap passes under a strap. Returns (inner box, outer box, point, outer face normal) per crossing."""
     outer_boxes = boxes(outer)
-    occluders = outer_boxes + [HEAD]
+    occluders = outer_boxes + WEARER
     found = []
     for box in boxes(inner):
         pts, pairs = _surface_points(box, spacing)
@@ -153,7 +160,7 @@ def piercings(outer, inner, spacing=0.12, margin=0.02):
             local = (p_out - ob.centre) @ ob.axes.T
             axis = int(np.argmax(np.abs(local) / ob.half))
             normal = np.sign(local[axis]) * ob.axes[axis]
-            if normal[1] < -0.7:
+            if float(normal @ np.asarray(tuck, float)) > 0.7:
                 continue
             # the point where the segment leaves the box, on its face
             p_in = pts[k_in]
@@ -164,3 +171,31 @@ def piercings(outer, inner, spacing=0.12, margin=0.02):
                 continue
             found.append((box, ob, crossing, normal))
     return found
+
+
+def shifted(model, moves):
+    """A copy of the model with the cubes of some bones moved, as the game moves them: moves maps a bone name to
+    an (x, y, z) offset in Bedrock coordinates. Used to check layered equipment in its worn position."""
+    import copy
+    out = copy.deepcopy(model)
+
+    def family(name):
+        # a bone and every bone below it: children move with their parent
+        names = [name]
+        for child, bone in out.bones.items():
+            if bone.parent == name:
+                names += family(child)
+        return names
+
+    for top, d in moves.items():
+        if top not in out.bones:
+            continue
+        d = np.asarray(d, float)
+        for cube in (c for name in family(top) for c in out.bones[name].cubes):
+            cube.origin = tuple(np.asarray(cube.origin) + d)
+            if cube.pivot is not None:
+                cube.pivot = tuple(np.asarray(cube.pivot) + d)
+            pl = cube.info.get("plate")
+            if pl is not None:
+                pl["center"] = np.asarray(pl["center"]) + d
+    return out

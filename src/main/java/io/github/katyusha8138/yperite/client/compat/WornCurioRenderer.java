@@ -20,13 +20,13 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
  * Draws an item worn in a Curios slot with the same GeckoLib model it has in an armour slot.
  *
  * <p>Curios draws a worn item only if a renderer is registered for it, and unlike the armour slots it has no
- * fallback: without this class a mask in the face slot is invisible. The model takes its pose from the wearer's
- * body model, exactly as in the armour slot.
+ * fallback: without this class a mask in the face slot or body armour in the body slot would be invisible. The
+ * model takes its pose from the wearer's body model, exactly as in the armour slot ({@code slot} says which one).
  */
-public class GasMaskCurioRenderer implements ICurioRenderer {
+public class WornCurioRenderer implements ICurioRenderer {
     private final EquipmentSlot slot;
 
-    public GasMaskCurioRenderer(EquipmentSlot slot) {
+    public WornCurioRenderer(EquipmentSlot slot) {
         this.slot = slot;
     }
 

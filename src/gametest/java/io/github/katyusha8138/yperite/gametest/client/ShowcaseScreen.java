@@ -17,14 +17,17 @@ public class ShowcaseScreen extends Screen {
     private static final float[] ANGLES = {0f, 40f, 90f, 180f};
     /** -1 draws all four views; otherwise only that one, large. */
     private final int only;
+    /** Whether the single view shows the whole figure rather than head and chest. */
+    private final boolean whole;
 
     public ShowcaseScreen() {
-        this(-1);
+        this(-1, false);
     }
 
-    public ShowcaseScreen(int only) {
+    public ShowcaseScreen(int only, boolean whole) {
         super(Component.literal("showcase"));
         this.only = only;
+        this.whole = whole;
     }
 
     @Override
@@ -35,7 +38,11 @@ public class ShowcaseScreen extends Screen {
             return;
         }
         if (only >= 0) {
-            draw(graphics, player, width / 2, (int) (height * 1.42f), (int) (height * 0.55f), ANGLES[only]);
+            if (whole) {
+                draw(graphics, player, width / 2, (int) (height * 0.93f), (int) (height * 0.40f), ANGLES[only]);
+            } else {
+                draw(graphics, player, width / 2, (int) (height * 1.42f), (int) (height * 0.55f), ANGLES[only]);
+            }
             return;
         }
         int column = width / ANGLES.length;

@@ -49,8 +49,8 @@ def _face_piece(m, material, top=BROW_TOP, bottom=23.8, half_width=4.4, chamfer=
     low = BROW - 0.8
     hh = (top - low) / 2
     chamfered_block(m, "armorHead", (0, low + hh, -4.0 - BROW_DEPTH / 2), X, Y, brow_half, hh, 0.8, BROW_DEPTH, material)
-    # cheek pieces back towards the ears
-    y0, y1 = bottom + 0.6, BROW - 0.1
+    # cheek pieces back towards the ears (above the top of a tunic's collar)
+    y0, y1 = max(bottom + 0.6, 24.7), BROW - 0.1
     for side in (-1, 1):
         oriented_box(m, "armorHead", (side * (4.0 + STRAP / 2 + 0.03), (y0 + y1) / 2, (-4.0 + cheek_back) / 2), X, Y,
                      STRAP + 0.06, y1 - y0, -4.0 - cheek_back + 0.0001, material)
@@ -113,19 +113,23 @@ def small_box_respirator():
     _face_piece(m, fabric, chamfer=1.8)
     _eyepieces(m, brass, Glass(GLASS))
     octagon(m, "armorHead", (0, 25.3, -5.1), FWD, 0.75, 0.5, brass)
-    # the hose: down from the mouth (moves with the head), then on into the bag (moves with the body)
+    # the hose: down from the mouth and forward (moves with the head), then on into the bag (moves with the bag,
+    # which stands further out the more is worn under it; the two ends meet over a tunic or body armour)
     for k in range(3):
-        octagon(m, "armorHead", (0, 24.6 - k * 0.75, -5.3 + k * 0.1), (0, -1, -0.15), 0.62, 0.7, hose)
-    m.bone("filter", parent="armorBody", pivot=(0, 20.5, -2.0))
-    for k in range(3):
-        octagon(m, "filter", (0, 22.3 - k * 0.75, -4.7 + k * 0.35), (0, -1, 0.4), 0.62, 0.7, hose)
-    # the haversack with the box inside, on the chest
+        octagon(m, "armorHead", (0, 24.6 - k * 0.75, -5.3 - k * 0.15), (0, -1, -0.25), 0.62, 0.7, hose)
+    # the haversack with the box inside, on the chest, and its sling up to the neck. They hang in front of whatever
+    # is worn on the chest: the game moves the bone layer_front out over a tunic or body armour.
+    m.bone("layer_front", parent="armorBody", pivot=(0, 24, 0))
     bag = Steel(KHAKI_FABRIC, seed=64, sheen=0.1, wear=0.0)
-    oriented_box(m, "armorBody", (0, 17.4, -2.9), X, Y, 6.6, 6.0, 1.8, bag)
-    oriented_box(m, "armorBody", (0, 19.6, -3.85), X, Y, 6.8, 2.2, 0.25, bag)       # the flap
+    oriented_box(m, "layer_front", (0, 17.4, -2.95), X, Y, 6.6, 6.0, 1.8, bag)
+    oriented_box(m, "layer_front", (0, 19.6, -3.9), X, Y, 6.8, 2.2, 0.25, bag)       # the flap
+    sling = Steel(WEBBING, seed=65, sheen=0.0)
     for side in (-1, 1):
-        oriented_box(m, "armorBody", (side * 2.0, 18.6, -4.0), X, Y, 0.6, 0.6, 0.15, brass)
-        oriented_box(m, "armorBody", (side * 2.6, 21.95, -1.0), X, Y, 0.8, 2.9, 2.4, Steel(WEBBING, seed=65, sheen=0.0))
+        oriented_box(m, "layer_front", (side * 2.0, 18.6, -4.05), X, Y, 0.6, 0.6, 0.15, brass)
+        oriented_box(m, "layer_front", (side * 2.6, 22.0, -2.175), X, Y, 0.8, 3.2, 0.25, sling, strap=True)
+    m.bone("filter", parent="layer_front", pivot=(0, 20.5, -3.0))
+    for k in range(2):
+        octagon(m, "filter", (0, 21.95 - k * 0.75, -3.75 + k * 0.2), (0, -1, 0.25), 0.62, 0.75, hose)
     _harness(m, Steel(WEBBING, seed=66, sheen=0.0), ys=(29.4, 26.6))
     m.pack()
     return m

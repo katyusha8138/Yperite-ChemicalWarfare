@@ -13,4 +13,19 @@ public interface WornGeoItem extends GeoItem {
     default boolean showsFilter(net.minecraft.world.item.ItemStack stack) {
         return true;
     }
+
+    /**
+     * How far this piece stands off the chest at the front (in model pixels). Whatever is worn over it - body
+     * armour over a tunic, a respirator's haversack over both - moves its bone {@code layer_front} out by the sum
+     * of what lies beneath (see {@link WornLayers}). The numbers match those the models are built with
+     * (tools/models: uniforms.STAND_OFF, body_armor.STAND_OFF).
+     */
+    default float standOffFront() {
+        return 0f;
+    }
+
+    /** The same at the back, for the bone {@code layer_back}. */
+    default float standOffBack() {
+        return 0f;
+    }
 }

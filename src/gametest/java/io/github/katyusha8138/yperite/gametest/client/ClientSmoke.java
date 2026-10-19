@@ -64,6 +64,19 @@ public final class ClientSmoke {
         return scenes;
     }
 
+    private static String[] kit(String helmet, String army, String mask, String armour) {
+        java.util.List<String> c = new java.util.ArrayList<>(List.of(
+                "item replace entity @s armor.head with yperite:" + helmet,
+                "item replace entity @s armor.chest with yperite:" + army + "_tunic",
+                "item replace entity @s armor.legs with yperite:" + army + "_trousers",
+                "item replace entity @s armor.feet with yperite:" + army + "_puttees",
+                "@curios yperite:" + mask));
+        if (armour != null) {
+            c.add("@curios body yperite:" + armour);
+        }
+        return c.toArray(new String[0]);
+    }
+
     private static final String FILTER = "{Filter:{Kind:\"general\",Charge:150f}}";
 
     private static List<Scene> allScenes() {
@@ -80,6 +93,15 @@ public final class ClientSmoke {
         all.addAll(showcase("stahlhelm_leder", "item replace entity @s armor.head with yperite:stahlhelm_m1916", "@curios yperite:lederschutzmaske"));
         all.addAll(showcase("adrian_m2", "item replace entity @s armor.head with yperite:adrian_m15", "@curios yperite:m2_mask"));
         all.addAll(showcase("berndorfer_austrian", "item replace entity @s armor.head with yperite:berndorfer", "@curios yperite:austrian_gas_mask"));
+        // Whole outfits ("_kit" shows the whole figure): helmet, uniform, a mask in the face slot and body armour
+        // over the tunic in the body slot.
+        all.addAll(showcase("british_kit", kit("brodie_mk1", "british", "small_box_respirator", "dayfield")));
+        all.addAll(showcase("german_kit", kit("stahlhelm_m1916", "german", "lederschutzmaske", "sappenpanzer")));
+        all.addAll(showcase("french_kit", kit("adrian_m15", "french", "m2_mask", null)));
+        all.addAll(showcase("austrian_kit", kit("berndorfer", "austrian", "austrian_gas_mask", null)));
+        // Body armour on its own in the chest slot, with the respirator's haversack over it.
+        all.addAll(showcase("sappenpanzer_kit", "item replace entity @s armor.chest with yperite:sappenpanzer",
+                "@curios yperite:small_box_respirator"));
         all.addAll(List.of(
             new Scene("show_world_front", List.of(), CameraType.THIRD_PERSON_FRONT, 0f, 0f),
             new Scene("show_world_angle", List.of(), CameraType.THIRD_PERSON_FRONT, 40f, 0f),
@@ -203,7 +225,7 @@ public final class ClientSmoke {
     /** "show_x" draws four views; "show_x@2" only the third view, large. */
     private static ShowcaseScreen showcase(String name) {
         int at = name.lastIndexOf('@');
-        return at < 0 ? new ShowcaseScreen() : new ShowcaseScreen(Integer.parseInt(name.substring(at + 1)));
+        return at < 0 ? new ShowcaseScreen() : new ShowcaseScreen(Integer.parseInt(name.substring(at + 1)), name.contains("_kit"));
     }
 
     private static void run(MinecraftServer server, String... commands) {

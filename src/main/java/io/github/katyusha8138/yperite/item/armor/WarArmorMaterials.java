@@ -23,6 +23,9 @@ public enum WarArmorMaterials implements ArmorMaterial {
     /** Trench armour: thick plates over the chest and belly; heavy, and slows the wearer down (see the item). */
     TRENCH_ARMOR("trench_armor", slots(0, 6, 0, 0), slots(0, 320, 0, 0), 5, SoundEvents.ARMOR_EQUIP_IRON, 1.5f, 0.1f,
             () -> Ingredient.of(Items.IRON_INGOT)),
+    /** A body shield: steel plates sewn into cloth; lighter than trench armour and less protective. */
+    BODY_SHIELD("body_shield", slots(0, 4, 0, 0), slots(0, 240, 0, 0), 8, SoundEvents.ARMOR_EQUIP_CHAIN, 0.5f, 0.05f,
+            () -> Ingredient.of(Items.IRON_INGOT)),
     /** Wool uniforms: little protection, like leather. */
     WOOL_UNIFORM("wool_uniform", slots(1, 3, 2, 1), slots(70, 100, 90, 80), 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0f, 0f,
             () -> Ingredient.of(Blocks.WHITE_WOOL));

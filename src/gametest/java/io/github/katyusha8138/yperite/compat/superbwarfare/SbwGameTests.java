@@ -328,4 +328,26 @@ public final class SbwGameTests {
             helper.succeed();
         });
     }
+
+    @GameTest(template = ROOM, timeoutTicks = 20, batch = "sbw")
+    public static void helmetsAndBodyArmourCarrySuperbWarfaresBulletResistance(GameTestHelper helper) {
+        var attribute = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation("superbwarfare", "bullet_resistance"));
+        helper.assertTrue(attribute != null, "Superb Warfare must register its bullet resistance");
+        for (var entry : List.of(io.github.katyusha8138.yperite.item.ModItems.STAHLHELM_M1916, io.github.katyusha8138.yperite.item.ModItems.SAPPENPANZER,
+                io.github.katyusha8138.yperite.item.ModItems.DAYFIELD)) {
+            var item = (io.github.katyusha8138.yperite.item.armor.GeoArmorItem) entry.get();
+            ItemStack stack = new ItemStack(item);
+            double total = stack.getAttributeModifiers(item.getEquipmentSlot()).get(attribute).stream()
+                    .mapToDouble(m -> m.getAmount()).sum();
+            helper.assertTrue(Math.abs(total - item.bulletResistance()) < 1e-9, item + " should carry " + item.bulletResistance() + ", has " + total);
+            // worn half out, half the resistance is left
+            stack.setDamageValue(stack.getMaxDamage() / 2);
+            double worn = stack.getAttributeModifiers(item.getEquipmentSlot()).get(attribute).stream().mapToDouble(m -> m.getAmount()).sum();
+            helper.assertTrue(Math.abs(worn - item.bulletResistance() / 2) < 0.01, item + " half worn should keep half: " + worn);
+        }
+        // a wool uniform stops no bullets
+        ItemStack tunic = new ItemStack(io.github.katyusha8138.yperite.item.ModItems.UNIFORMS.get(0).get());
+        helper.assertTrue(tunic.getAttributeModifiers(net.minecraft.world.entity.EquipmentSlot.CHEST).get(attribute).isEmpty(), "wool stops no bullets");
+        helper.succeed();
+    }
 }

@@ -3,6 +3,7 @@ package io.github.katyusha8138.yperite.item.armor;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.github.katyusha8138.yperite.compat.superbwarfare.SbwAttributes;
+import io.github.katyusha8138.yperite.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.network.chat.Component;
@@ -43,6 +44,8 @@ public class GeoArmorItem extends ArmorItem implements WornGeoItem {
     private final String model;
     private final double bulletResistance;
     private final double speedPenalty;
+    private float standOffFront;
+    private float standOffBack;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     /**
@@ -60,6 +63,27 @@ public class GeoArmorItem extends ArmorItem implements WornGeoItem {
     @Override
     public String model() {
         return model;
+    }
+
+    /** Sets how far this piece stands off the chest, front and back (see {@link WornGeoItem#standOffFront()}). */
+    public GeoArmorItem standOff(float front, float back) {
+        this.standOffFront = front;
+        this.standOffBack = back;
+        return this;
+    }
+
+    @Override
+    public float standOffFront() {
+        return standOffFront;
+    }
+
+    @Override
+    public float standOffBack() {
+        return standOffBack;
+    }
+
+    public double speedPenalty() {
+        return speedPenalty;
     }
 
     public double bulletResistance() {
@@ -103,6 +127,11 @@ public class GeoArmorItem extends ArmorItem implements WornGeoItem {
         if (bulletResistance > 0) {
             String key = SbwAttributes.bulletResistance() != null ? "tooltip.yperite.bullet_resistance" : "tooltip.yperite.bullet_resistance.inactive";
             tooltip.add(Component.translatable(key, Math.round(bulletResistance(stack) * 100)).withStyle(ChatFormatting.BLUE));
+        }
+        if (ModItems.BODY_ARMOUR.stream().anyMatch(armour -> armour.get() == this)) {
+            boolean curios = net.minecraftforge.fml.ModList.get().isLoaded("curios");
+            tooltip.add(Component.translatable(curios ? "tooltip.yperite.body_armour.curios" : "tooltip.yperite.body_armour")
+                    .withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 

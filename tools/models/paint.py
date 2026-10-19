@@ -259,6 +259,50 @@ class Steel(Material):
         return pick(self.ramp, level)
 
 
+class Wool(Material):
+    """Uniform cloth, painted in the manner of Steel but matte: vertical faces run from a lighter top to a darker
+    foot, the top row where the cloth turns over an edge is lighter and the hem darker. No noise and no glint.
+    `stripes(t)` may return an extra level for a texel (the turns of a puttee). `seams` are lines sewn into the
+    cloth, (axis, value, facing): darker texels where that coordinate has that value, on the faces whose normal
+    points along `facing` (a vector, or None for every face along the line). Small details (pockets, flaps) are
+    `flat`: one tone per face, so that a few texels do not turn into stripes."""
+
+    def __init__(self, ramp, stripes=None, seams=(), flat=False, shift=0.0):
+        self.ramp = ramp
+        self.stripes = stripes
+        self.seams = seams
+        self.flat = flat
+        self.shift = shift
+
+    def color(self, t):
+        n = np.asarray(t.normal)
+        top = len(self.ramp) - 1
+        lit = float(n @ LIGHT_DIR)
+        level = top * 0.5 + 0.45 * lit + self.shift
+        if abs(n[1]) < 0.6:
+            if self.flat:
+                if t.h > 1 and t.edge() == 0 and t.edge_side() == "bottom":
+                    level -= 0.8
+            else:
+                level += (t.fy - 0.5) * 0.9
+                if t.h > 3 and _rows_from_top(t) == 0:
+                    level += 0.8
+                if t.h > 3 and t.edge() == 0 and t.edge_side() == "bottom":
+                    level -= 0.9
+        elif n[1] > 0:
+            level += 0.6
+        else:
+            level -= 0.9
+        if self.stripes is not None:
+            level += self.stripes(t)
+        for axis, value, facing in self.seams:
+            if facing is not None and float(n @ np.asarray(facing, float)) < 0.5:
+                continue
+            if abs(n[axis]) < 0.5 and abs(t.pos[axis] - value) < 0.5:
+                level -= 0.9
+        return pick(self.ramp, level)
+
+
 class Cloth(Material):
     """Woollen cloth: fine twill, a little fuzz, darker folds low down and on the edges."""
 

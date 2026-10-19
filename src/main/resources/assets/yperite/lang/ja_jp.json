@@ -165,5 +165,21 @@
   "item.yperite.austrian_gas_mask": "墺洪軍ガスマスク",
   "tooltip.yperite.gas_mask.pad": "薬剤含浸パッド",
   "tooltip.yperite.gas_mask.arsenical": "フィルターがヒ素系の煙(青十字)を通してしまう",
-  "tooltip.yperite.gas_mask.no_reload": "パッドは縫い込みで交換できない。頭防具、または Curios の顔スロットに着ける"
+  "tooltip.yperite.gas_mask.no_reload": "パッドは縫い込みで交換できない。頭防具、または Curios の顔スロットに着ける",
+  "item.yperite.british_tunic": "英軍 軍服上衣(サービスドレス)",
+  "item.yperite.british_trousers": "英軍 軍袴(サービスドレス)",
+  "item.yperite.british_puttees": "英軍 巻きゲートルと編上靴",
+  "item.yperite.french_tunic": "仏軍 ホライズンブルー上衣",
+  "item.yperite.french_trousers": "仏軍 ホライズンブルー軍袴",
+  "item.yperite.french_puttees": "仏軍 巻きゲートルと編上靴",
+  "item.yperite.german_tunic": "独軍 M1915 野戦服(ブルーゼ)",
+  "item.yperite.german_trousers": "独軍 ストーングレー軍袴",
+  "item.yperite.german_puttees": "独軍 巻きゲートルと編上靴",
+  "item.yperite.austrian_tunic": "墺洪軍 野戦服上衣",
+  "item.yperite.austrian_trousers": "墺洪軍 軍袴",
+  "item.yperite.austrian_puttees": "墺洪軍 巻きゲートルと編上靴",
+  "item.yperite.sappenpanzer": "ザッペンパンツァー(塹壕用胴鎧)",
+  "item.yperite.dayfield": "デイフィールド防弾胴衣",
+  "tooltip.yperite.body_armour.curios": "Curios の胴スロットに入れると軍服の上に着られる",
+  "tooltip.yperite.body_armour": "胴防具として着る"
 }

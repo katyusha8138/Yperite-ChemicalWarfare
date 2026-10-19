@@ -18,6 +18,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,28 @@ public final class ModItems {
     public static final RegistryObject<Item> BRODIE_MK1 = helmet("brodie_mk1", 0.06);
     public static final RegistryObject<Item> ADRIAN_M15 = helmet("adrian_m15", 0.05);
     public static final RegistryObject<Item> BERNDORFER = helmet("berndorfer", 0.07);
+
+    /** Field uniforms of the four armies: tunic, trousers, puttees with ankle boots, in that order per army. */
+    public static final List<RegistryObject<Item>> UNIFORMS = new ArrayList<>();
+
+    static {
+        for (String army : List.of("british", "french", "german", "austrian")) {
+            UNIFORMS.add(uniform(army + "_tunic", ArmorItem.Type.CHESTPLATE));
+            UNIFORMS.add(uniform(army + "_trousers", ArmorItem.Type.LEGGINGS));
+            UNIFORMS.add(uniform(army + "_puttees", ArmorItem.Type.BOOTS));
+        }
+    }
+
+    /** German Sappenpanzer: heavy plates, good against bullets, slow to walk in. */
+    public static final RegistryObject<Item> SAPPENPANZER = ITEMS.register("sappenpanzer",
+            () -> new GeoArmorItem(WarArmorMaterials.TRENCH_ARMOR, ArmorItem.Type.CHESTPLATE, new Item.Properties(),
+                    "sappenpanzer", 0.30, 0.10).standOff(1.35f, 0.5f));
+    /** British Dayfield body shield: lighter plates sewn into cloth. */
+    public static final RegistryObject<Item> DAYFIELD = ITEMS.register("dayfield",
+            () -> new GeoArmorItem(WarArmorMaterials.BODY_SHIELD, ArmorItem.Type.CHESTPLATE, new Item.Properties(),
+                    "dayfield", 0.18, 0.04).standOff(0.75f, 0.75f));
+    /** Body armour: worn in the chest slot, or over a tunic in the Curios body slot. */
+    public static final List<RegistryObject<Item>> BODY_ARMOUR = List.of(SAPPENPANZER, DAYFIELD);
 
     // ---- protection
     public static final RegistryObject<Item> GAS_MASK = mask(MaskType.MODERN);
@@ -97,6 +120,18 @@ public final class ModItems {
     private static RegistryObject<Item> mask(MaskType type) {
         return ITEMS.register(type.model(), () -> new GasMaskItem(type, new Item.Properties()));
     }
+
+    /** A piece of uniform. Tunics stand off the chest, so that body armour and haversacks go over them. */
+    private static RegistryObject<Item> uniform(String name, ArmorItem.Type type) {
+        return ITEMS.register(name, () -> {
+            GeoArmorItem item = new GeoArmorItem(WarArmorMaterials.WOOL_UNIFORM, type, new Item.Properties(), name, 0.0, 0.0);
+            return type == ArmorItem.Type.CHESTPLATE ? item.standOff(TUNIC_FRONT, TUNIC_BACK) : item;
+        });
+    }
+
+    /** How far a tunic stands off the chest (model pixels; the models are built with the same numbers). */
+    private static final float TUNIC_FRONT = 1.0f;
+    private static final float TUNIC_BACK = 0.8f;
 
     /** A First World War steel helmet; bullet resistance is Superb Warfare's (0..1) when new. */
     private static RegistryObject<Item> helmet(String name, double bulletResistance) {

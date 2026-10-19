@@ -77,4 +77,45 @@ public final class CuriosGameTests {
                 "its filter should wear");
         helper.succeed();
     }
+
+    @GameTest(template = ROOM, timeoutTicks = 40, batch = "curios")
+    public static void bodyArmourInTheBodySlotGoesOverATunic(GameTestHelper helper) {
+        FakePlayer player = ProtectionGameTests.standAt(helper, "curios_armour", 5, 1, 5);
+        ItemStack tunic = new ItemStack(ModItems.UNIFORMS.get(6).get());
+        player.setItemSlot(EquipmentSlot.CHEST, tunic);
+        ItemStack armour = new ItemStack(ModItems.SAPPENPANZER.get());
+        var body = CuriosApi.getCuriosInventory(player).resolve().flatMap(handler -> handler.getStacksHandler("body"));
+        helper.assertTrue(body.isPresent(), "the player must have a Curios body slot");
+        body.get().getStacks().setStackInSlot(0, armour);
+        helper.assertTrue(io.github.katyusha8138.yperite.protection.compat.CuriosCompat.findBodyArmour(player) == armour,
+                "the armour in the body slot must be found");
+
+        // In the body slot it gives what it gives in the chest slot: armour, bullet resistance and its weight.
+        var context = new top.theillusivec4.curios.api.SlotContext("body", player, 0, false, true);
+        java.util.UUID id = java.util.UUID.randomUUID();
+        var curio = CuriosApi.getCurio(armour).resolve();
+        helper.assertTrue(curio.isPresent(), "body armour must be a curio");
+        var modifiers = curio.get().getAttributeModifiers(context, id);
+        helper.assertTrue(modifiers.containsKey(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR), "it must give armour");
+        helper.assertTrue(modifiers.get(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).stream()
+                .anyMatch(m -> m.getAmount() < 0 && m.getId().equals(id)), "it must slow its wearer, under the slot's id");
+        helper.assertTrue(curio.get().canEquip(context), "it goes over a tunic");
+
+        // Over a tunic it stands off the chest by the tunic, and a haversack by both.
+        float[] under = io.github.katyusha8138.yperite.item.armor.WornLayers.under(player, armour);
+        helper.assertTrue(under[0] > 0f, "the armour must stand off the tunic");
+        float[] bag = io.github.katyusha8138.yperite.item.armor.WornLayers.under(player, new ItemStack(ModItems.SMALL_BOX_RESPIRATOR.get()));
+        helper.assertTrue(bag[0] > under[0], "a haversack must go over both");
+
+        // It wears out by the blows it takes.
+        int before = armour.getDamageValue();
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.living.LivingHurtEvent(
+                player, helper.getLevel().damageSources().explosion(null, null), 8f));
+        helper.assertTrue(armour.getDamageValue() > before, "a blow must wear the armour in the body slot");
+
+        // Not two sets at once.
+        player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.DAYFIELD.get()));
+        helper.assertTrue(!curio.get().canEquip(context), "no body armour over body armour");
+        helper.succeed();
+    }
 }

@@ -10,6 +10,7 @@ public final class CuriosClient {
     }
 
     public static void register() {
-        ModItems.MASKS.forEach(mask -> CuriosRendererRegistry.register(mask.get(), () -> new GasMaskCurioRenderer(EquipmentSlot.HEAD)));
+        ModItems.MASKS.forEach(mask -> CuriosRendererRegistry.register(mask.get(), () -> new WornCurioRenderer(EquipmentSlot.HEAD)));
+        ModItems.BODY_ARMOUR.forEach(armour -> CuriosRendererRegistry.register(armour.get(), () -> new WornCurioRenderer(EquipmentSlot.CHEST)));
     }
 }
