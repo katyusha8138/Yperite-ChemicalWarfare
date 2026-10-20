@@ -122,6 +122,15 @@ public final class ClientSmoke {
         officer.add("item replace entity @s weapon.mainhand with yperite:sabre");
         officer.add("item replace entity @s weapon.offhand with yperite:officer_whistle");
         all.addAll(showcase("officer_kit", officer.toArray(new String[0])));
+        // a lancer: the lance carried, then couched for the charge (seen from four sides)
+        all.addAll(showcase("lancer_kit", "item replace entity @s armor.head with yperite:british_cap",
+                "item replace entity @s armor.chest with yperite:british_tunic",
+                "item replace entity @s armor.legs with yperite:british_trousers",
+                "item replace entity @s armor.feet with yperite:british_puttees",
+                "item replace entity @s weapon.mainhand with yperite:lance"));
+        for (int view = 0; view < 4; view++) {
+            all.add(new Scene("show_lancer_couched_kit@" + view, List.of("@nocooldown", "@useitem"), CameraType.FIRST_PERSON, 0f, 0f));
+        }
         all.addAll(showcase("grenadier_kit", "item replace entity @s armor.head with yperite:pickelhaube_covered",
                 "item replace entity @s weapon.mainhand with yperite:stick_grenade"));
         // The protective outfit, with a mask under the hood, and again with body armour and a haversack over it.
@@ -330,6 +339,16 @@ public final class ClientSmoke {
                 } else if (command.equals("@nocooldown")) {
                     // let the item in hand be used again at once (the server tells the client)
                     player.getCooldowns().removeCooldown(player.getMainHandItem().getItem());
+                } else if (command.equals("@useitem")) {
+                    // use the item in hand once, from code: works while a screen is open (the showcase), where the
+                    // use key is not read, so the use goes on until the item ends it
+                    Minecraft.getInstance().execute(() -> {
+                        Minecraft mc = Minecraft.getInstance();
+                        if (mc.player != null && mc.gameMode != null) {
+                            mc.player.getCooldowns().removeCooldown(mc.player.getMainHandItem().getItem());
+                            mc.gameMode.useItem(mc.player, net.minecraft.world.InteractionHand.MAIN_HAND);
+                        }
+                    });
                 } else if (command.equals("@use") || command.equals("@release")) {
                     // hold (or let go of) the use key, as a player holding the right button
                     boolean down = command.equals("@use");
