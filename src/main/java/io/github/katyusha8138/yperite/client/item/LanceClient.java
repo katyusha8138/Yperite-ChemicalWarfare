@@ -64,11 +64,17 @@ public final class LanceClient {
                 if (!couched(player, stack)) {
                     return false;
                 }
-                // the place of the hand (as vanilla puts it), then the lance lowered to point ahead at the middle
+                // The lance held low at the right, its point levelled at the middle of the view about two blocks
+                // ahead: the grip at the lower right, the shaft running in towards the crosshair.
                 int side = arm == HumanoidArm.RIGHT ? 1 : -1;
-                pose.translate(side * 0.56f, -0.62f + equipProcess * -0.6f, -0.72f);
-                pose.mulPose(Axis.YP.rotationDegrees(side * 8f));
-                pose.mulPose(Axis.XP.rotationDegrees(-62f));
+                pose.translate(side * 0.34f, -0.41f + equipProcess * -0.6f, -0.81f);
+                pose.mulPose(Axis.YP.rotationDegrees(side * 16.5f));
+                pose.mulPose(Axis.XP.rotationDegrees(-72f));
+                // undo the item's own first-person transform, which is applied after this (lance.json:
+                // rotation [0, -90, -20] and translation [1.13, 3.2, 1.13], mirrored in x for the left hand)
+                pose.mulPose(Axis.ZP.rotationDegrees(20f));
+                pose.mulPose(Axis.YP.rotationDegrees(90f));
+                pose.translate(-side * 1.13f / 16f, -3.2f / 16f, -1.13f / 16f);
                 return true;
             }
         };

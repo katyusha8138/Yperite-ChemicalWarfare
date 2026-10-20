@@ -224,12 +224,14 @@ public final class ClientSmoke {
             // a lancer on an armoured horse, the lance carried, then couched for the charge
             new Scene("18_lancer_mounted", List.of("@release", "kill @e[type=minecraft:horse]",
                     "item replace entity @s armor.head with yperite:british_cap", hotbar(0, "lance"),
+                    "item replace entity @s weapon.offhand with minecraft:air",
                     "summon minecraft:horse ~ ~ ~ {Tame:1b,Variant:2,SaddleItem:{id:\"minecraft:saddle\",Count:1b},"
                             + "ArmorItem:{id:\"yperite:cavalry_horse_armor\",Count:1b}}",
                     "ride @s mount @e[type=minecraft:horse,limit=1,sort=nearest]"), CameraType.THIRD_PERSON_FRONT, 35f, 15f),
             new Scene("18_lancer_mounted_back", List.of(), CameraType.THIRD_PERSON_BACK, 35f, 15f),
-            new Scene("19_lancer_couched", List.of("@use"), CameraType.THIRD_PERSON_FRONT, 35f, 15f),
-            new Scene("19_lancer_couched_first_person", List.of("@release", "@use"), CameraType.FIRST_PERSON, 0f, 10f),
+            new Scene("19_lancer_couched", List.of("@nocooldown", "@use"), CameraType.THIRD_PERSON_BACK, 0f, 35f),
+            new Scene("19_lancer_couched_front", List.of("@nocooldown"), CameraType.THIRD_PERSON_FRONT, 0f, 35f),
+            new Scene("19_lancer_couched_first_person", List.of("@nocooldown"), CameraType.FIRST_PERSON, 0f, 10f),
             new Scene("19_lancer_carried_first_person", List.of("@release"), CameraType.FIRST_PERSON, 0f, 10f),
             // the armoured horse from the side, standing still
             new Scene("20_cavalry_horse_armour", List.of("@release", "kill @e[type=minecraft:horse]",
@@ -324,6 +326,9 @@ public final class ClientSmoke {
             for (String command : commands) {
                 if (command.startsWith("@curios ")) {
                     SmokeCurios.equip(player, command.substring("@curios ".length()));
+                } else if (command.equals("@nocooldown")) {
+                    // let the item in hand be used again at once (the server tells the client)
+                    player.getCooldowns().removeCooldown(player.getMainHandItem().getItem());
                 } else if (command.equals("@use") || command.equals("@release")) {
                     // hold (or let go of) the use key, as a player holding the right button
                     boolean down = command.equals("@use");
