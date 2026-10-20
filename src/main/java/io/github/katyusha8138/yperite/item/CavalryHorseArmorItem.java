@@ -31,7 +31,7 @@ public class CavalryHorseArmorItem extends HorseArmorItem {
     /** Protection, as iron horse armour's 5 and golden's 7. */
     public static final int PROTECTION = 7;
     /** Share added to the horse's own movement speed. */
-    public static final double SPEED_BONUS = 0.35;
+    public static final double SPEED_BONUS = 0.5;
     public static final UUID SPEED_ID = UUID.fromString("7e3c1d2a-4b5f-4c8e-9a61-2f0d3b7c5e19");
 
     @SuppressWarnings("removal")
