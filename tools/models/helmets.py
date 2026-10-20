@@ -33,7 +33,7 @@ def _chin_strap(m, strap, buckle, top=28.5):
     m.box("armorHead", (-4.5, 23.5, -1.5), (0.5, h, 1.0), strap, strap=True)
     m.box("armorHead", (4.0, 23.5, -1.5), (0.5, h, 1.0), strap, strap=True)
     m.box("armorHead", (-4.0, 23.5, -1.5), (8.0, 0.5, 1.0), strap, faces=("north", "south", "down"))
-    m.box("armorHead", (-4.75, 25.0, -1.75), (0.75, 1.0, 1.5), buckle)
+    m.box("armorHead", (-4.75, 25.0, -1.75), (0.75, 1.0, 1.5), buckle, strap=True)
 
 
 def _profile(Y, steps, below):
@@ -175,29 +175,52 @@ def brodie_mk1():
     return m
 
 
-def adrian_m15():
-    """French Adrian M15, simplified: a rounded three-tier bowl, a crest along the top, a brim with a long peak in
-    front and a shorter one behind, and the bronze grenade badge."""
-    m = armor_model("adrian_m15")
+def _adrian(name, colours, seed, badge):
+    """The Adrian helmet, simplified: a rounded three-tier bowl, a crest along the top, a brim with a long peak in
+    front and a shorter one behind, and a badge on the front. `badge(m, front_z)` draws the badge."""
+    m = armor_model(name)
     zc = 0.3
     t = 0.5
-    paint = Steel(HORIZON_BLUE, seed=36, inside=_inside_shell(zc), wear=0.02)
+    paint = Steel(colours, seed=seed, inside=_inside_shell(zc), wear=0.02)
     a, b, c = 5.0, 5.35, 1.8
     _crown_tiers(m, [(a, b, c, 29.6, 32.2), (4.3, 4.65, 1.6, 32.2, 33.2), (3.1, 3.45, 1.2, 33.2, 33.8)], paint, zc)
     # brim: a thin ring slab, then the two peaks hanging from it
     chamfered_prism(m, "armorHead", (0.0, zc), 5.8, 6.15, 2.1, 29.1, 29.6, paint)
     _skirt_plates(m, 5.8, 6.15, 2.1, 29.1, zc, {"front": (0.7, 1.6), "back": (0.9, 1.2)}, t, paint)
-    crest = Steel(HORIZON_BLUE, seed=37, wear=0.06)
+    crest = Steel(colours, seed=seed + 1, wear=0.06)
     m.box("armorHead", (-0.4, 33.8, zc - 3.0), (0.8, 1.0, 6.0), crest)
     for sign in (-1, 1):
         cz = zc + sign * 3.75
         m.box("armorHead", (-0.4, 33.0, cz - 0.75), (0.8, 1.0, 1.5), crest)
-    badge = Metal(BRONZE)
-    m.box("armorHead", (-0.9, 30.1, zc - b - 0.3), (1.8, 1.8, 0.3), badge)
-    m.box("armorHead", (-0.4, 31.9, zc - b - 0.25), (0.8, 0.8, 0.25), badge)
+    badge(m, zc - b)
     _chin_strap(m, Leather(LEATHER_BROWN), Metal(BRASS), top=29.5)
     m.pack()
     return m
+
+
+def adrian_m15():
+    """French Adrian M15 in horizon blue, with the bronze grenade badge."""
+    def grenade(m, front):
+        badge = Metal(BRONZE)
+        m.box("armorHead", (-0.9, 30.1, front - 0.3), (1.8, 1.8, 0.3), badge)
+        m.box("armorHead", (-0.4, 31.9, front - 0.25), (0.8, 0.8, 0.25), badge)
+    return _adrian("adrian_m15", HORIZON_BLUE, 36, grenade)
+
+
+RUSSIAN_KHAKI_HELMET = hexramp("21241a", "313624", "444b30", "59613e", "6f784e", "889160", "a3aa78")
+
+
+def adrian_m16_russian():
+    """The Adrian as the Russian army had it (M1916): khaki paint and a brass double-headed eagle on the front,
+    a wide shield with the two heads and the crown above it."""
+    def eagle(m, front):
+        brass = Metal(BRASS)
+        m.box("armorHead", (-1.2, 30.2, front - 0.3), (2.4, 1.4, 0.3), brass)        # the spread wings
+        m.box("armorHead", (-0.5, 29.8, front - 0.25), (1.0, 0.5, 0.25), brass)       # the tail
+        for sx in (-1, 1):
+            m.box("armorHead", (sx * 0.55 - 0.25, 31.6, front - 0.25), (0.5, 0.5, 0.25), brass)   # the two heads
+        m.box("armorHead", (-0.3, 32.1, front - 0.2), (0.6, 0.45, 0.2), brass)        # the crown
+    return _adrian("adrian_m16_russian", RUSSIAN_KHAKI_HELMET, 56, eagle)
 
 
 def berndorfer():

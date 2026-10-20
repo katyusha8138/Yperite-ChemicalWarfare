@@ -139,7 +139,7 @@ def piercings(outer, inner, spacing=0.12, margin=0.02, tuck=(0.0, -1.0, 0.0)):
     a helmet. (`tuck` is the direction of such faces: up for trousers going down into puttees.) So are crossings
     of faces inside the helmet (seams, the gap over the head): only a face that a ray can leave without running
     into the helmet or the head counts. Cubes tagged strap=True on both sides may
-    cross: a strap passes under a strap. Returns (inner box, outer box, point, outer face normal) per crossing."""
+    cross: a strap passes under a strap; and anything may pass under a strap, but not out through its outer face. Returns (inner box, outer box, point, outer face normal) per crossing."""
     outer_boxes = boxes(outer)
     occluders = outer_boxes + WEARER
     found = []
@@ -169,6 +169,13 @@ def piercings(outer, inner, spacing=0.12, margin=0.02, tuck=(0.0, -1.0, 0.0)):
             crossing = p_in + (p_out - p_in) * np.clip(t, 0.0, 1.0)
             if not _exterior(crossing, normal, occluders):
                 continue
+            if ob.cube.info.get("strap"):
+                # a strap lies over whatever is beneath it: that may come out at the strap's edges, not through
+                # the strap's outer face (the one looking away from the wearer's axis)
+                radial = np.array([crossing[0], 0.0, crossing[2]])
+                length = np.linalg.norm(radial)
+                if length < 1e-6 or float(normal @ (radial / length)) < 0.7:
+                    continue
             found.append((box, ob, crossing, normal))
     return found
 

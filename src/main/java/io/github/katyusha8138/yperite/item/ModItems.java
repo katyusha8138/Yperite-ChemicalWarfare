@@ -47,16 +47,26 @@ public final class ModItems {
     public static final RegistryObject<Item> BRODIE_MK1 = helmet("brodie_mk1", 0.06);
     public static final RegistryObject<Item> ADRIAN_M15 = helmet("adrian_m15", 0.05);
     public static final RegistryObject<Item> BERNDORFER = helmet("berndorfer", 0.07);
+    public static final RegistryObject<Item> ADRIAN_M16_RUSSIAN = helmet("adrian_m16_russian", 0.05);
 
-    /** Field uniforms of the four armies: tunic, trousers, puttees with ankle boots, in that order per army. */
+    /**
+     * Field uniforms of the five armies: tunic, trousers, and what is worn on the feet, in that order per army.
+     * Most wore puttees over ankle boots; the Russians tucked breeches into jackboots.
+     */
     public static final List<RegistryObject<Item>> UNIFORMS = new ArrayList<>();
 
     static {
-        for (String army : List.of("british", "french", "german", "austrian")) {
+        Map<String, String> feet = new LinkedHashMap<>();
+        feet.put("british", "puttees");
+        feet.put("french", "puttees");
+        feet.put("german", "puttees");
+        feet.put("austrian", "puttees");
+        feet.put("russian", "boots");
+        feet.forEach((army, onFeet) -> {
             UNIFORMS.add(uniform(army + "_tunic", ArmorItem.Type.CHESTPLATE));
             UNIFORMS.add(uniform(army + "_trousers", ArmorItem.Type.LEGGINGS));
-            UNIFORMS.add(uniform(army + "_puttees", ArmorItem.Type.BOOTS));
-        }
+            UNIFORMS.add(uniform(army + "_" + onFeet, ArmorItem.Type.BOOTS));
+        });
     }
 
     /** German Sappenpanzer: heavy plates, good against bullets, slow to walk in. */
@@ -76,6 +86,7 @@ public final class ModItems {
     public static final RegistryObject<Item> M2_MASK = mask(MaskType.M2);
     public static final RegistryObject<Item> LEDERSCHUTZMASKE = mask(MaskType.LEDERSCHUTZMASKE);
     public static final RegistryObject<Item> AUSTRIAN_GAS_MASK = mask(MaskType.AUSTRIAN);
+    public static final RegistryObject<Item> ZELINSKY_KUMMANT_MASK = mask(MaskType.ZELINSKY);
     public static final RegistryObject<Item> GAS_FILTER_GENERAL = ITEMS.register("gas_filter_general",
             () -> new GasFilterItem(FilterKind.GENERAL, new Item.Properties().stacksTo(16)));
     public static final RegistryObject<Item> GAS_FILTER_SPECIAL = ITEMS.register("gas_filter_special",
@@ -116,7 +127,8 @@ public final class ModItems {
     }
 
     /** Every pattern of gas mask, in the order of {@link MaskType}. */
-    public static final List<RegistryObject<Item>> MASKS = List.of(GAS_MASK, SMALL_BOX_RESPIRATOR, M2_MASK, LEDERSCHUTZMASKE, AUSTRIAN_GAS_MASK);
+    public static final List<RegistryObject<Item>> MASKS = List.of(GAS_MASK, SMALL_BOX_RESPIRATOR, M2_MASK, LEDERSCHUTZMASKE, AUSTRIAN_GAS_MASK,
+            ZELINSKY_KUMMANT_MASK);
 
     /** A gas mask of the given pattern; the pattern also names the item. */
     private static RegistryObject<Item> mask(MaskType type) {

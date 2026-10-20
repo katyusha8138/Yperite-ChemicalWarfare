@@ -5,6 +5,8 @@ import io.github.katyusha8138.yperite.client.GasSightClient;
 import io.github.katyusha8138.yperite.gas.GasSight;
 import io.github.katyusha8138.yperite.particle.GasParticleOptions;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -120,6 +122,12 @@ public class GasCloudParticle extends TextureSheetParticle {
         @Override
         public Particle createParticle(GasParticleOptions options, ClientLevel level, double x, double y, double z,
                                        double dx, double dy, double dz) {
+            // gas particles skip vanilla's limits (they are seen from afar), so the particle setting is applied here
+            ParticleStatus setting = Minecraft.getInstance().options.particles().get();
+            float keep = setting == ParticleStatus.MINIMAL ? 0.35f : setting == ParticleStatus.DECREASED ? 0.65f : 1f;
+            if (keep < 1f && level.random.nextFloat() >= keep) {
+                return null;
+            }
             return new GasCloudParticle(level, x, y, z, options, sprites, flat);
         }
     }

@@ -62,7 +62,7 @@ public final class EquipmentGameTests {
         JsonObject en = lang("en_us");
         JsonObject ja = lang("ja_jp");
         List<Item> worn = wornItems();
-        helper.assertTrue(worn.size() >= 4 + 5 + 12 + 2, "expected helmets, masks, uniforms and body armour, found " + worn.size());
+        helper.assertTrue(worn.size() >= 5 + 6 + 15 + 2, "expected helmets, masks, uniforms and body armour, found " + worn.size());
         for (Item item : worn) {
             String id = ForgeRegistries.ITEMS.getKey(item).getPath();
             String model = ((WornGeoItem) item).model();
@@ -77,7 +77,7 @@ public final class EquipmentGameTests {
 
     @GameTest(template = ROOM, timeoutTicks = 20, batch = "equipment")
     public static void uniformsComeInThreePiecesPerArmyAndTunicsStandOffTheChest(GameTestHelper helper) {
-        helper.assertTrue(ModItems.UNIFORMS.size() == 12, "four armies of three pieces");
+        helper.assertTrue(ModItems.UNIFORMS.size() == 15, "five armies of three pieces");
         ArmorItem.Type[] order = {ArmorItem.Type.CHESTPLATE, ArmorItem.Type.LEGGINGS, ArmorItem.Type.BOOTS};
         for (int k = 0; k < ModItems.UNIFORMS.size(); k++) {
             GeoArmorItem piece = (GeoArmorItem) ModItems.UNIFORMS.get(k).get();

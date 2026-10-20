@@ -32,7 +32,7 @@ public final class GasTypes {
             GasType.builder(GasCategory.RIOT_CONTROL)
                     .color(0xE9E7C8).opacity(0.6f)
                     .buoyancy(0.35f).diffusion(0.10f)
-                    .decayPerSecond(0.06f)
+                    .decayPerSecond(0.02f)
                     .toxicity(3.0f, 0f, 0f)
                     .rainWashoutPerSecond(0.15f).waterAbsorbPerSecond(0.30f)
                     .build());
@@ -42,7 +42,7 @@ public final class GasTypes {
             GasType.builder(GasCategory.CHOKING)
                     .color(0xB9D94A).opacity(0.7f)
                     .buoyancy(-0.7f).diffusion(0.09f)
-                    .decayPerSecond(0.04f)
+                    .decayPerSecond(0.012f)
                     .toxicity(0.7f, 0f, 0f)
                     .rainWashoutPerSecond(0.10f).waterAbsorbPerSecond(0.40f)
                     .build());
@@ -52,7 +52,7 @@ public final class GasTypes {
             GasType.builder(GasCategory.BLISTER)
                     .color(0xC9A24B).opacity(0.35f)
                     .buoyancy(-0.5f).diffusion(0.05f)
-                    .decayPerSecond(0.005f)
+                    .decayPerSecond(0.003f)
                     .toxicity(0.15f, 0.5f, 0.12f)
                     .settlePerSecond(0.08f).residueDecayPerSecond(0.001f).evaporationPerSecond(0.004f)
                     .rainWashoutPerSecond(0.02f).waterAbsorbPerSecond(0.05f)
@@ -63,7 +63,7 @@ public final class GasTypes {
             GasType.builder(GasCategory.BLOOD)
                     .color(0xD9C7C7).opacity(0.2f)
                     .buoyancy(0.20f).diffusion(0.11f)
-                    .decayPerSecond(0.07f)
+                    .decayPerSecond(0.03f)
                     .toxicity(0.6f, 0f, 0f)
                     .rainWashoutPerSecond(0.05f).waterAbsorbPerSecond(0.15f)
                     .build());
@@ -73,7 +73,7 @@ public final class GasTypes {
             GasType.builder(GasCategory.INCAPACITANT)
                     .color(0x6FA8DC).opacity(0.5f)
                     .buoyancy(0.10f).diffusion(0.08f)
-                    .decayPerSecond(0.025f)
+                    .decayPerSecond(0.01f)
                     .toxicity(1.2f, 0f, 0f)
                     .rainWashoutPerSecond(0.08f).waterAbsorbPerSecond(0.20f)
                     .build());
@@ -83,7 +83,7 @@ public final class GasTypes {
             GasType.builder(GasCategory.NERVE)
                     .color(0xE0E0F8).opacity(0.12f)
                     .buoyancy(0.0f).diffusion(0.07f)
-                    .decayPerSecond(0.015f)
+                    .decayPerSecond(0.006f)
                     .toxicity(2.5f, 0.8f, 0.3f)
                     .settlePerSecond(0.02f).residueDecayPerSecond(0.002f).evaporationPerSecond(0.003f)
                     .rainWashoutPerSecond(0.05f).waterAbsorbPerSecond(0.10f)

@@ -9,6 +9,7 @@ import numpy as np
 
 from armor import LEFT_ARM, LEFT_LEG, RIGHT_ARM, RIGHT_LEG, armor_model
 from kit import chamfered_block, chamfered_prism, oriented_box
+from masks import BROW_TOP
 from paint import Steel, hexramp
 
 RUBBER_OD = hexramp("1d2313", "2a321c", "3a4426", "4d5a31", "62713e", "7b8a4f", "97a566")
@@ -42,20 +43,20 @@ def protective_hood():
     m = armor_model("protective_hood")
     rubber = _rubber(301)
     # the crown, closed above the brow, and a flatter cap on top
-    chamfered_prism(m, "armorHead", (0.0, 0.0), 4.5, 4.5, 0.6, 30.0, 32.6, rubber)
+    chamfered_prism(m, "armorHead", (0.0, 0.0), 4.5, 4.5, 0.3, BROW_TOP, 32.6, rubber)
     chamfered_prism(m, "armorHead", (0.0, 0.0), 3.9, 3.9, 1.0, 32.6, 33.0, rubber, bottom=False)
     # the sides and the back below it, open at the front; the back corners cut like the crown's
     for sx in (-1, 1):
         x0, x1 = (4.0, 4.5) if sx > 0 else (-4.5, -4.0)
-        _box(m, "armorHead", (x0, 23.8, -4.0), (x1, 30.0, 3.9), rubber)
-        corner = np.array([sx * 4.2, 26.9, 4.2])
+        _box(m, "armorHead", (x0, 23.8, -4.0), (x1, BROW_TOP, 3.9), rubber)
+        corner = np.array([sx * 4.2, (23.8 + BROW_TOP) / 2, 4.2])
         u = np.array([-sx, 0.0, 1.0]) / np.sqrt(2)
-        oriented_box(m, "armorHead", corner, u, Y, 1.0, 6.2, 0.5, rubber)
-    _box(m, "armorHead", (-3.9, 23.8, 4.0), (3.9, 30.0, 4.7), rubber)
+        oriented_box(m, "armorHead", corner, u, Y, 1.0, BROW_TOP - 23.8, 0.5, rubber)
+    _box(m, "armorHead", (-3.9, 23.8, 4.0), (3.9, BROW_TOP, 4.7), rubber)
     # the upper corners of the face opening, beside a mask's brow and above its eyepieces
     for sx in (-1, 1):
-        x0, x1 = (3.0, 4.5) if sx > 0 else (-4.5, -3.0)
-        _box(m, "armorHead", (x0, 28.4, -4.5), (x1, 30.0, -4.0), rubber)
+        x0, x1 = (2.9, 4.5) if sx > 0 else (-4.5, -2.9)
+        _box(m, "armorHead", (x0, 28.2, -4.5), (x1, BROW_TOP, -4.0), rubber)
     m.pack()
     return m
 

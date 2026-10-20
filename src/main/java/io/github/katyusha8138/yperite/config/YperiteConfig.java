@@ -139,10 +139,10 @@ public final class YperiteConfig {
                 .defineInRange("grenadeFuseTicks", 60, 5, 400);
         CYLINDER_CAPACITY = b
                 .comment("Gas in a full cylinder (creative tab and /give). Gas is released a little at a time while the valve is open.")
-                .defineInRange("cylinderCapacity", 2000.0, 10.0, 200000.0);
+                .defineInRange("cylinderCapacity", 6000.0, 10.0, 200000.0);
         CYLINDER_RATE = b
                 .comment("Mass an open cylinder releases per second.")
-                .defineInRange("cylinderRatePerSecond", 15.0, 0.1, 1000.0);
+                .defineInRange("cylinderRatePerSecond", 60.0, 0.1, 1000.0);
         b.pop();
 
         b.comment("Superb Warfare integration: chemical rounds. Only used when Superb Warfare is installed.",
@@ -179,10 +179,10 @@ public final class YperiteConfig {
                 .defineInRange("intervalTicks", 5, 1, 40);
         PARTICLE_RANGE = b
                 .comment("Distance in blocks within which a player sees gas particles.")
-                .defineInRange("range", 24, 4, 64);
+                .defineInRange("range", 64, 4, 128);
         PARTICLE_MAX_PER_PLAYER = b
                 .comment("Maximum particles sent to one player per burst.")
-                .defineInRange("maxPerPlayer", 48, 0, 512);
+                .defineInRange("maxPerPlayer", 96, 0, 1024);
         b.pop();
 
         SPEC = b.build();

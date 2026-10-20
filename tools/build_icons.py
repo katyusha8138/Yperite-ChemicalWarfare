@@ -25,9 +25,10 @@ GASES = ("tear_gas", "chlorine", "blood_gas", "yperite", "nerve_gas", "blue_cros
 def icons():
     out = {
         "stahlhelm_m1916": wear.stahlhelm, "brodie_mk1": wear.brodie, "adrian_m15": wear.adrian,
-        "berndorfer": wear.berndorfer,
+        "berndorfer": wear.berndorfer, "adrian_m16_russian": wear.adrian_russian,
         "gas_mask": wear.gas_mask, "small_box_respirator": wear.small_box_respirator, "m2_mask": wear.m2_mask,
         "lederschutzmaske": wear.lederschutzmaske, "austrian_gas_mask": wear.austrian_gas_mask,
+        "zelinsky_kummant_mask": wear.zelinsky_kummant_mask,
         "sappenpanzer": wear.sappenpanzer, "dayfield": wear.dayfield,
         "gas_filter_general": gear.gas_filter_general, "gas_filter_special": gear.gas_filter_special,
         "protective_hood": gear.protective_hood, "protective_jacket": gear.protective_jacket,
@@ -37,8 +38,9 @@ def icons():
         "medicine_general": gear.medicine_general, "antidote_nerve": gear.antidote_nerve,
         "ointment_blister": gear.ointment_blister,
     }
-    for army in ("british", "french", "german", "austrian"):
-        for piece in ("tunic", "trousers", "puttees"):
+    for army, feet in (("british", "puttees"), ("french", "puttees"), ("german", "puttees"),
+                       ("austrian", "puttees"), ("russian", "boots")):
+        for piece in ("tunic", "trousers", feet):
             out[f"{army}_{piece}"] = getattr(wear, f"{army}_{piece}")
     for gas in GASES:
         out[f"{gas}_grenade"] = lambda g=gas: gear.grenade(g)

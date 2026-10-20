@@ -83,12 +83,13 @@ def _flap(m, cx, top, width, height, material):
 
 
 def tunic(name, ramp, *, collar=None, buttons=None, belt, buckle, breast_pockets=False, collar_patch=None,
-          flap_buttons=True):
+          flap_buttons=True, pullover=False, lower_pockets=True):
     """A single-breasted field tunic down to the hips, with a stand collar, lower pockets (and breast pockets),
-    shoulder straps, cuffs and a belt. `buttons` is the material of a visible front row, None for a fly front."""
+    shoulder straps, cuffs and a belt. `buttons` is the material of a visible front row, None for a fly front.
+    A `pullover` (the Russian gymnastyorka) opens only in a short buttoned placket at the chest."""
     m = armor_model(name)
     # a fly front shows as one sewn line down the middle; the back has its centre seam either way
-    lines = [(0, 0.0, (0, 0, 1))] + ([] if buttons is not None else [(0, 0.0, (0, 0, -1))])
+    lines = [(0, 0.0, (0, 0, 1))] + ([] if buttons is not None or pullover else [(0, 0.0, (0, 0, -1))])
     # the cloth gathers in short folds above the belt; the sleeves crease at the elbow
     cloth = _cloth(ramp, seams=lines, folds=_folds((13.9, (-3.4, -1.4, 1.6, 3.6), 0.8)))
     plain = _cloth(ramp)
@@ -108,7 +109,11 @@ def tunic(name, ramp, *, collar=None, buttons=None, belt, buckle, breast_pockets
         for side in (-1, 1):
             _box(m, "armorBody", (side * 2.6 - 0.55, 23.45, -2.95), (side * 2.6 + 0.55, 24.0, -2.85), collar_patch)
 
-    if buttons is not None:
+    if pullover:
+        _box(m, "armorBody", (-0.6, 19.2, -2.62), (0.6, 23.4, -2.5), flap_mat)
+        for y in (22.3, 20.9, 19.5):
+            _box(m, "armorBody", (-0.25, y, -2.76), (0.25, y + 0.5, -2.62), buttons)
+    elif buttons is not None:
         for y in (22.3, 20.2, 18.1, 16.0, 13.9):
             _box(m, "armorBody", (-0.3, y, -2.72), (0.3, y + 0.6, -2.5), buttons)
 
@@ -120,7 +125,8 @@ def tunic(name, ramp, *, collar=None, buttons=None, belt, buckle, breast_pockets
             _box(m, "armorBody", (cx - 0.25, y1 - 0.3, -2.98), (cx + 0.25, y1 + 0.2, -2.85), b)
 
     for side in (-1, 1):
-        pocket(side * 2.55, 13.7, 16.5, 2.9, 1.1)
+        if lower_pockets:
+            pocket(side * 2.55, 13.7, 16.5, 2.9, 1.1)
         if breast_pockets:
             pocket(side * 2.3, 18.0, 20.6, 2.4, 1.2)
 
@@ -139,13 +145,19 @@ def tunic(name, ramp, *, collar=None, buttons=None, belt, buckle, breast_pockets
 
 # ---------------------------------------------------------------------------------------------- trousers
 
-def trousers(name, ramp, piping=False):
+def trousers(name, ramp, piping=False, breeches=False):
     """Straight trousers, narrower below the knee where the puttees go over them, with a waistband under the
-    tunic. German trousers carry a red piping down the outer seam."""
+    tunic. German trousers carry a red piping down the outer seam. `breeches` (Russian sharovary) are close below
+    the knee, to go into tall boots, and wide over the thighs, the fullness hanging just above the boot tops."""
     m = armor_model(name)
-    cloth = _cloth(ramp, folds=_folds((8.6, None, 0.5)))
+    cloth = _cloth(ramp, folds=_folds((8.6, None, 0.5)) if not breeches else _folds((10.0, None, 0.5)))
     red = Features(cloth, _piping) if piping else cloth
     for bone, (lo, hi) in (("armorRightLeg", RIGHT_LEG), ("armorLeftLeg", LEFT_LEG)):
+        if breeches:
+            for off, y0, y1 in ((0.3, 11.2, 12.25), (0.6, 8.8, 11.2), (0.15, 1.6, 8.8)):
+                a, b = _around(lo, hi, off, y0, y1)
+                _box(m, bone, a, b, red)
+            continue
         a, b = _around(lo, hi, 0.25, 6.5, 12.25)
         _box(m, bone, a, b, red)
         a, b = _around(lo, hi, 0.15, 1.6, 6.5)
@@ -200,7 +212,27 @@ def puttees(name, ramp, boot_ramp, tape_ramp=None):
     return m
 
 
-# ---------------------------------------------------------------------------------------------- the four armies
+def jackboots(name, boot_ramp):
+    """Tall leather boots up to just below the knee, with a rolled top, a rounded toe, a heel and a sole."""
+    m = armor_model(name)
+    boot = Steel(boot_ramp, seed=151, sheen=1.0, wear=0.0)
+    sole = Steel(SOLE, seed=152, sheen=0.0, wear=0.0)
+    for bone, (lo, hi) in (("armorRightBoot", RIGHT_LEG), ("armorLeftBoot", LEFT_LEG)):
+        lo, hi = np.asarray(lo, float), np.asarray(hi, float)
+        cx = (lo[0] + hi[0]) / 2
+        a, b = _around(lo, hi, 0.5, -0.25, 8.6)
+        _box(m, bone, a, b, boot)
+        a, b = _around(lo, hi, 0.62, 7.9, 8.6)
+        _box(m, bone, a, b, boot, rim=True)
+        chamfered_block(m, bone, (cx, 0.475, -2.75), np.array([1.0, 0, 0]), np.array([0, 0, 1.0]), 2.35, 0.75,
+                        0.8, 1.45, boot)
+        _box(m, bone, (lo[0] - 0.4, -0.45, 1.2), (hi[0] + 0.4, 0.35, hi[2] + 0.75), sole)
+        _box(m, bone, (lo[0] - 0.6, -0.45, -3.6), (hi[0] + 0.6, -0.25, hi[2] + 0.6), sole)
+    m.pack()
+    return m
+
+
+# ---------------------------------------------------------------------------------------------- the five armies
 
 def british_tunic():
     return tunic("british_tunic", BRITISH_KHAKI, buttons=Steel(BRASS, seed=111, sheen=1.0, wear=0.0),
@@ -258,3 +290,21 @@ def austrian_trousers():
 
 def austrian_puttees():
     return puttees("austrian_puttees", AUSTRIAN_FELDGRAU, BOOT_BROWN)
+
+
+RUSSIAN_KHAKI = hexramp("2b2a1b", "3d3c27", "525034", "686643", "807d55", "999569", "b3ae82")
+RUSSIAN_DARK_KHAKI = hexramp("23251a", "323524", "444831", "585d40", "6e7350", "878c64", "a1a57b")
+
+
+def russian_tunic():
+    brass = Steel(BRASS, seed=161, sheen=1.0, wear=0.0)
+    return tunic("russian_tunic", RUSSIAN_KHAKI, buttons=brass, pullover=True, lower_pockets=False,
+                 breast_pockets=True, belt=Steel(BOOT_BROWN, seed=162, sheen=0.8, wear=0.0), buckle=brass)
+
+
+def russian_trousers():
+    return trousers("russian_trousers", RUSSIAN_DARK_KHAKI, breeches=True)
+
+
+def russian_boots():
+    return jackboots("russian_boots", BLACK_LEATHER)

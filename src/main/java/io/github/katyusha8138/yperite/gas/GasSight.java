@@ -63,9 +63,13 @@ public final class GasSight {
         return 1f - (float) Math.exp(-1.4 * Math.max(0f, density));
     }
 
-    /** How far one can see through gas of this thickness, in blocks. */
-    public static float visibility(float density) {
-        return 4f + 60f * (float) Math.exp(-2.5 * Math.max(0f, density));
+    /**
+     * How far one can see through gas of this thickness, in blocks, when one sees {@code clearView} blocks in clear
+     * air: from the full view at a trace of gas down to a few blocks in thick gas, without a jump at the edge.
+     */
+    public static float visibility(float density, float clearView) {
+        float clear = Math.max(4f, clearView);
+        return 4f + (clear - 4f) * (float) Math.exp(-2.5 * Math.max(0f, density));
     }
 
     /** The sight at a point of the level. */

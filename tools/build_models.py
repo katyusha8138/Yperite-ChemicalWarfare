@@ -35,19 +35,23 @@ MODELS = {
     "brodie_mk1": helmets.brodie_mk1,
     "adrian_m15": helmets.adrian_m15,
     "berndorfer": helmets.berndorfer,
+    "adrian_m16_russian": helmets.adrian_m16_russian,
     "gas_mask": masks.gas_mask,
     "small_box_respirator": masks.small_box_respirator,
     "m2_mask": masks.m2_mask,
     "lederschutzmaske": masks.lederschutzmaske,
     "austrian_gas_mask": masks.austrian_gas_mask,
+    "zelinsky_kummant_mask": masks.zelinsky_kummant_mask,
     "sappenpanzer": body_armor.sappenpanzer,
     "dayfield": body_armor.dayfield,
 }
 for _piece in ("hood", "jacket", "trousers", "boots"):
     MODELS[f"protective_{_piece}"] = getattr(suit, f"protective_{_piece}")
-NATIONS = ("british", "french", "german", "austrian")
-for _nation in NATIONS:
-    for _piece in ("tunic", "trousers", "puttees"):
+# each army's uniform: tunic, trousers, and what goes on the feet
+ARMIES = {"british": "puttees", "french": "puttees", "german": "puttees", "austrian": "puttees", "russian": "boots"}
+NATIONS = tuple(ARMIES)
+for _nation, _feet in ARMIES.items():
+    for _piece in ("tunic", "trousers", _feet):
         MODELS[f"{_nation}_{_piece}"] = getattr(uniforms, f"{_nation}_{_piece}")
 
 # How far each piece stands off the chest, front and back, for what is worn over it (the game has the same
@@ -57,8 +61,8 @@ STAND_OFF["protective_jacket"] = (suit.STAND_OFF["front"], suit.STAND_OFF["back"
 STAND_OFF.update(body_armor.STAND_OFF)
 
 
-MASKS = {"gas_mask", "small_box_respirator", "m2_mask", "lederschutzmaske", "austrian_gas_mask"}
-HELMETS = {"stahlhelm_m1916", "brodie_mk1", "adrian_m15", "berndorfer"}
+MASKS = {"gas_mask", "small_box_respirator", "m2_mask", "lederschutzmaske", "austrian_gas_mask", "zelinsky_kummant_mask"}
+HELMETS = {"stahlhelm_m1916", "brodie_mk1", "adrian_m15", "berndorfer", "adrian_m16_russian"}
 
 
 def _worn(model, front, back):
@@ -76,10 +80,10 @@ def check_fit(built):
             pairs.append((h, built[h], k, built[k], None))
     armours = [a for a in body_armor.STAND_OFF]
     for n in NATIONS:
-        tunic, trousers, puttees = built[f"{n}_tunic"], built[f"{n}_trousers"], built[f"{n}_puttees"]
+        tunic, trousers, puttees = built[f"{n}_tunic"], built[f"{n}_trousers"], built[f"{n}_{ARMIES[n]}"]
         tf, tb = STAND_OFF[f"{n}_tunic"]
         pairs.append((f"{n}_tunic", tunic, f"{n}_trousers", trousers, None))
-        pairs.append((f"{n}_puttees", puttees, f"{n}_trousers", trousers, up))
+        pairs.append((f"{n}_{ARMIES[n]}", puttees, f"{n}_trousers", trousers, up))
         sbr = built["small_box_respirator"]
         pairs.append(("small_box_respirator", _worn(sbr, tf, tb), f"{n}_tunic", tunic, None))
         for a in armours:

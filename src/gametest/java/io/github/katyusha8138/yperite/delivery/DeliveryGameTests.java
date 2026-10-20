@@ -257,13 +257,15 @@ public final class DeliveryGameTests {
     public static void openCylinderReleasesItsGasUntilItIsEmpty(GameTestHelper helper) {
         sealRoom(helper);
         GasType gas = GasTypes.BLOOD_GAS.get();
-        GasCylinderBlockEntity cylinder = placeCylinder(helper, 10, 1, 10, gas, 60f);
+        // four seconds' worth at the configured rate: partly used at 1.5 s, empty well before 7.5 s
+        float load = (float) (YperiteConfig.CYLINDER_RATE.get() * 4.0);
+        GasCylinderBlockEntity cylinder = placeCylinder(helper, 10, 1, 10, gas, load);
         FakePlayer player = player(helper, 4, 1, 4);
         if (!useValve(helper, player, 10, 1, 10, InteractionHand.MAIN_HAND).consumesAction() || !isOpen(helper, 10, 1, 10)) {
             throw new GameTestAssertException("an empty hand should open the valve");
         }
         helper.runAfterDelay(30, () -> {
-            if (cylinder.amount() >= 60f || cylinder.amount() <= 0f || totalMass(helper, gas) <= 0.0) {
+            if (cylinder.amount() >= load || cylinder.amount() <= 0f || totalMass(helper, gas) <= 0.0) {
                 throw new GameTestAssertException("expected a partly used cylinder, amount " + cylinder.amount());
             }
         });

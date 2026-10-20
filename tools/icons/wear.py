@@ -31,6 +31,11 @@ BOOT = ramp("1b120b", "2b1d12", "3d2a1a", "523923", "6a4b2f", "84603d")
 SOLE = ramp("0f0b08", "1a130d", "251b13")
 RED = ramp("4a1010", "6e1818", "922222", "b33030")
 DARK_BLUE = ramp("161c30", "222b48", "303c62", "41507e")
+RUSSIAN_KHAKI_PAINT = ramp("22251a", "333826", "474e33", "5d6542", "767f55", "92996c")
+RUSSIAN_KHAKI = ramp("2a2a1a", "3c3c26", "525235", "6a6946", "84825a", "a09d73")
+GREY_RUBBER = ramp("1a1d1c", "282c2b", "383d3b", "4a504d", "5f6562", "797e7a")
+TIN = ramp("2e3236", "464b50", "62686d", "80868b", "a2a7ab", "c6cacd")
+BLACK_LEATHER = ramp("0c0c0c", "171616", "232120", "302d2b", "403c39", "55504c")
 DAYFIELD_KHAKI = ramp("362f20", "4b432e", "625840", "7b6f52", "958867", "b0a27f")
 
 
@@ -103,6 +108,31 @@ def adrian():
         "..455444443332..",
         "..4g4444433332..",
         "..gg4444333322..",
+        "..443333333322..",
+        ".35555555555543.",
+        ".43222222222221.",
+        ".3............1.",
+        "................",
+        "................",
+        "................",
+    ], legend)
+
+
+def adrian_russian():
+    """The Adrian as the Russians had it: khaki paint and a brass double-headed eagle on the front."""
+    legend = tones(RUSSIAN_KHAKI_PAINT)
+    legend["g"] = P("eagle", BRASS)
+    legend["G"] = (P("eagle", BRASS), 4)
+    return draw([
+        "................",
+        "................",
+        "................",
+        "......4444......",
+        "....45555443....",
+        "...4554444333...",
+        "..G55444443332..",
+        "..gg4444433332..",
+        "..Gg4444333322..",
         "..443333333322..",
         ".35555555555543.",
         ".43222222222221.",
@@ -259,6 +289,29 @@ def austrian_gas_mask():
     ], {"b": P("ring", BRASS), "d": P("drum", METAL_GREY), "D": (P("drum", METAL_GREY), 2)})
 
 
+def zelinsky_kummant_mask():
+    """Russian Zelinsky-Kummant: a grey rubber helmet over the whole head, small tin-rimmed eyepieces and the
+    flat tin box of charcoal hanging from the mouth."""
+    return _mask(GREY_RUBBER, TIN, [
+        "................",
+        ".....444444.....",
+        "....45555443....",
+        "...4555544433...",
+        "...4544444433...",
+        "...4EE444EE33...",
+        "...EGgE4EGgE3...",
+        "...4EE433EE32...",
+        "...44433333322..",
+        "...343bbb33322..",
+        "....3tTTTTt22...",
+        "....tTttttTt....",
+        "....tTttttTt....",
+        "....tttttttt....",
+        ".....111111.....",
+        "................",
+    ], {"b": P("mouthpiece", TIN), "t": P("box", TIN), "T": (P("box", TIN), 4)})
+
+
 # ---------------------------------------------------------------------- uniforms (front view)
 
 def _row(*segments):
@@ -274,7 +327,7 @@ def _blank():
 
 
 def tunic_icon(cloth, *, collar=None, buttons=None, belt=LEATHER, buckle=BRASS, breast_pockets=False,
-               collar_patch=None):
+               collar_patch=None, pullover=False):
     """A tunic laid flat: shoulders and collar, sleeves down the sides, a row of buttons (or a fly front),
     pocket flaps, the belt with its buckle and the skirt below it."""
     legend = tones(cloth)
@@ -292,8 +345,10 @@ def tunic_icon(cloth, *, collar=None, buttons=None, belt=LEATHER, buckle=BRASS, 
     for k, line in enumerate(body):
         y = 5 + k
         rows[y] = _row((1, "45"), (4, line), (13, "21"))
-    # buttons down the front, or a sewn fly
+    # buttons down the front, or a sewn fly; a pullover has a short placket at the neck and none below it
     for y in range(3, 9):
+        if pullover and y > 6:
+            continue
         ch = "b" if buttons is not None and y % 2 == 1 else "2"
         rows[y] = rows[y][:7] + ch + rows[y][8:]
     # pocket flaps: a light row with a shadow under it
@@ -308,8 +363,9 @@ def tunic_icon(cloth, *, collar=None, buttons=None, belt=LEATHER, buckle=BRASS, 
     if breast_pockets:
         flap(4, 5, 6)
         flap(4, 9, 10)
-    flap(7, 5, 6)
-    flap(7, 9, 10)
+    if not pullover:
+        flap(7, 5, 6)
+        flap(7, 9, 10)
     belt_row = "BBBKKBBB" if belt is not None else "33333222"
     rows[10] = _row((1, "c3"), (4, belt_row), (13, "1c"))
     rows[11] = _row((4, "44443322"))
@@ -332,6 +388,39 @@ def trousers_icon(cloth, piping=False):
     if piping:
         for y in range(3, 14):
             rows[y] = "r".join([rows[y][:3], rows[y][4:12]]) + "r" + rows[y][13:]
+    return draw(rows, legend)
+
+
+def breeches_icon(cloth):
+    """Breeches laid flat: full over the thighs, narrowing to the knee."""
+    legend = tones(cloth)
+    rows = _blank()
+    rows[2] = _row((3, "3333333332"))
+    rows[3] = _row((3, "4554443332"))
+    rows[4] = _row((2, "445444433322"))
+    rows[5] = _row((1, "445443"), (9, "443321"))
+    rows[6] = _row((1, "455443"), (9, "443321"))
+    rows[7] = _row((2, "45443"), (9, "44332"))
+    rows[8] = _row((3, "4543"), (9, "4332"))
+    for y in range(9, 13):
+        rows[y] = _row((3, "4543"), (9, "4332"))
+    rows[13] = _row((3, "2222"), (9, "2111"))
+    return draw(rows, legend)
+
+
+def jackboots_icon(leather):
+    """A pair of tall leather boots, toes to the left, shining down the front."""
+    legend = tones(leather)
+    legend["s"] = (P("sole", SOLE, base=0, bevel=False), 1)
+    rows = _blank()
+    rows[1] = _row((3, "3333"), (9, "3333"))
+    rows[2] = _row((3, "2222"), (9, "2222"))
+    for y in range(3, 10):
+        rows[y] = _row((3, "5432"), (9, "5432"))
+    rows[10] = _row((2, "45432"), (8, "45432"))
+    rows[11] = _row((1, "455432"), (7, "455432"))
+    rows[12] = _row((1, "4443221"), (7, "4443221"))
+    rows[13] = _row((1, "sssssss"), (7, "sssssss"))
     return draw(rows, legend)
 
 
@@ -377,6 +466,10 @@ def austrian_tunic():
     return tunic_icon(AUSTRIAN_FG, belt=LEATHER, buckle=NICKEL, breast_pockets=True, collar_patch=RED)
 
 
+def russian_tunic():
+    return tunic_icon(RUSSIAN_KHAKI, buttons=BRASS, belt=LEATHER, breast_pockets=True, pullover=True)
+
+
 def british_trousers():
     return trousers_icon(BRITISH_KHAKI)
 
@@ -391,6 +484,14 @@ def german_trousers():
 
 def austrian_trousers():
     return trousers_icon(AUSTRIAN_FG)
+
+
+def russian_trousers():
+    return breeches_icon(RUSSIAN_KHAKI)
+
+
+def russian_boots():
+    return jackboots_icon(BLACK_LEATHER)
 
 
 def british_puttees():

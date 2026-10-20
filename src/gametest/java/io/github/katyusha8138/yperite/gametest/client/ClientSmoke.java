@@ -66,11 +66,12 @@ public final class ClientSmoke {
     }
 
     private static String[] kit(String helmet, String army, String mask, String armour) {
+        String feet = army.equals("russian") ? "_boots" : "_puttees";
         java.util.List<String> c = new java.util.ArrayList<>(List.of(
                 "item replace entity @s armor.head with yperite:" + helmet,
                 "item replace entity @s armor.chest with yperite:" + army + "_tunic",
                 "item replace entity @s armor.legs with yperite:" + army + "_trousers",
-                "item replace entity @s armor.feet with yperite:" + army + "_puttees",
+                "item replace entity @s armor.feet with yperite:" + army + feet,
                 "@curios yperite:" + mask));
         if (armour != null) {
             c.add("@curios body yperite:" + armour);
@@ -82,10 +83,11 @@ public final class ClientSmoke {
 
     private static List<Scene> allScenes() {
         List<Scene> all = new java.util.ArrayList<>();
-        for (String helmet : List.of("brodie_mk1", "adrian_m15", "stahlhelm_m1916", "berndorfer")) {
+        for (String helmet : List.of("brodie_mk1", "adrian_m15", "stahlhelm_m1916", "berndorfer", "adrian_m16_russian")) {
             all.addAll(showcase(helmet, "item replace entity @s armor.head with yperite:" + helmet));
         }
-        for (String mask : List.of("gas_mask", "small_box_respirator", "lederschutzmaske", "austrian_gas_mask")) {
+        for (String mask : List.of("gas_mask", "small_box_respirator", "lederschutzmaske", "austrian_gas_mask",
+                "zelinsky_kummant_mask")) {
             all.addAll(showcase(mask, "item replace entity @s armor.head with yperite:" + mask + FILTER));
         }
         all.addAll(showcase("m2_mask", "item replace entity @s armor.head with yperite:m2_mask"));
@@ -94,12 +96,14 @@ public final class ClientSmoke {
         all.addAll(showcase("stahlhelm_leder", "item replace entity @s armor.head with yperite:stahlhelm_m1916", "@curios yperite:lederschutzmaske"));
         all.addAll(showcase("adrian_m2", "item replace entity @s armor.head with yperite:adrian_m15", "@curios yperite:m2_mask"));
         all.addAll(showcase("berndorfer_austrian", "item replace entity @s armor.head with yperite:berndorfer", "@curios yperite:austrian_gas_mask"));
+        all.addAll(showcase("adrian_zelinsky", "item replace entity @s armor.head with yperite:adrian_m16_russian", "@curios yperite:zelinsky_kummant_mask"));
         // Whole outfits ("_kit" shows the whole figure): helmet, uniform, a mask in the face slot and body armour
         // over the tunic in the body slot.
         all.addAll(showcase("british_kit", kit("brodie_mk1", "british", "small_box_respirator", "dayfield")));
         all.addAll(showcase("german_kit", kit("stahlhelm_m1916", "german", "lederschutzmaske", "sappenpanzer")));
         all.addAll(showcase("french_kit", kit("adrian_m15", "french", "m2_mask", null)));
         all.addAll(showcase("austrian_kit", kit("berndorfer", "austrian", "austrian_gas_mask", null)));
+        all.addAll(showcase("russian_kit", kit("adrian_m16_russian", "russian", "zelinsky_kummant_mask", null)));
         // The protective outfit, with a mask under the hood, and again with body armour and a haversack over it.
         all.addAll(showcase("suit_kit", "item replace entity @s armor.head with yperite:protective_hood",
                 "item replace entity @s armor.chest with yperite:protective_jacket",
@@ -184,6 +188,10 @@ public final class ClientSmoke {
             new Scene("13_yperite_residue_mist", List.of(
                     "yperite gas clear", "yperite wind set 0 0",
                     "yperite gas contaminate yperite:yperite 1.5 3 0 80 4"), CameraType.FIRST_PERSON, 0f, 40f),
+            // a cloud seen from afar (48 blocks): far cells are drawn with fewer, larger puffs
+            new Scene("15_cloud_seen_from_afar", List.of(
+                    "yperite gas clear", "yperite wind set 0 0",
+                    "yperite gas burst yperite:chlorine 400 3 0 82 48"), CameraType.FIRST_PERSON, 0f, 3f),
             new Scene("14_clear_again", List.of("yperite gas clear", "yperite wind auto"), CameraType.FIRST_PERSON, 0f, 5f)));
         return all;
     }

@@ -20,7 +20,8 @@ public final class ModParticles {
 
     @SuppressWarnings("deprecation")
     private static ParticleType<GasParticleOptions> type() {
-        return new ParticleType<>(false, GasParticleOptions.DESERIALIZER) {
+        // drawn beyond vanilla's 32 blocks: gas is seen from afar (the client thins them by the particle setting)
+        return new ParticleType<>(true, GasParticleOptions.DESERIALIZER) {
             @Override
             public Codec<GasParticleOptions> codec() {
                 return GasParticleOptions.codec(this);

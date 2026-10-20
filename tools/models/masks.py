@@ -178,3 +178,51 @@ def austrian_gas_mask():
     _harness(m, Steel(hexramp("3d3a30", "4d493d", "5f5a4b", "716b5a"), seed=95, sheen=0.0), ys=(29.5, 26.5))
     m.pack()
     return m
+
+
+TIN = hexramp("23272a", "343a3e", "4a5257", "636c71", "7f888d", "a0a8ac")
+GREY_RUBBER = hexramp("1d201e", "2a2e2b", "393e3a", "4a504b", "5d645e", "747b74", "8d948c")
+
+
+def zelinsky_kummant_mask():
+    """Russian Zelinsky-Kummant mask: a helmet of grey rubber drawn over the whole head, two small glass
+    eyepieces in thin tin rims, and a flat tin box of charcoal hanging straight from the mouth below the chin.
+    The rubber over the head lies close enough to go under any helmet or the protective hood."""
+    m = armor_model("zelinsky_kummant_mask")
+    rubber = Steel(GREY_RUBBER, seed=101, sheen=0.7, wear=0.0)
+    tin = Steel(TIN, seed=102, sheen=1.0, wear=0.05)
+    _face_piece(m, rubber, chamfer=1.6)
+    _eyepieces(m, Steel(TIN, seed=103, sheen=1.0, wear=0.0), Glass(GLASS), radius=0.9)
+    # the rubber helmet: over the top, down the sides and the back, and over the forehead beside and above the brow
+    # band. Its front corners are cut at 45 degrees, just outside the corners of the head and inside those of
+    # every helmet's crown (fit.py).
+    h = STRAP
+    c = 0.5                                          # the cut, from the corner of the shell's outline
+    y0, y1 = 24.1, 31.85                            # the top stays under every helmet's upper crown tiers
+    for sx in (-1, 1):
+        x0, x1 = (4.0, 4.0 + h) if sx > 0 else (-4.0 - h, -4.0)
+        _box(m, (x0, y0, -4.0 - h + c), (x1, y1, 4.0), rubber)
+        _box(m, (sx * 2.9 if sx > 0 else -4.0 - h + c, BROW, -4.0 - h),
+             (4.0 + h - c if sx > 0 else -2.9, BROW_TOP, -4.0), rubber)
+        corner = np.array([sx * (4.0 + h - c / 2), (y0 + y1 + h) / 2, -4.0 - h + c / 2])
+        u = np.array([sx * 1.0, 0.0, 1.0]) / np.sqrt(2)
+        inward = np.array([-sx * 1.0, 0.0, 1.0]) / np.sqrt(2)
+        oriented_box(m, "armorHead", corner + inward * (h / 2), u, Y, c * np.sqrt(2) + 0.1, y1 + h - y0, h, rubber)
+    _box(m, (-4.0 - h, y0, 4.0), (4.0 + h, y1, 4.0 + h), rubber)
+    _box(m, (-4.0 - h, y1, -4.0 - h + c), (4.0 + h, y1 + h, 4.0 + h), rubber)
+    _box(m, (-4.0 - h + c, y1, -4.0 - h), (4.0 + h - c, y1 + h, -4.0 - h + c), rubber)
+    _box(m, (-4.0 - h + c, BROW_TOP, -4.0 - h), (4.0 + h - c, y1, -4.0), rubber)
+    # the rubber over the face behind the face piece, showing at its cut corners (rather than the face)
+    _box(m, (-4.0, y0, -4.2), (4.0, BROW - 0.1, -4.0), rubber)
+    # the mouthpiece and the charcoal box below it
+    octagon(m, "armorHead", (0, 25.0, -5.05), FWD, 0.9, 0.4, tin)
+    m.bone("filter", parent="armorHead", pivot=(0, 24.0, -5.6))
+    chamfered_block(m, "filter", (0, 23.0, -5.85), X, Y, 1.8, 1.7, 0.5, 1.5, tin)
+    oriented_box(m, "filter", (0, 24.85, -5.55), X, Y, 1.0, 0.5, 0.9, tin)
+    m.pack()
+    return m
+
+
+def _box(m, lo, hi, material, **info):
+    lo, hi = np.asarray(lo, float), np.asarray(hi, float)
+    return m.box("armorHead", tuple(lo), tuple(hi - lo), material, **info)

@@ -66,7 +66,7 @@ public final class GasSightClient {
         if (current <= 0.001f || event.getCamera().getFluidInCamera() != FogType.NONE) {
             return;
         }
-        float far = Math.min(event.getFarPlaneDistance(), GasSight.visibility(current));
+        float far = Math.min(event.getFarPlaneDistance(), GasSight.visibility(current, event.getFarPlaneDistance()));
         if (far >= event.getFarPlaneDistance() - 0.01f) {
             return;
         }

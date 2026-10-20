@@ -15,7 +15,8 @@ public enum MaskType {
     SMALL_BOX_RESPIRATOR("small_box_respirator", 0.02f, true, null, 2.5f),
     M2("m2_mask", 0.06f, false, FilterKind.IMPREGNATED, 4.0f),
     LEDERSCHUTZMASKE("lederschutzmaske", 0.03f, true, null, 3.0f),
-    AUSTRIAN("austrian_gas_mask", 0.04f, true, null, 3.0f);
+    AUSTRIAN("austrian_gas_mask", 0.04f, true, null, 3.0f),
+    ZELINSKY("zelinsky_kummant_mask", 0.02f, true, null, 3.0f);
 
     private final String model;
     private final float leak;

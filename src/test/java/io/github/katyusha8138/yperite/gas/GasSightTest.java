@@ -28,13 +28,15 @@ class GasSightTest {
         float lastView = Float.MAX_VALUE;
         for (float d = 0.1f; d < 5f; d += 0.1f) {
             float tint = GasSight.tint(d);
-            float view = GasSight.visibility(d);
+            float view = GasSight.visibility(d, 192f);
             assertTrue(tint > lastTint && tint < 1f, "tint must grow below 1 at " + d);
             assertTrue(view < lastView && view >= 4f, "the view must shrink, but not below a few blocks, at " + d);
             lastTint = tint;
             lastView = view;
         }
-        assertTrue(GasSight.visibility(0.05f) > 50f, "a trace of gas hardly shortens the view");
-        assertTrue(GasSight.visibility(2f) < 10f, "thick gas closes the view to a few blocks");
+        assertEquals(192f, GasSight.visibility(0f, 192f), 1e-3f, "clear air leaves the view alone");
+        assertTrue(GasSight.visibility(0.02f, 192f) > 180f, "a trace of gas hardly shortens the view");
+        assertTrue(GasSight.visibility(0.02f, 64f) > 60f, "nor does it with a short view");
+        assertTrue(GasSight.visibility(2f, 192f) < 10f, "thick gas closes the view to a few blocks");
     }
 }
