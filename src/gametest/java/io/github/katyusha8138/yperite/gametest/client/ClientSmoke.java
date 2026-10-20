@@ -40,6 +40,8 @@ public final class ClientSmoke {
         }
     }
 
+    private static final String MOUNT = "ride @s mount @e[type=minecraft:horse,limit=1,sort=nearest]";
+
     private static String hotbar(int slot, String item) {
         return "item replace entity @s hotbar." + slot + " with " + (item.equals("air") ? "minecraft:air" : "yperite:" + item);
     }
@@ -221,18 +223,17 @@ public final class ClientSmoke {
             new Scene("17_stick_grenade_on_the_ground", List.of("kill @e[type=yperite:stick_grenade]",
                     "summon yperite:stick_grenade ~0.6 ~0.2 ~2.2 {Life:400,Motion:[0.05d,0.0d,0.0d]}"),
                     CameraType.FIRST_PERSON, 0f, 55f),
-            // a lancer on an armoured horse, the lance carried, then couched for the charge
+            // a lancer on an armoured horse (standing still, side on to the camera), the lance carried, then couched for
+            // the charge. Every scene begins with a teleport, which takes the rider off: each mounts again.
             new Scene("18_lancer_mounted", List.of("@release", "kill @e[type=minecraft:horse]",
                     "item replace entity @s armor.head with yperite:british_cap", hotbar(0, "lance"),
                     "item replace entity @s weapon.offhand with minecraft:air",
-                    "summon minecraft:horse ~ ~ ~ {Tame:1b,Variant:2,SaddleItem:{id:\"minecraft:saddle\",Count:1b},"
-                            + "ArmorItem:{id:\"yperite:cavalry_horse_armor\",Count:1b}}",
-                    "ride @s mount @e[type=minecraft:horse,limit=1,sort=nearest]"), CameraType.THIRD_PERSON_FRONT, 35f, 15f),
-            new Scene("18_lancer_mounted_back", List.of(), CameraType.THIRD_PERSON_BACK, 35f, 15f),
-            new Scene("19_lancer_couched", List.of("@nocooldown", "@use"), CameraType.THIRD_PERSON_BACK, 0f, 35f),
-            new Scene("19_lancer_couched_front", List.of("@nocooldown"), CameraType.THIRD_PERSON_FRONT, 0f, 35f),
-            new Scene("19_lancer_couched_first_person", List.of("@nocooldown"), CameraType.FIRST_PERSON, 0f, 10f),
-            new Scene("19_lancer_carried_first_person", List.of("@release"), CameraType.FIRST_PERSON, 0f, 10f),
+                    "summon minecraft:horse ~ ~ ~ {Tame:1b,NoAI:1b,Variant:2,Rotation:[90f,0f],"
+                            + "SaddleItem:{id:\"minecraft:saddle\",Count:1b},ArmorItem:{id:\"yperite:cavalry_horse_armor\",Count:1b}}",
+                    MOUNT), CameraType.THIRD_PERSON_FRONT, 0f, 12f),
+            new Scene("19_lancer_couched", List.of(MOUNT, "@nocooldown", "@use"), CameraType.THIRD_PERSON_FRONT, 0f, 12f),
+            new Scene("19_lancer_couched_first_person", List.of(MOUNT, "@nocooldown"), CameraType.FIRST_PERSON, 90f, 8f),
+            new Scene("19_lancer_carried_first_person", List.of(MOUNT, "@release"), CameraType.FIRST_PERSON, 90f, 8f),
             // the armoured horse from the side, standing still
             new Scene("20_cavalry_horse_armour", List.of("@release", "kill @e[type=minecraft:horse]",
                     "summon minecraft:horse ~2.5 ~ ~4 {Tame:1b,NoAI:1b,Variant:1,Rotation:[90f,0f],"
