@@ -461,37 +461,6 @@ CORD = ramp("2a1c10", "3f2a18", "5a3d22", "755230")
 BLACK_GRIP = ramp("0f0f10", "1c1c1e", "2c2c30", "3e3e44")
 
 
-def sabre():
-    """An officer's sabre, as vanilla swords lie: the slightly curved blade up to the right, the hilt down to
-    the left with its brass knuckle bow round the black grip."""
-    legend = {
-        "e": (P("blade", BLADE, base=0, bevel=False), 4),
-        "c": (P("blade", BLADE, base=0, bevel=False), 2),
-        "k": (P("guard", BRASS, base=0, bevel=False), 3),
-        "K": (P("guard", BRASS, base=0, bevel=False), 5),
-        "g": (P("grip", BLACK_GRIP, base=0, bevel=False), 2),
-        "p": (P("guard", BRASS, base=0, bevel=False), 4),
-    }
-    return draw([
-        "............e...",
-        "............ec..",
-        "...........ec...",
-        "..........ec....",
-        ".........ec.....",
-        "........ec......",
-        ".......ec.......",
-        "......ec........",
-        ".....ec.........",
-        "...k.c..........",
-        "....K...........",
-        "...g.k..........",
-        "..g...k.........",
-        ".g...k..........",
-        "p...k...........",
-        ".kkk............",
-    ], legend)
-
-
 def officer_whistle():
     """A trench whistle of nickelled brass, side on: the round body with its slot on top, the flat mouthpiece to
     the right, and the ring it hangs from."""
@@ -516,6 +485,83 @@ def officer_whistle():
         ".nnnnnnnnn......",
         "..nnnnnnn.......",
         "...nnnnn........",
+        "................",
+        "................",
+    ], legend)
+
+
+ASH = ramp("4a3622", "6a4e30", "8a6a44", "a8865a", "c4a272")
+PENNON_RED = ramp("6a1414", "922020", "b8302c", "d6504a")
+PENNON_WHITE = ramp("9a9890", "c2c0b8", "e2e0d8", "f6f4ee")
+
+
+def lance():
+    """The cavalry lance as it lies in the inventory: the long ash shaft from the butt down at the left to the steel
+    head up at the right, with the red and white pennon below the head."""
+    legend = {
+        "w": (P("shaft", ASH, base=0, bevel=False), 3),
+        "W": (P("shaft", ASH, base=0, bevel=False), 1),
+        "s": (P("head", BLADE, base=0, bevel=False), 4),
+        "S": (P("head", BLADE, base=0, bevel=False), 2),
+        "r": (P("pennon", PENNON_RED, base=0, bevel=False), 2),
+        "R": (P("pennon", PENNON_RED, base=0, bevel=False), 1),
+        "e": (P("pennon_white", PENNON_WHITE, base=0, bevel=False), 2),
+        "E": (P("pennon_white", PENNON_WHITE, base=0, bevel=False), 1),
+        "g": (P("grip", LEATHER, base=0, bevel=False), 2),
+        "f": (P("shoe", BLADE, base=0, bevel=False), 2),
+    }
+    return draw([
+        "..............ss",
+        ".............sS.",
+        "............sS..",
+        "...........wS...",
+        "..........wW....",
+        ".........wWrrr..",
+        "........wWrrRr..",
+        ".......wWeeeee..",
+        "......wWeeEe.e..",
+        ".....wW.........",
+        "....gg..........",
+        "...gg...........",
+        "..wW............",
+        ".wW.............",
+        "fW..............",
+        "f...............",
+    ], legend)
+
+
+CAPARISON = ramp("2e3220", "3b4029", "4a5033", "5a613e", "6c744b", "808958")
+
+
+def cavalry_horse_armor():
+    """The cavalry horse armour, folded as vanilla draws horse armour: the quilted olive caparison with its red
+    fringed border, the leather breast strap and the steel chanfron."""
+    legend = {
+        "q": (P("cloth", CAPARISON, base=0, bevel=False), 3),
+        "Q": (P("cloth", CAPARISON, base=0, bevel=False), 2),
+        "h": (P("cloth", CAPARISON, base=0, bevel=False), 4),
+        "r": (P("border", RED, base=0, bevel=False), 2),
+        "R": (P("border", RED, base=0, bevel=False), 1),
+        "s": (P("chanfron", STEEL_GREY, base=0, bevel=False), 3),
+        "S": (P("chanfron", STEEL_GREY, base=0, bevel=False), 5),
+        "l": (P("strap", LEATHER, base=0, bevel=False), 2),
+        "b": (P("stud", BRASS, base=0, bevel=False), 4),
+    }
+    return draw([
+        "................",
+        "................",
+        ".ss.............",
+        "sSSs............",
+        "sSss.hhhhhhhhh..",
+        ".ss.hqqqqqqqqqh.",
+        "..llbqqQqqqQqqq.",
+        "...lqQqqqQqqqQq.",
+        "...qqqqQqqqQqqq.",
+        "...qqQqqqQqqqQq.",
+        "...qqqqqqqqqqqq.",
+        "...rrrrrrrrrrrr.",
+        "...rR.rR.rR.rR..",
+        "................",
         "................",
         "................",
     ], legend)

@@ -10,7 +10,9 @@ public enum WarTiers implements Tier {
      * An officer's sabre: a light, finely ground blade that cuts deep but does not last; it wears out sooner than
      * any vanilla sword but a wooden or golden one. Mines like iron.
      */
-    SABRE(100, 6.0f, 0f, 2, 14);
+    SABRE(100, 6.0f, 0f, 2, 14),
+    /** A cavalry lance: an ash shaft and a steel head, as tough as an iron sword. */
+    LANCE(250, 2.0f, 0f, 1, 14);
 
     private final int uses;
     private final float speed;

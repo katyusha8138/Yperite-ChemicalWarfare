@@ -212,15 +212,32 @@ public final class ClientSmoke {
                     "yperite gas burst yperite:chlorine 400 3 0 82 48"), CameraType.FIRST_PERSON, 0f, 3f),
             // the officer's things and the caps in the hotbar, the stick grenade (with Superb Warfare) held up
             new Scene("16_officer_items", List.of("yperite gas clear",
-                    hotbar(0, "stick_grenade"), hotbar(1, "sabre"), hotbar(2, "officer_whistle"),
-                    hotbar(3, "british_cap"), hotbar(4, "french_kepi"), hotbar(5, "german_cap"),
+                    hotbar(0, "stick_grenade"), hotbar(1, "sabre"), hotbar(2, "lance"),
+                    hotbar(3, "officer_whistle"), hotbar(4, "cavalry_horse_armor"), hotbar(5, "german_cap"),
                     hotbar(6, "pickelhaube"), hotbar(7, "pickelhaube_covered"), hotbar(8, "austrian_shako")),
                     CameraType.FIRST_PERSON, 0f, 30f),
+            new Scene("16_sabre_in_hand", List.of(hotbar(0, "sabre")), CameraType.FIRST_PERSON, 0f, 10f),
             // a thrown stick grenade lying on the ground in front (its fuse set long)
             new Scene("17_stick_grenade_on_the_ground", List.of("kill @e[type=yperite:stick_grenade]",
                     "summon yperite:stick_grenade ~0.6 ~0.2 ~2.2 {Life:400,Motion:[0.05d,0.0d,0.0d]}"),
                     CameraType.FIRST_PERSON, 0f, 55f),
-            new Scene("14_clear_again", List.of("yperite gas clear", "yperite wind auto", "kill @e[type=yperite:stick_grenade]"), CameraType.FIRST_PERSON, 0f, 5f)));
+            // a lancer on an armoured horse, the lance carried, then couched for the charge
+            new Scene("18_lancer_mounted", List.of("@release", "kill @e[type=minecraft:horse]",
+                    "item replace entity @s armor.head with yperite:british_cap", hotbar(0, "lance"),
+                    "summon minecraft:horse ~ ~ ~ {Tame:1b,Variant:2,SaddleItem:{id:\"minecraft:saddle\",Count:1b},"
+                            + "ArmorItem:{id:\"yperite:cavalry_horse_armor\",Count:1b}}",
+                    "ride @s mount @e[type=minecraft:horse,limit=1,sort=nearest]"), CameraType.THIRD_PERSON_FRONT, 35f, 15f),
+            new Scene("18_lancer_mounted_back", List.of(), CameraType.THIRD_PERSON_BACK, 35f, 15f),
+            new Scene("19_lancer_couched", List.of("@use"), CameraType.THIRD_PERSON_FRONT, 35f, 15f),
+            new Scene("19_lancer_couched_first_person", List.of("@release", "@use"), CameraType.FIRST_PERSON, 0f, 10f),
+            new Scene("19_lancer_carried_first_person", List.of("@release"), CameraType.FIRST_PERSON, 0f, 10f),
+            // the armoured horse from the side, standing still
+            new Scene("20_cavalry_horse_armour", List.of("@release", "kill @e[type=minecraft:horse]",
+                    "summon minecraft:horse ~2.5 ~ ~4 {Tame:1b,NoAI:1b,Variant:1,Rotation:[90f,0f],"
+                            + "SaddleItem:{id:\"minecraft:saddle\",Count:1b},ArmorItem:{id:\"yperite:cavalry_horse_armor\",Count:1b}}"),
+                    CameraType.FIRST_PERSON, 0f, 10f),
+            new Scene("14_clear_again", List.of("yperite gas clear", "yperite wind auto", "kill @e[type=yperite:stick_grenade]",
+                    "@release", "kill @e[type=minecraft:horse]"), CameraType.FIRST_PERSON, 0f, 5f)));
         return all;
     }
 
@@ -280,8 +297,9 @@ public final class ClientSmoke {
             Scene next = SCENES.get(scene);
             sceneStart = tick;
             pictureTaken = false;
-            run(server, next.commands().toArray(new String[0]));
+            // the place first, so that a scene can mount a horse there without the teleport taking the rider off it
             run(server, String.format(java.util.Locale.ROOT, "tp @s 0.5 80 0.5 %s %s", next.yaw(), next.pitch()));
+            run(server, next.commands().toArray(new String[0]));
             mc.options.setCameraType(next.camera());
             mc.setScreen(next.inventory() ? new InventoryScreen(mc.player) : next.showcase() ? showcase(next.name()) : null);
             System.out.println("[smoke] scene " + next.name() + " camera=" + mc.options.getCameraType());
@@ -306,6 +324,10 @@ public final class ClientSmoke {
             for (String command : commands) {
                 if (command.startsWith("@curios ")) {
                     SmokeCurios.equip(player, command.substring("@curios ".length()));
+                } else if (command.equals("@use") || command.equals("@release")) {
+                    // hold (or let go of) the use key, as a player holding the right button
+                    boolean down = command.equals("@use");
+                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().options.keyUse.setDown(down));
                 } else {
                     server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(4), command);
                 }

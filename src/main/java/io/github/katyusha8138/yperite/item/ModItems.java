@@ -13,7 +13,6 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.SwordItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -89,7 +88,12 @@ public final class ModItems {
      * The damage is the tier's bonus plus this, plus the player's own 1.
      */
     public static final RegistryObject<Item> SABRE = ITEMS.register("sabre",
-            () -> new SwordItem(WarTiers.SABRE, 9, -2.4f, new Item.Properties()));
+            () -> new SabreItem(WarTiers.SABRE, 9, -2.4f, new Item.Properties()));
+    /** A cavalry lance: long reach, and a charge that strikes by itself (see {@link LanceItem}). */
+    public static final RegistryObject<Item> LANCE = ITEMS.register("lance", () -> new LanceItem(new Item.Properties()));
+    /** Cavalry horse armour: protection 7 and a faster horse. */
+    public static final RegistryObject<Item> CAVALRY_HORSE_ARMOR = ITEMS.register("cavalry_horse_armor",
+            () -> new CavalryHorseArmorItem(new Item.Properties().stacksTo(1)));
 
     /** An officer's whistle, to give the signal: heard far off. */
     public static final RegistryObject<Item> OFFICER_WHISTLE = ITEMS.register("officer_whistle",

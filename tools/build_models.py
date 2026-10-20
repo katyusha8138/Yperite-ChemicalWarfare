@@ -58,7 +58,7 @@ MODELS = {
 for _piece in ("hood", "jacket", "trousers", "boots"):
     MODELS[f"protective_{_piece}"] = getattr(suit, f"protective_{_piece}")
 # held items drawn as 3D models (geo/item, textures/geo) rather than worn ones (geo/armor, textures/armor)
-ITEM_MODELS = {"stick_grenade": weapons.stick_grenade}
+ITEM_MODELS = {"stick_grenade": weapons.stick_grenade, "sabre": weapons.sabre, "lance": weapons.lance}
 MODELS.update(ITEM_MODELS)
 # each army's uniform: tunic, trousers, and what goes on the feet
 ARMIES = {"british": "puttees", "french": "puttees", "german": "puttees", "austrian": "puttees", "russian": "boots"}

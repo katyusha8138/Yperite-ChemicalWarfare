@@ -52,6 +52,8 @@ public final class ModTabs {
                 ModItems.UNIFORMS.forEach(piece -> output.accept(piece.get()));
                 ModItems.BODY_ARMOUR.forEach(armour -> output.accept(armour.get()));
                 output.accept(ModItems.SABRE.get());
+                output.accept(ModItems.LANCE.get());
+                output.accept(ModItems.CAVALRY_HORSE_ARMOR.get());
                 output.accept(ModItems.OFFICER_WHISTLE.get());
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(grenade.get()));
                 output.accept(ModItems.GAS_CYLINDER.get());

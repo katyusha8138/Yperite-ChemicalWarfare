@@ -39,7 +39,8 @@ def icons():
         "sealed_fabric": gear.sealed_fabric, "gas_detector": gear.gas_detector, "wind_vane": gear.wind_vane,
         "decon_solution": gear.decon_solution, "decon_powder": gear.decon_powder,
         "medicine_general": gear.medicine_general, "antidote_nerve": gear.antidote_nerve,
-        "ointment_blister": gear.ointment_blister, "sabre": gear.sabre, "officer_whistle": gear.officer_whistle,
+        "ointment_blister": gear.ointment_blister, "officer_whistle": gear.officer_whistle,
+        "lance": gear.lance, "cavalry_horse_armor": gear.cavalry_horse_armor,
     }
     for army, feet in (("british", "puttees"), ("french", "puttees"), ("german", "puttees"),
                        ("austrian", "puttees"), ("russian", "boots")):
