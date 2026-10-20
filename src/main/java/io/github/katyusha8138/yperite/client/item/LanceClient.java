@@ -18,16 +18,19 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
  * levelled at the middle of the view.
  */
 public final class LanceClient {
-    /** The arm with a couched lance: drawn back a little, close to the body; the other hand forward on the reins. */
+    /**
+     * The arm with a couched lance: drawn back a little, close to the body, which brings the lance (carried some 10
+     * degrees above the line of the arm, see lance.json) down to about level; the other hand forward on the reins.
+     */
     public static final HumanoidModel.ArmPose COUCHED = HumanoidModel.ArmPose.create("YPERITE_LANCE_COUCHED", false,
             (model, entity, arm) -> {
                 if (arm == HumanoidArm.RIGHT) {
-                    model.rightArm.xRot = 0.3f;
+                    model.rightArm.xRot = 0.23f;
                     model.rightArm.yRot = -0.12f;
                     model.leftArm.xRot = -0.55f;
                     model.leftArm.yRot = 0.1f;
                 } else {
-                    model.leftArm.xRot = 0.3f;
+                    model.leftArm.xRot = 0.23f;
                     model.leftArm.yRot = 0.12f;
                     model.rightArm.xRot = -0.55f;
                     model.rightArm.yRot = -0.1f;
