@@ -2,6 +2,7 @@ package io.github.katyusha8138.yperite.item;
 
 import io.github.katyusha8138.yperite.YperiteMod;
 import io.github.katyusha8138.yperite.compat.superbwarfare.ChemicalRound;
+import io.github.katyusha8138.yperite.compat.superbwarfare.SbwItems;
 import io.github.katyusha8138.yperite.protection.FilterKind;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -47,12 +48,16 @@ public final class ModTabs {
                 output.accept(ModItems.STAHLHELM_M1916.get());
                 output.accept(ModItems.BERNDORFER.get());
                 output.accept(ModItems.ADRIAN_M16_RUSSIAN.get());
+                ModItems.HEADGEAR.forEach(cap -> output.accept(cap.get()));
                 ModItems.UNIFORMS.forEach(piece -> output.accept(piece.get()));
                 ModItems.BODY_ARMOUR.forEach(armour -> output.accept(armour.get()));
+                output.accept(ModItems.SABRE.get());
+                output.accept(ModItems.OFFICER_WHISTLE.get());
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(grenade.get()));
                 output.accept(ModItems.GAS_CYLINDER.get());
                 ModItems.GRENADES.values().forEach(grenade -> output.accept(GasCylinderItem.full(((GasGrenadeItem) grenade.get()).gas())));
                 ChemicalRound.ITEMS.forEach(round -> output.accept(round.get()));
+                SbwItems.ITEMS.forEach(item -> output.accept(item.get()));
             })
             .build());
 

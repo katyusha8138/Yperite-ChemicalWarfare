@@ -19,10 +19,12 @@ sys.path.insert(0, os.path.join(HERE, "models"))
 
 import body_armor  # noqa: E402
 import fit  # noqa: E402
+import headgear  # noqa: E402
 import helmets  # noqa: E402
 import masks  # noqa: E402
 import suit  # noqa: E402
 import uniforms  # noqa: E402
+import weapons  # noqa: E402
 from mannequin import mannequin  # noqa: E402
 from paint import paint  # noqa: E402
 from preview import sheet  # noqa: E402
@@ -36,6 +38,14 @@ MODELS = {
     "adrian_m15": helmets.adrian_m15,
     "berndorfer": helmets.berndorfer,
     "adrian_m16_russian": helmets.adrian_m16_russian,
+    "british_cap": headgear.british_cap,
+    "french_kepi": headgear.french_kepi,
+    "german_cap": headgear.german_cap,
+    "austrian_cap": headgear.austrian_cap,
+    "russian_cap": headgear.russian_cap,
+    "pickelhaube": headgear.pickelhaube,
+    "pickelhaube_covered": headgear.pickelhaube_covered,
+    "austrian_shako": headgear.austrian_shako,
     "gas_mask": masks.gas_mask,
     "small_box_respirator": masks.small_box_respirator,
     "m2_mask": masks.m2_mask,
@@ -47,6 +57,9 @@ MODELS = {
 }
 for _piece in ("hood", "jacket", "trousers", "boots"):
     MODELS[f"protective_{_piece}"] = getattr(suit, f"protective_{_piece}")
+# held items drawn as 3D models (geo/item, textures/geo) rather than worn ones (geo/armor, textures/armor)
+ITEM_MODELS = {"stick_grenade": weapons.stick_grenade}
+MODELS.update(ITEM_MODELS)
 # each army's uniform: tunic, trousers, and what goes on the feet
 ARMIES = {"british": "puttees", "french": "puttees", "german": "puttees", "austrian": "puttees", "russian": "boots"}
 NATIONS = tuple(ARMIES)
@@ -63,6 +76,9 @@ STAND_OFF.update(body_armor.STAND_OFF)
 
 MASKS = {"gas_mask", "small_box_respirator", "m2_mask", "lederschutzmaske", "austrian_gas_mask", "zelinsky_kummant_mask"}
 HELMETS = {"stahlhelm_m1916", "brodie_mk1", "adrian_m15", "berndorfer", "adrian_m16_russian"}
+# caps and the like: worn in the head slot over a mask, like the helmets
+HEADGEAR = {"british_cap", "french_kepi", "german_cap", "austrian_cap", "russian_cap", "pickelhaube",
+            "pickelhaube_covered", "austrian_shako"}
 
 
 def _worn(model, front, back):
@@ -75,7 +91,7 @@ def check_fit(built):
     out through the outer one."""
     pairs = []  # (outer name, outer model, inner name, inner model, tuck)
     up = (0.0, 1.0, 0.0)
-    for h in HELMETS:
+    for h in HELMETS | HEADGEAR:
         for k in MASKS:
             pairs.append((h, built[h], k, built[k], None))
     armours = [a for a in body_armor.STAND_OFF]
@@ -131,8 +147,9 @@ def main():
         model = build()
         built[name] = model
         texture = paint(model)
-        geo_dir = os.path.join(ASSETS, "geo", "armor")
-        tex_dir = os.path.join(ASSETS, "textures", "armor")
+        held = name in ITEM_MODELS
+        geo_dir = os.path.join(ASSETS, "geo", "item" if held else "armor")
+        tex_dir = os.path.join(ASSETS, "textures", "geo" if held else "armor")
         os.makedirs(geo_dir, exist_ok=True)
         os.makedirs(tex_dir, exist_ok=True)
         model.write(os.path.join(geo_dir, name + ".geo.json"), os.path.join(tex_dir, name + ".png"), texture)
@@ -140,8 +157,9 @@ def main():
         print(f"{name}: {cubes} cubes, texture {model.tex_w}x{model.tex_h}")
         if args.preview:
             os.makedirs(args.preview, exist_ok=True)
-            sheet([body, (model, texture)]).save(os.path.join(args.preview, name + ".png"))
-            close_center = (0, 27, -2) if name in MASKS else (0, 29, 0)
+            sheet([(model, texture)] if held else [body, (model, texture)],
+                  center=(0, 0, 0) if held else (0, 22, 0)).save(os.path.join(args.preview, name + ".png"))
+            close_center = (0, 27, -2) if name in MASKS else (0, 31, 0) if name in HEADGEAR else (0, 29, 0)
             sheet([(model, texture)], scale=24, size=(360, 360), center=close_center).save(
                 os.path.join(args.preview, name + "_close.png"))
     if not args.only:

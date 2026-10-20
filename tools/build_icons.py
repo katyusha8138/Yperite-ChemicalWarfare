@@ -26,6 +26,9 @@ def icons():
     out = {
         "stahlhelm_m1916": wear.stahlhelm, "brodie_mk1": wear.brodie, "adrian_m15": wear.adrian,
         "berndorfer": wear.berndorfer, "adrian_m16_russian": wear.adrian_russian,
+        "british_cap": wear.british_cap, "french_kepi": wear.french_kepi, "german_cap": wear.german_cap,
+        "austrian_cap": wear.austrian_cap, "russian_cap": wear.russian_cap, "pickelhaube": wear.pickelhaube,
+        "pickelhaube_covered": wear.pickelhaube_covered, "austrian_shako": wear.austrian_shako,
         "gas_mask": wear.gas_mask, "small_box_respirator": wear.small_box_respirator, "m2_mask": wear.m2_mask,
         "lederschutzmaske": wear.lederschutzmaske, "austrian_gas_mask": wear.austrian_gas_mask,
         "zelinsky_kummant_mask": wear.zelinsky_kummant_mask,
@@ -36,7 +39,7 @@ def icons():
         "sealed_fabric": gear.sealed_fabric, "gas_detector": gear.gas_detector, "wind_vane": gear.wind_vane,
         "decon_solution": gear.decon_solution, "decon_powder": gear.decon_powder,
         "medicine_general": gear.medicine_general, "antidote_nerve": gear.antidote_nerve,
-        "ointment_blister": gear.ointment_blister,
+        "ointment_blister": gear.ointment_blister, "sabre": gear.sabre, "officer_whistle": gear.officer_whistle,
     }
     for army, feet in (("british", "puttees"), ("french", "puttees"), ("german", "puttees"),
                        ("austrian", "puttees"), ("russian", "boots")):

@@ -36,6 +36,12 @@ RUSSIAN_KHAKI = ramp("2a2a1a", "3c3c26", "525235", "6a6946", "84825a", "a09d73")
 GREY_RUBBER = ramp("1a1d1c", "282c2b", "383d3b", "4a504d", "5f6562", "797e7a")
 TIN = ramp("2e3236", "464b50", "62686d", "80868b", "a2a7ab", "c6cacd")
 BLACK_LEATHER = ramp("0c0c0c", "171616", "232120", "302d2b", "403c39", "55504c")
+SCARLET = ramp("4a0f0f", "6e1616", "922020", "b32d2a", "cc4440")
+GOLD = ramp("5a4410", "7e6018", "a37f26", "c79f3a", "e0bc55", "f2d885")
+PATENT = ramp("0c0c0d", "161618", "222326", "303236", "45484d", "60646a")
+BLACK_FELT = ramp("141416", "1e1e22", "2a2a2f", "36363c", "44444b", "55555d")
+ORANGE = ramp("6a2d08", "8e3d0c", "b05212", "cc6a1c", "e0852c")
+WHITE = ramp("8f8f8a", "b3b3ad", "d4d4ce", "ecece6")
 DAYFIELD_KHAKI = ramp("362f20", "4b432e", "625840", "7b6f52", "958867", "b0a27f")
 
 
@@ -161,6 +167,225 @@ def berndorfer():
         "..332222222221..",
         ".33222222222211.",
         ".2111111111111..",
+        "................",
+        "................",
+        "................",
+    ], legend)
+
+
+# ---------------------------------------------------------------------- caps and headgear (side view, looking left)
+
+def _cap_legend(cloth, peak=PATENT):
+    legend = tones(cloth)
+    legend["p"] = P("peak", peak)
+    legend["P"] = (P("peak", peak), 2)
+    return legend
+
+
+def british_cap():
+    """The Service Dress cap: a wide flat khaki crown, the band with the brass badge and the brown chin strap,
+    a brown leather peak."""
+    legend = _cap_legend(BRITISH_KHAKI, LEATHER)
+    legend["g"] = P("badge", BRASS)
+    legend["c"] = (P("strap", LEATHER), -1)
+    return draw([
+        "................",
+        "................",
+        "................",
+        "................",
+        "...4444444444...",
+        "..455555555443..",
+        "..444444444333..",
+        "...3333333332...",
+        "...gg333333322..",
+        "...cccccc33222..",
+        "..pPpp22222111..",
+        ".ppp............",
+        "................",
+        "................",
+        "................",
+        "................",
+    ], legend)
+
+
+def french_kepi():
+    """The kepi in horizon blue: upright in front, sloping in behind to a small flat top, a flat black peak and
+    the black chin strap with its brass buttons."""
+    legend = _cap_legend(FRENCH_BLUE)
+    legend["k"] = P("strap", PATENT)
+    legend["b"] = (P("button", BRASS, bevel=False), 4)
+    return draw([
+        "................",
+        "................",
+        "................",
+        "....5555543.....",
+        "....44444433....",
+        "....444444333...",
+        "....3444443322..",
+        "....33333333322.",
+        "....33333333222.",
+        "....bkkkkkkb222.",
+        "....22222222211.",
+        "..Ppppp.........",
+        "................",
+        "................",
+        "................",
+        "................",
+    ], legend)
+
+
+def _wide_cap(cloth, band, cockade_top, cockade_band, piping=SCARLET):
+    legend = _cap_legend(cloth)
+    legend["r"] = P("piping", piping)
+    legend["R"] = P("band", band)
+    legend["o"] = cockade_top
+    legend["x"] = cockade_band
+    return legend
+
+
+def german_cap():
+    """The German peaked cap: a wide field-grey crown piped in red, the red band, the two cockades, a glossy peak."""
+    legend = _wide_cap(GERMAN_FG, SCARLET, (P("cockade", SCARLET, bevel=False), 3), (P("state", WHITE, bevel=False), 2))
+    return draw([
+        "................",
+        "................",
+        "................",
+        "...4555555554...",
+        "..rrrrrrrrrrrr..",
+        "..444444444333..",
+        "...3o333333322..",
+        "....33333332....",
+        "...RxRRRRRRRR...",
+        "...RRRRRRRRRR...",
+        ".ppPp22222111...",
+        "ppp.............",
+        "................",
+        "................",
+        "................",
+        "................",
+    ], legend)
+
+
+def russian_cap():
+    """The furazhka: a broad flat khaki crown piped in red, a darker band with the orange cockade, a black peak."""
+    legend = _wide_cap(RUSSIAN_KHAKI, RUSSIAN_KHAKI, (P("cloth", RUSSIAN_KHAKI, bevel=False), 3),
+                       (P("cockade", ORANGE, bevel=False), 3))
+    legend["R"] = (P("band", RUSSIAN_KHAKI, base=1), 0)
+    return draw([
+        "................",
+        "................",
+        "................",
+        "...4555555554...",
+        "..rrrrrrrrrrrr..",
+        "..444444444333..",
+        "...33333333322..",
+        "....33333332....",
+        "...RxRRRRRRRR...",
+        "...rrrrrrrrrr...",
+        ".ppPp22222111...",
+        "ppp.............",
+        "................",
+        "................",
+        "................",
+        "................",
+    ], legend)
+
+
+def austrian_cap():
+    """The Austro-Hungarian officer's cap: upright and flat-topped, the gilt badge high in front, the neck flap
+    buttoned in front, a short cloth peak."""
+    legend = _cap_legend(AUSTRIAN_FG, AUSTRIAN_FG)
+    legend["g"] = (P("badge", GOLD, bevel=False), 4)
+    legend["b"] = (P("button", GOLD, bevel=False), 3)
+    return draw([
+        "................",
+        "................",
+        "................",
+        "....44444444....",
+        "...4555555443...",
+        "...g444444433...",
+        "...4444444433...",
+        "...3333333322...",
+        "...2b22222221...",
+        "...2222222221...",
+        "..pppp..........",
+        "................",
+        "................",
+        "................",
+        "................",
+        "................",
+    ], legend)
+
+
+def _pickel(rows, shell, peaks, spike, extra=None):
+    legend = tones(shell)
+    legend["p"] = P("peak", peaks)
+    legend["g"] = P("spike", spike)
+    legend["G"] = (P("spike", spike), 2)
+    legend["s"] = (P("scales", BRASS, bevel=False), 2)
+    if extra:
+        legend.update(extra)
+    return draw(rows, legend)
+
+
+PICKEL_ROWS = [
+    ".......G........",
+    ".......g........",
+    "......gGg.......",
+    "....ggggggg.....",
+    "...4455444433...",
+    "..455444444333..",
+    "..e44444443333..",
+    "..ee4444433332..",
+    "..ee3333333322..",
+    "..3333333333221.",
+    ".pp.s......1111.",
+    "pp...s......111.",
+    ".....s..........",
+    "................",
+    "................",
+    "................",
+]
+
+
+def pickelhaube():
+    """The Pickelhaube: a black lacquered dome with its brass spike, the brass eagle in front, the front peak and
+    the deeper neck guard, brass chin scales."""
+    return _pickel(PICKEL_ROWS, PATENT, PATENT, BRASS, {"e": (P("eagle", BRASS, bevel=False), 3)})
+
+
+def pickelhaube_covered():
+    """The Pickelhaube in its field-grey cover, with the regiment's number in red on the front and the spike
+    standing out of it."""
+    rows = [r.replace("s", "l") for r in PICKEL_ROWS]
+    return _pickel(rows, GERMAN_FG, GERMAN_FG, METAL_GREY, {"e": (P("number", SCARLET, bevel=False), 3),
+                                                             "l": (P("strap", LEATHER), 0)})
+
+
+def austrian_shako():
+    """The shako: a tall black body narrowing to the top, the gold braid and cockade with its loop, the brass
+    double eagle on the front, a black peak."""
+    legend = tones(BLACK_FELT)
+    legend["t"] = (P("top", PATENT), 3)
+    legend["y"] = P("braid", GOLD)
+    legend["k"] = (P("cockade", GOLD, bevel=False), 4)
+    legend["l"] = (P("loop", GOLD, bevel=False), 3)
+    legend["g"] = (P("eagle", BRASS, bevel=False), 3)
+    legend["p"] = P("peak", PATENT)
+    return draw([
+        "................",
+        "................",
+        "....tttttttt....",
+        "....yyyyyyyy....",
+        "....k4444433....",
+        "....l4444433....",
+        "...gg44444433...",
+        "...gg44444333...",
+        "...g444443333...",
+        "...4444433332...",
+        "...3333333222...",
+        ".pppp...........",
+        "................",
         "................",
         "................",
         "................",

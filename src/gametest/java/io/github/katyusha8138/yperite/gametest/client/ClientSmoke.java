@@ -55,7 +55,8 @@ public final class ClientSmoke {
         List<String> setup = new java.util.ArrayList<>(List.of(
                 "item replace entity @s armor.head with minecraft:air",
                 "item replace entity @s armor.chest with minecraft:air", "item replace entity @s armor.legs with minecraft:air",
-                "item replace entity @s armor.feet with minecraft:air", "@curios clear"));
+                "item replace entity @s armor.feet with minecraft:air", "@curios clear",
+                "item replace entity @s weapon.offhand with minecraft:air"));
         setup.addAll(List.of(commands));
         List<Scene> scenes = new java.util.ArrayList<>();
         scenes.add(new Scene("show_" + name + "_setup", setup, CameraType.FIRST_PERSON, 0f, 0f));
@@ -96,6 +97,16 @@ public final class ClientSmoke {
         all.addAll(showcase("stahlhelm_leder", "item replace entity @s armor.head with yperite:stahlhelm_m1916", "@curios yperite:lederschutzmaske"));
         all.addAll(showcase("adrian_m2", "item replace entity @s armor.head with yperite:adrian_m15", "@curios yperite:m2_mask"));
         all.addAll(showcase("berndorfer_austrian", "item replace entity @s armor.head with yperite:berndorfer", "@curios yperite:austrian_gas_mask"));
+        // Caps and the like, alone and over a mask in the face slot
+        for (String cap : List.of("british_cap", "french_kepi", "german_cap", "austrian_cap", "russian_cap", "pickelhaube",
+                "pickelhaube_covered", "austrian_shako")) {
+            all.addAll(showcase(cap, "item replace entity @s armor.head with yperite:" + cap));
+        }
+        all.addAll(showcase("cap_sbr", "item replace entity @s armor.head with yperite:british_cap", "@curios yperite:small_box_respirator"));
+        all.addAll(showcase("kepi_m2", "item replace entity @s armor.head with yperite:french_kepi", "@curios yperite:m2_mask"));
+        all.addAll(showcase("pickelhaube_leder", "item replace entity @s armor.head with yperite:pickelhaube_covered", "@curios yperite:lederschutzmaske"));
+        all.addAll(showcase("shako_austrian", "item replace entity @s armor.head with yperite:austrian_shako", "@curios yperite:austrian_gas_mask"));
+        all.addAll(showcase("furazhka_zelinsky", "item replace entity @s armor.head with yperite:russian_cap", "@curios yperite:zelinsky_kummant_mask"));
         all.addAll(showcase("adrian_zelinsky", "item replace entity @s armor.head with yperite:adrian_m16_russian", "@curios yperite:zelinsky_kummant_mask"));
         // Whole outfits ("_kit" shows the whole figure): helmet, uniform, a mask in the face slot and body armour
         // over the tunic in the body slot.
@@ -104,6 +115,13 @@ public final class ClientSmoke {
         all.addAll(showcase("french_kit", kit("adrian_m15", "french", "m2_mask", null)));
         all.addAll(showcase("austrian_kit", kit("berndorfer", "austrian", "austrian_gas_mask", null)));
         all.addAll(showcase("russian_kit", kit("adrian_m16_russian", "russian", "zelinsky_kummant_mask", null)));
+        // an officer: cap, uniform, the sabre in hand and the whistle in the other
+        List<String> officer = new java.util.ArrayList<>(List.of(kit("german_cap", "german", "lederschutzmaske", null)));
+        officer.add("item replace entity @s weapon.mainhand with yperite:sabre");
+        officer.add("item replace entity @s weapon.offhand with yperite:officer_whistle");
+        all.addAll(showcase("officer_kit", officer.toArray(new String[0])));
+        all.addAll(showcase("grenadier_kit", "item replace entity @s armor.head with yperite:pickelhaube_covered",
+                "item replace entity @s weapon.mainhand with yperite:stick_grenade"));
         // The protective outfit, with a mask under the hood, and again with body armour and a haversack over it.
         all.addAll(showcase("suit_kit", "item replace entity @s armor.head with yperite:protective_hood",
                 "item replace entity @s armor.chest with yperite:protective_jacket",
@@ -192,7 +210,17 @@ public final class ClientSmoke {
             new Scene("15_cloud_seen_from_afar", List.of(
                     "yperite gas clear", "yperite wind set 0 0",
                     "yperite gas burst yperite:chlorine 400 3 0 82 48"), CameraType.FIRST_PERSON, 0f, 3f),
-            new Scene("14_clear_again", List.of("yperite gas clear", "yperite wind auto"), CameraType.FIRST_PERSON, 0f, 5f)));
+            // the officer's things and the caps in the hotbar, the stick grenade (with Superb Warfare) held up
+            new Scene("16_officer_items", List.of("yperite gas clear",
+                    hotbar(0, "stick_grenade"), hotbar(1, "sabre"), hotbar(2, "officer_whistle"),
+                    hotbar(3, "british_cap"), hotbar(4, "french_kepi"), hotbar(5, "german_cap"),
+                    hotbar(6, "pickelhaube"), hotbar(7, "pickelhaube_covered"), hotbar(8, "austrian_shako")),
+                    CameraType.FIRST_PERSON, 0f, 30f),
+            // a thrown stick grenade lying on the ground in front (its fuse set long)
+            new Scene("17_stick_grenade_on_the_ground", List.of("kill @e[type=yperite:stick_grenade]",
+                    "summon yperite:stick_grenade ~0.6 ~0.2 ~2.2 {Life:400,Motion:[0.05d,0.0d,0.0d]}"),
+                    CameraType.FIRST_PERSON, 0f, 55f),
+            new Scene("14_clear_again", List.of("yperite gas clear", "yperite wind auto", "kill @e[type=yperite:stick_grenade]"), CameraType.FIRST_PERSON, 0f, 5f)));
         return all;
     }
 

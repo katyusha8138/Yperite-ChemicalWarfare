@@ -13,6 +13,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SwordItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -50,6 +51,20 @@ public final class ModItems {
     public static final RegistryObject<Item> ADRIAN_M16_RUSSIAN = helmet("adrian_m16_russian", 0.05);
 
     /**
+     * Caps and other headgear that is not steel, worn in the head slot (over a mask in the Curios face slot): each
+     * army's peaked cap, the Pickelhaube bare and in its field cover, and the Austro-Hungarian shako.
+     */
+    public static final List<RegistryObject<Item>> HEADGEAR = List.of(
+            headgear("british_cap", WarArmorMaterials.WOOL_UNIFORM),
+            headgear("french_kepi", WarArmorMaterials.WOOL_UNIFORM),
+            headgear("german_cap", WarArmorMaterials.WOOL_UNIFORM),
+            headgear("austrian_cap", WarArmorMaterials.WOOL_UNIFORM),
+            headgear("russian_cap", WarArmorMaterials.WOOL_UNIFORM),
+            headgear("pickelhaube", WarArmorMaterials.LEATHER_HEADGEAR),
+            headgear("pickelhaube_covered", WarArmorMaterials.LEATHER_HEADGEAR),
+            headgear("austrian_shako", WarArmorMaterials.LEATHER_HEADGEAR));
+
+    /**
      * Field uniforms of the five armies: tunic, trousers, and what is worn on the feet, in that order per army.
      * Most wore puttees over ankle boots; the Russians tucked breeches into jackboots.
      */
@@ -68,6 +83,17 @@ public final class ModItems {
             UNIFORMS.add(uniform(army + "_" + onFeet, ArmorItem.Type.BOOTS));
         });
     }
+
+    /**
+     * An officer's sabre: 10 attack damage (more than a netherite sword) at a sword's speed, but only 100 uses.
+     * The damage is the tier's bonus plus this, plus the player's own 1.
+     */
+    public static final RegistryObject<Item> SABRE = ITEMS.register("sabre",
+            () -> new SwordItem(WarTiers.SABRE, 9, -2.4f, new Item.Properties()));
+
+    /** An officer's whistle, to give the signal: heard far off. */
+    public static final RegistryObject<Item> OFFICER_WHISTLE = ITEMS.register("officer_whistle",
+            () -> new OfficerWhistleItem(new Item.Properties().stacksTo(1)));
 
     /** German Sappenpanzer: heavy plates, good against bullets, slow to walk in. */
     public static final RegistryObject<Item> SAPPENPANZER = ITEMS.register("sappenpanzer",
@@ -151,6 +177,11 @@ public final class ModItems {
     private static RegistryObject<Item> helmet(String name, double bulletResistance) {
         return ITEMS.register(name, () -> new GeoArmorItem(WarArmorMaterials.STEEL_HELMET, ArmorItem.Type.HELMET,
                 new Item.Properties(), name, bulletResistance, 0.0));
+    }
+
+    /** A cap or other headgear that stops no bullets. */
+    private static RegistryObject<Item> headgear(String name, WarArmorMaterials material) {
+        return ITEMS.register(name, () -> new GeoArmorItem(material, ArmorItem.Type.HELMET, new Item.Properties(), name, 0.0, 0.0));
     }
 
     private static void registerGrenade(String name, RegistryObject<GasType> gas) {

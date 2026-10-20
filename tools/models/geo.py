@@ -43,8 +43,10 @@ class Cube:
     uv: dict = field(default_factory=dict)  # face -> (u, v, w, h) once packed
 
     def face_texels(self, face):
-        """Width and height in texels of a face's rectangle (at least one)."""
-        w, h, d = self.size
+        """Width and height in texels of a face's rectangle (at least one). A cube marked density=k gets k texels
+        per pixel, for a small detail that needs finer drawing (a stencilled number)."""
+        k = self.info.get("density", 1)
+        w, h, d = (s * k for s in self.size)
         dims = {
             "north": (w, h), "south": (w, h),
             "east": (d, h), "west": (d, h),

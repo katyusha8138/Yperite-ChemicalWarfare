@@ -1,0 +1,15 @@
+{
+  "item.officer_whistle": {
+    "subtitle": "subtitles.yperite.item.officer_whistle",
+    "sounds": [
+      {
+        "name": "yperite:item/officer_whistle_1",
+        "attenuation_distance": 80
+      },
+      {
+        "name": "yperite:item/officer_whistle_2",
+        "attenuation_distance": 80
+      }
+    ]
+  }
+}

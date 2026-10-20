@@ -451,3 +451,71 @@ def ointment_blister():
         "................",
         "................",
     ], legend)
+
+
+# ---------------------------------------------------------------------- officer's kit
+
+BLADE = ramp("3a4146", "5b646a", "8a9399", "b7bec2", "dfe4e6")
+NICKEL_BRIGHT = ramp("3c4043", "5c6266", "838a8e", "aab1b4", "cfd5d7", "eef1f2")
+CORD = ramp("2a1c10", "3f2a18", "5a3d22", "755230")
+BLACK_GRIP = ramp("0f0f10", "1c1c1e", "2c2c30", "3e3e44")
+
+
+def sabre():
+    """An officer's sabre, as vanilla swords lie: the slightly curved blade up to the right, the hilt down to
+    the left with its brass knuckle bow round the black grip."""
+    legend = {
+        "e": (P("blade", BLADE, base=0, bevel=False), 4),
+        "c": (P("blade", BLADE, base=0, bevel=False), 2),
+        "k": (P("guard", BRASS, base=0, bevel=False), 3),
+        "K": (P("guard", BRASS, base=0, bevel=False), 5),
+        "g": (P("grip", BLACK_GRIP, base=0, bevel=False), 2),
+        "p": (P("guard", BRASS, base=0, bevel=False), 4),
+    }
+    return draw([
+        "............e...",
+        "............ec..",
+        "...........ec...",
+        "..........ec....",
+        ".........ec.....",
+        "........ec......",
+        ".......ec.......",
+        "......ec........",
+        ".....ec.........",
+        "...k.c..........",
+        "....K...........",
+        "...g.k..........",
+        "..g...k.........",
+        ".g...k..........",
+        "p...k...........",
+        ".kkk............",
+    ], legend)
+
+
+def officer_whistle():
+    """A trench whistle of nickelled brass, side on: the round body with its slot on top, the flat mouthpiece to
+    the right, and the ring it hangs from."""
+    legend = {
+        "n": P("body", NICKEL_BRIGHT),
+        "N": (P("body", NICKEL_BRIGHT), 1),
+        "s": (P("slot", BLACK_GRIP, base=0, bevel=False), 0),
+        "r": P("ring", NICKEL_BRIGHT, base=3),
+    }
+    return draw([
+        "................",
+        "................",
+        "................",
+        "................",
+        ".rrr............",
+        ".r.r............",
+        ".rrr............",
+        "...nnnnsss......",
+        "..nnNNNnnnnnnnn.",
+        ".nnNNNNnnnnnnnn.",
+        ".nnNNNnnnnnnnnn.",
+        ".nnnnnnnnn......",
+        "..nnnnnnn.......",
+        "...nnnnn........",
+        "................",
+        "................",
+    ], legend)

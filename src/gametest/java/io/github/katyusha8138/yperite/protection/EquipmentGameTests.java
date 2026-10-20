@@ -62,7 +62,7 @@ public final class EquipmentGameTests {
         JsonObject en = lang("en_us");
         JsonObject ja = lang("ja_jp");
         List<Item> worn = wornItems();
-        helper.assertTrue(worn.size() >= 5 + 6 + 15 + 2, "expected helmets, masks, uniforms and body armour, found " + worn.size());
+        helper.assertTrue(worn.size() >= 5 + 8 + 6 + 15 + 2, "expected helmets, caps, masks, uniforms and body armour, found " + worn.size());
         for (Item item : worn) {
             String id = ForgeRegistries.ITEMS.getKey(item).getPath();
             String model = ((WornGeoItem) item).model();
@@ -137,6 +137,68 @@ public final class EquipmentGameTests {
         player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(ModItems.SAPPENPANZER.get()));
         float[] overArmour = WornLayers.under(player, mask);
         helper.assertTrue(overArmour[0] == ((GeoArmorItem) ModItems.SAPPENPANZER.get()).standOffFront(), "the haversack goes over the armour");
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 20, batch = "equipment")
+    public static void capsAndOtherHeadgearGoOnTheHeadAndStopNoBullets(GameTestHelper helper) {
+        helper.assertTrue(ModItems.HEADGEAR.size() == 8, "five caps, two Pickelhauben and a shako");
+        for (RegistryObject<Item> entry : ModItems.HEADGEAR) {
+            GeoArmorItem cap = (GeoArmorItem) entry.get();
+            helper.assertTrue(cap.getType() == ArmorItem.Type.HELMET, cap + " goes on the head");
+            helper.assertTrue(cap.bulletResistance() == 0.0, cap + " is not steel");
+            helper.assertTrue(cap.getDefense() <= 1, cap + " gives a cloth or leather cap's protection, not a helmet's");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 20, batch = "equipment")
+    public static void theSabreCutsDeepButWearsOutSoon(GameTestHelper helper) {
+        ItemStack sabre = new ItemStack(ModItems.SABRE.get());
+        ItemStack iron = new ItemStack(net.minecraft.world.item.Items.IRON_SWORD);
+        ItemStack netherite = new ItemStack(net.minecraft.world.item.Items.NETHERITE_SWORD);
+        double damage = 1.0 + attribute(sabre, Attributes.ATTACK_DAMAGE);
+        double speed = 4.0 + attribute(sabre, Attributes.ATTACK_SPEED);
+        helper.assertTrue(Math.abs(damage - 10.0) < 1e-6, "the sabre should deal 10, deals " + damage);
+        helper.assertTrue(Math.abs(speed - (4.0 + attribute(iron, Attributes.ATTACK_SPEED))) < 1e-6, "the sabre should swing as fast as a sword: " + speed);
+        helper.assertTrue(damage > 1.0 + attribute(netherite, Attributes.ATTACK_DAMAGE), "the sabre should cut deeper than a netherite sword");
+        helper.assertTrue(sabre.getMaxDamage() == 100, "the sabre should last 100 uses, lasts " + sabre.getMaxDamage());
+        helper.assertTrue(sabre.getMaxDamage() < new ItemStack(net.minecraft.world.item.Items.STONE_SWORD).getMaxDamage(),
+                "the sabre should wear out sooner than a stone sword");
+        helper.succeed();
+    }
+
+    private static double attribute(ItemStack stack, net.minecraft.world.entity.ai.attributes.Attribute attribute) {
+        return stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(attribute).stream().mapToDouble(m -> m.getAmount()).sum();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 20, batch = "equipment")
+    public static void theWhistleIsBlownToTheMouthAndCarriesFar(GameTestHelper helper) throws Exception {
+        var sound = io.github.katyusha8138.yperite.sound.ModSounds.OFFICER_WHISTLE.get();
+        float range = io.github.katyusha8138.yperite.sound.ModSounds.WHISTLE_RANGE;
+        helper.assertTrue(sound.getRange(1.0f) == range, "the whistle should be sent to players " + range + " blocks off");
+        helper.assertTrue(range > 16f * 4, "the whistle should carry much further than an ordinary sound");
+        // the client fades it over the same distance, at its natural loudness
+        JsonObject sounds;
+        try (InputStream in = YperiteMod.class.getResourceAsStream("/assets/yperite/sounds.json")) {
+            sounds = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        var files = sounds.getAsJsonObject("item.officer_whistle").getAsJsonArray("sounds");
+        helper.assertTrue(files.size() >= 1, "the whistle needs its sound files");
+        for (var file : files) {
+            var entry = file.getAsJsonObject();
+            helper.assertTrue(entry.get("attenuation_distance").getAsFloat() == range, "the whistle should fade out at " + range + " blocks");
+            helper.assertTrue(!entry.has("volume") || entry.get("volume").getAsFloat() <= 1f, "the whistle should not be made louder than it is");
+            String path = "/assets/yperite/sounds/" + entry.get("name").getAsString().replace("yperite:", "") + ".ogg";
+            helper.assertTrue(YperiteMod.class.getResource(path) != null, "missing " + path);
+        }
+        FakePlayer player = ProtectionGameTests.standAt(helper, "officer", 5, 1, 5);
+        ItemStack whistle = new ItemStack(ModItems.OFFICER_WHISTLE.get());
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, whistle);
+        whistle.use(helper.getLevel(), player, net.minecraft.world.InteractionHand.MAIN_HAND);
+        helper.assertTrue(player.isUsingItem() && whistle.getUseAnimation() == net.minecraft.world.item.UseAnim.TOOT_HORN,
+                "the whistle should be put to the mouth");
+        helper.assertTrue(player.getCooldowns().isOnCooldown(whistle.getItem()), "the whistle should not be blown again at once");
         helper.succeed();
     }
 }

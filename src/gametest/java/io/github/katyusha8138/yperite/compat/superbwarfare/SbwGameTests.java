@@ -350,4 +350,86 @@ public final class SbwGameTests {
         helper.assertTrue(tunic.getAttributeModifiers(net.minecraft.world.entity.EquipmentSlot.CHEST).get(attribute).isEmpty(), "wool stops no bullets");
         helper.succeed();
     }
+
+    // ------------------------------------------------------------------ the stick grenade
+
+    @GameTest(template = ROOM, timeoutTicks = 20, batch = "sbw")
+    public static void stickGrenadeIsSuperbWarfaresHandGrenade(GameTestHelper helper) {
+        Item stick = SbwCompat.STICK_GRENADE.get();
+        Item m67 = ModItems.HAND_GRENADE.get();
+        expect(stick instanceof com.atsuishio.superbwarfare.item.HandGrenade, "the stick grenade should be a Superb Warfare hand grenade");
+        ItemStack a = new ItemStack(stick);
+        ItemStack b = new ItemStack(m67);
+        expect(stick.getUseDuration(a) == m67.getUseDuration(b) && stick.getUseAnimation(a) == m67.getUseAnimation(b)
+                && a.getMaxStackSize() == b.getMaxStackSize() && a.getRarity() == b.getRarity(),
+                "the stick grenade should be held, cooked and stacked like the M67");
+        ServerLevel level = helper.getLevel();
+        StickGrenadeEntity thrown = new StickGrenadeEntity(SbwCompat.STICK_GRENADE_ENTITY.get(), level);
+        var reference = new com.atsuishio.superbwarfare.entity.projectile.HandGrenadeEntity(ModEntities.HAND_GRENADE.get(), level);
+        expect(thrown.getExplosionDamage() == reference.getExplosionDamage() && thrown.getExplosionRadius() == reference.getExplosionRadius()
+                        && thrown.getDamage() == reference.getDamage(),
+                "the stick grenade should hit as hard as the M67: " + thrown.getExplosionDamage() + "/" + thrown.getExplosionRadius()
+                        + " against " + reference.getExplosionDamage() + "/" + reference.getExplosionRadius());
+        expect(thrown.getBbWidth() == reference.getBbWidth() && thrown.getBbHeight() == reference.getBbHeight(),
+                "the thrown grenade should be the same size as the M67");
+        expect(thrown.getItem().is(stick), "the thrown grenade should carry the stick grenade");
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 40, batch = "sbw")
+    public static void stickGrenadeIsThrownHarderTheLongerItIsHeld(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        FakePlayer player = net.minecraftforge.common.util.FakePlayerFactory.get(level, new GameProfile(UUID.randomUUID(), "grenadier"));
+        player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+        Vec3 at = Vec3.atBottomCenterOf(helper.absolutePos(pos(10, 1, 10)));
+        player.moveTo(at.x, at.y, at.z, 0f, -20f);
+        Item stick = SbwCompat.STICK_GRENADE.get();
+        ItemStack stack = new ItemStack(stick, 3);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        int held = 20;
+        stick.releaseUsing(stack, level, player, stick.getUseDuration(stack) - held);
+        var found = level.getEntitiesOfClass(StickGrenadeEntity.class, player.getBoundingBox().inflate(4.0));
+        expect(found.size() == 1, "one stick grenade should have been thrown, found " + found.size());
+        StickGrenadeEntity grenade = found.get(0);
+        double speed = grenade.getDeltaMovement().length();
+        expect(Math.abs(speed - 1.5) < 0.05, "held for a second it should leave at full power (1.5), left at " + speed);
+        expect(grenade.getLife() == 100 - held, "the fuse should have burnt while it was held: " + grenade.getLife());
+        expect(grenade.getOwner() == player, "the thrower should own the grenade");
+        expect(stack.getCount() == 2, "throwing it should use one up");
+        expect(player.getCooldowns().isOnCooldown(stick), "throwing it should start the cooldown");
+        grenade.discard();
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 60, batch = "sbw")
+    public static void stickGrenadeGoesOffWhenItsFuseRunsOut(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        Pig pig = helper.spawn(EntityType.PIG, pos(12, 1, 10));
+        StickGrenadeEntity grenade = new StickGrenadeEntity(SbwCompat.STICK_GRENADE_ENTITY.get(), level);
+        grenade.setPos(Vec3.atBottomCenterOf(helper.absolutePos(pos(10, 1, 10))));
+        grenade.setLife(10);
+        level.addFreshEntity(grenade);
+        helper.runAfterDelay(25, () -> {
+            expect(grenade.isRemoved(), "the grenade should be gone once its fuse has burnt");
+            expect(!pig.isAlive() || pig.getHealth() < pig.getMaxHealth(), "the blast should have hurt the pig two blocks away");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 40, batch = "sbw")
+    public static void aDispenserThrowsStickGrenades(GameTestHelper helper) {
+        BlockPos dispenser = pos(10, 1, 10);
+        helper.setBlock(dispenser, net.minecraft.world.level.block.Blocks.DISPENSER.defaultBlockState()
+                .setValue(net.minecraft.world.level.block.DispenserBlock.FACING, Direction.UP));
+        var be = (net.minecraft.world.level.block.entity.DispenserBlockEntity) helper.getBlockEntity(dispenser);
+        be.setItem(0, new ItemStack(SbwCompat.STICK_GRENADE.get()));
+        helper.setBlock(pos(11, 1, 10), net.minecraft.world.level.block.Blocks.REDSTONE_BLOCK);
+        helper.runAfterDelay(6, () -> {
+            var found = helper.getLevel().getEntitiesOfClass(StickGrenadeEntity.class,
+                    new net.minecraft.world.phys.AABB(helper.absolutePos(dispenser)).inflate(6.0));
+            expect(!found.isEmpty(), "the dispenser should have thrown the stick grenade");
+            found.forEach(StickGrenadeEntity::discard);
+            helper.succeed();
+        });
+    }
 }

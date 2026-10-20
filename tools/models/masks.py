@@ -194,24 +194,29 @@ def zelinsky_kummant_mask():
     _face_piece(m, rubber, chamfer=1.6)
     _eyepieces(m, Steel(TIN, seed=103, sheen=1.0, wear=0.0), Glass(GLASS), radius=0.9)
     # the rubber helmet: over the top, down the sides and the back, and over the forehead beside and above the brow
-    # band. Its front corners are cut at 45 degrees, just outside the corners of the head and inside those of
-    # every helmet's crown (fit.py).
+    # band. Its corners are cut at 45 degrees, just outside the corners of the head and inside those of every
+    # helmet's crown and cap's band (fit.py).
     h = STRAP
     c = 0.5                                          # the cut, from the corner of the shell's outline
+    o = 4.0 + h                                      # the outline of the shell
     y0, y1 = 24.1, 31.85                            # the top stays under every helmet's upper crown tiers
     for sx in (-1, 1):
-        x0, x1 = (4.0, 4.0 + h) if sx > 0 else (-4.0 - h, -4.0)
-        _box(m, (x0, y0, -4.0 - h + c), (x1, y1, 4.0), rubber)
-        _box(m, (sx * 2.9 if sx > 0 else -4.0 - h + c, BROW, -4.0 - h),
-             (4.0 + h - c if sx > 0 else -2.9, BROW_TOP, -4.0), rubber)
-        corner = np.array([sx * (4.0 + h - c / 2), (y0 + y1 + h) / 2, -4.0 - h + c / 2])
-        u = np.array([sx * 1.0, 0.0, 1.0]) / np.sqrt(2)
-        inward = np.array([-sx * 1.0, 0.0, 1.0]) / np.sqrt(2)
-        oriented_box(m, "armorHead", corner + inward * (h / 2), u, Y, c * np.sqrt(2) + 0.1, y1 + h - y0, h, rubber)
-    _box(m, (-4.0 - h, y0, 4.0), (4.0 + h, y1, 4.0 + h), rubber)
-    _box(m, (-4.0 - h, y1, -4.0 - h + c), (4.0 + h, y1 + h, 4.0 + h), rubber)
-    _box(m, (-4.0 - h + c, y1, -4.0 - h), (4.0 + h - c, y1 + h, -4.0 - h + c), rubber)
-    _box(m, (-4.0 - h + c, BROW_TOP, -4.0 - h), (4.0 + h - c, y1, -4.0), rubber)
+        x0, x1 = (4.0, o) if sx > 0 else (-o, -4.0)
+        _box(m, (x0, y0, -o + c), (x1, y1, o - c), rubber)
+        _box(m, (sx * 2.9 if sx > 0 else -o + c, BROW, -o),
+             (o - c if sx > 0 else -2.9, BROW_TOP, -4.0), rubber)
+        for sz in (-1, 1):
+            corner = np.array([sx * (o - c / 2), (y0 + y1 + h) / 2, sz * (o - c / 2)])
+            u = np.array([sx * 1.0, 0.0, -sz * 1.0]) / np.sqrt(2)
+            inward = np.array([-sx * 1.0, 0.0, -sz * 1.0]) / np.sqrt(2)
+            oriented_box(m, "armorHead", corner + inward * (h / 2), u, Y, c * np.sqrt(2) + 0.1, y1 + h - y0, h,
+                         rubber)
+    _box(m, (-o + c, y0, 4.0), (o - c, y1, o), rubber)
+    _box(m, (-o, y1, -o + c), (o, y1 + h, o - c), rubber)
+    for sz in (-1, 1):
+        z0, z1 = (-o, -o + c) if sz < 0 else (o - c, o)
+        _box(m, (-o + c, y1, z0), (o - c, y1 + h, z1), rubber)
+    _box(m, (-o + c, BROW_TOP, -o), (o - c, y1, -4.0), rubber)
     # the rubber over the face behind the face piece, showing at its cut corners (rather than the face)
     _box(m, (-4.0, y0, -4.2), (4.0, BROW - 0.1, -4.0), rubber)
     # the mouthpiece and the charcoal box below it
